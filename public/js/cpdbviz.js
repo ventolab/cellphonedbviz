@@ -209,6 +209,19 @@ document.addEventListener('DOMContentLoaded', function() {
             contentType: "application/json",
             dataType: 'json',
             success: function(res) {
+                var unique_genes = [];
+                for (var i = 0; i < res['gene_complex'].length; i++) {
+                    gene = res['gene_complex'][i].split(" ")[0];
+                    if (!unique_genes.includes(gene)) {
+                        unique_genes.push(gene);
+                    }
+                }
+                for (var i = 0; i < unique_genes.length; i++) {
+                    store_token(unique_genes[i], "sge_selected_genes", "sge-gene-input");
+                }
+                for (var i = 0; i < res['all_cell_types'].length; i++) {
+                    store_token(res['all_cell_types'][i], "sge_selected_celltypes", "sge-celltype-input");
+                }
                 var sge_height = 700,
                 sge_width = 1000,
                 sge_bottom_yMargin = 150,
@@ -366,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .attr("fill", colorscale(expression))
                     .attr("r", innerRadius)
                     .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-                    .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-650)+"px").style("left",(event.pageX+10)+"px")})
+                    .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-650)+"px").style("left",(event.pageX+10-350)+"px")})
                     .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
                 }
 
@@ -470,4 +483,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             }
      });
+
+  function store_token(val, target_div_class, input_field_id) {
+    $("."+target_div_class).append($('<div class="chip">' + val + '<i class="tiny close material-icons">close</i></div>'));
+    $('#' + input_field_id).val("");
+  }
 });
+

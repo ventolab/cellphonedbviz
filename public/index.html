@@ -75,18 +75,18 @@
                     <div class="row">
                       <div class="col s12">
                         <div class="row">
-                          <span style="padding-left: 100px;">
+                          <div style="padding-left: 20px; padding-top: 100px;">
                               <div class="input-field">
-                                <input type="text" id="gene-input" class="autocomplete" placeholder="Gene name">
-                                <label for="gene-input" class="black-text text-lighten-10">Add genes to the plot</label>
+                                <input type="text" id="sge-gene-input" class="autocomplete" placeholder="Gene name">
+                                <label for="sge-gene-input" class="black-text text-lighten-10">Add genes to the plot</label>
                               </div>
-                              <div class="selected_genes"></div>
+                              <div class="sge_selected_genes"></div>
                               <div class="input-field">
-                                <input type="text" id="celltype-input" class="autocomplete" placeholder="Cell type">
-                                <label for="celltype-input" class="black-text text-lighten-10">Add cell types to the plot</label>
+                                <input type="text" id="sge-celltype-input" class="autocomplete" placeholder="Cell type">
+                                <label for="sge-celltype-input" class="black-text text-lighten-10">Add cell types to the plot</label>
                               </div>
-                              <div class="selected_tokens"></div>
-                          </span>
+                              <div class="sge_selected_celltypes"></div>
+                          </div>
                         </div>
                         <div class="section">
                           <button id="refresh_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light" onclick="refreshSGEPlot()">Refresh plot</button>
@@ -99,7 +99,7 @@
 
               <div class="col s12 m9 l9 push-s1">
                 <div class="card" >
-                    <span class="card-title left">Single gene expression</span>
+                    <span class="card-title left" style="padding-left: 150px;">Single gene expression</span>
                     <div class="card-content black-text col s12">
                     <span id="sge_header" class="card-title center" style="font-size: 16px;">Mean expressions of genes per cell type</span>
                       <div id="sge" style="width:1000px"></div>
