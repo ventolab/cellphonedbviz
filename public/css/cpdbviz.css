@@ -1,0 +1,49 @@
+nav ul li a, h5 {
+    color: rgb(127, 123, 123);
+  }
+
+  div, a {
+    color: rgb(90, 87, 87);
+  }
+
+  .teal-text li a{
+    color: teal;
+  }
+
+  th, td, p, input {
+    font-size: 12px;
+    color: rgb(90, 87, 87);
+  }
+
+  .modal { width: 100% !important ; height: 100% !important ; }
+
+  .dataTables_filter input {
+    width: 250px;
+    height: 32px;
+    background: #fcfcfc;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    box-shadow: 0 0 3px #ccc, 0 10px 15px #ebebeb inset;
+    text-indent: 10px;
+  }
+
+  .material-tooltip {
+    background-color: #edecec;
+    font-family: "Helvetica";
+    font-size: 12px;
+  }
+
+  .inline-icon {
+    vertical-align: bottom;
+    font-size: 24px !important;
+  }
+
+  .text-bold {
+    font-weight: bold !important;
+  }
+
+  .axis .grid-line{
+    stroke: grey;
+    shape-rendering: crispEdges;
+    stroke-opacity: .3;
+  }
