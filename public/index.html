@@ -23,6 +23,7 @@
   <body>
         <h4 class="center" id="page_header"></h4>
         <div class="col s12">
+          <div id="project_id" hidden>endometrium_cpdbv4</div>
           <div class="row">
             <!-- Celltype composition sankey plot -->
             <div>
@@ -75,21 +76,21 @@
                     <div class="row">
                       <div class="col s12">
                         <div class="row">
-                          <div style="padding-left: 20px; padding-top: 100px;">
+                          <div style="padding-left: 20px; padding-top: 0px;">
+                              <div class="section">
+                                <button id="refresh_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light" onclick="refreshSGEPlot()">Refresh plot</button>
+                              </div>
                               <div class="input-field">
-                                <input type="text" id="sge-gene-input" class="autocomplete" placeholder="Gene name">
-                                <label for="sge-gene-input" class="black-text text-lighten-10">Add genes to the plot</label>
+                                <input style="padding-top: 30px;" type="text" id="sge-gene-input" id="genes_autocomplete" placeholder="Gene name">
+                                <label style="padding-top: 30px;" for="sge-gene-input" class="black-text text-lighten-10">Add genes to the plot</label>
                               </div>
                               <div class="sge_selected_genes"></div>
                               <div class="input-field">
-                                <input type="text" id="sge-celltype-input" class="autocomplete" placeholder="Cell type">
-                                <label for="sge-celltype-input" class="black-text text-lighten-10">Add cell types to the plot</label>
+                                <input style="padding-top: 30px;" type="text" id="sge-celltype-input" id="celltypes_autocomplete" placeholder="Cell type">
+                                <label style="padding-top: 30px;" for="sge-celltype-input" class="black-text text-lighten-10">Add cell types to the plot</label>
                               </div>
                               <div class="sge_selected_celltypes"></div>
                           </div>
-                        </div>
-                        <div class="section">
-                          <button id="refresh_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light" onclick="refreshSGEPlot()">Refresh plot</button>
                         </div>
                       </div>
                     </div>

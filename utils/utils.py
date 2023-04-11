@@ -12,7 +12,8 @@ MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SANKEY_EDGE_WEIGHT = 30
 
 def get_projects() -> dict:
-    dir_name2project_data={}
+    dir_name2project_data = {}
+    dir_name2deconvoluted_df = {}
     project_dirs = None
     for root, dirs, files in os.walk(DATA_ROOT):
         if not project_dirs:
@@ -28,8 +29,10 @@ def get_projects() -> dict:
                         fpath = "{}/{}".format(root, config[key])
                         df = pd.read_csv(fpath, sep='\t')
                         populate_data4viz(key, dict, df)
+                        if key == 'deconvoluted_result':
+                            dir_name2deconvoluted_df[dir_name] = df
                     dir_name2project_data[dir_name] = dict
-    return dir_name2project_data
+    return (dir_name2project_data, dir_name2deconvoluted_df)
 
 def populate_data4viz(config_key, result_dict, df):
     for viz in VIZZES:
@@ -38,7 +41,7 @@ def populate_data4viz(config_key, result_dict, df):
     if config_key == 'celltype_composition':
         populate_celltype_composition_data(result_dict, df)
     elif config_key == 'deconvoluted_result':
-        populate_deconvoluted_data(result_dict, df)
+        populate_deconvoluted_data(result_dict['single_gene_expression'], df)
     elif config_key == 'degs':
         populate_degs_data(result_dict, df)
 
@@ -77,8 +80,7 @@ def populate_celltype_composition_data(result_dict, df):
         dict_cc['x_vals'] = sorted(list(set(df['Lineage'].values)))
         dict_cc['color_domain'] = sorted(list(set(df['Menstrual stage'].values)))
 
-def populate_deconvoluted_data(result_dict, df):
-    dict_dd = result_dict['single_gene_expression']
+def populate_deconvoluted_data(dict_dd, df, selected_genes = None, selected_cell_types = None):
     # TODO: Will need all_genes for autocomplete - for the user to include genes in the plot
     all_genes = set(df['gene_name'].values)
     gene2complexes = {}
@@ -86,17 +88,28 @@ def populate_deconvoluted_data(result_dict, df):
         gene2complexes.setdefault(i, set([])).add(j)
     all_cell_types = list(df.columns[6:])
     # TODO - decide how the initial genes_sample is selected
-    genes_sample = random.sample(list(all_genes), 10)
-    # Retrieve means for genes in genes_sample and cell types in all_cell_types
-    sample_genes_means_df = df[df['gene_name'].isin(genes_sample)][['gene_name', 'complex_name'] + all_cell_types].drop_duplicates()
-    gene_complex_list = (sample_genes_means_df['gene_name'] + " in " + sample_genes_means_df['complex_name'].fillna('')).values
+    # DEBUG print(selected_genes)
+    if not selected_genes:
+        selected_genes = random.sample(list(all_genes), 10)
+    selected_genes = sorted(list(set(selected_genes)))
+    # DEBUG print(selected_cell_types)
+    if not selected_cell_types:
+        selected_cell_types = all_cell_types
+    selected_cell_types = sorted(list(set(selected_cell_types)))
+    dict_dd['cell_types'] = selected_cell_types
+    # Retrieve means for genes in selected_genes and cell types in all_cell_types
+    selected_genes_means_df = df[df['gene_name'].isin(selected_genes)][['gene_name', 'complex_name'] + selected_cell_types].drop_duplicates()
+    gene_complex_list = (selected_genes_means_df['gene_name'] + " in " + selected_genes_means_df['complex_name'].fillna('')).values
     gene_complex_list = [re.sub(r"\sin\s$", "", x) for x in gene_complex_list]
-    mean_expressions = sample_genes_means_df[all_cell_types]
-    dict_dd['all_cell_types'] = all_cell_types
+    mean_expressions = selected_genes_means_df[selected_cell_types]
+
     dict_dd['gene_complex'] = gene_complex_list
     dict_dd['mean_expressions'] = mean_expressions.values.tolist()
     dict_dd['min_expression'] = mean_expressions.min(axis=None)
     dict_dd['max_expression'] = mean_expressions.max(axis=None)
+    # Data below is needed for autocompletes
+    dict_dd['all_genes'] = all_genes
+    dict_dd['all_cell_types'] = all_cell_types
 
 def populate_degs_data(result_dict, df):
     dict_degs = result_dict['single_gene_expression']
