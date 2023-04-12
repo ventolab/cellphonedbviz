@@ -22,8 +22,8 @@
   </head>
   <body>
         <h4 class="center" id="page_header"></h4>
+        <div id="project_id" hidden>endometrium_cpdbv4</div>
         <div class="col s12">
-          <div id="project_id" hidden>endometrium_cpdbv4</div>
           <div class="row">
             <!-- Celltype composition sankey plot -->
             <div>
@@ -51,24 +51,24 @@
 
             </div>
           </div> <!-- <div class="row"> -->
+        </div> <!-- <div class="col s12"> -->
 
-
-               <div class="col s12">
+        <div class="col s12">
           <div class="row">
 
-            <div id="search_results" hidden>
-              <div class="card">
-                <div class="card-content black-text col s12">
-                  <div id="search_results_table"  class="col s12">
-                    <span id="search_results_title" class="card-title"></span>
-                    <div hidden id="search_results_csv"></div>
-                    <div class="divider"></div>
-                      <span style="color: blue"><i>Click on an interaction partner name for more information.</i></span>
-                    <p />
-                  </div>
-                </div>
-              </div>
-            </div>
+             <div id="search_results" hidden>
+               <div class="card">
+                 <div class="card-content black-text col s12">
+                   <div id="search_results_table"  class="col s12">
+                     <span id="search_results_title" class="card-title"></span>
+                     <div hidden id="search_results_csv"></div>
+                     <div class="divider"></div>
+                       <span style="color: blue"><i>Click on an interaction partner name for more information.</i></span>
+                     <p />
+                   </div>
+                 </div>
+               </div>
+             </div>
 
               <div class="col s12 m3 l3">
                 <div class="card" >
@@ -112,14 +112,43 @@
                 <div class="card" >
                     <span class="card-title left" style="padding-left: 150px;">Single gene expression</span>
                     <div class="card-content black-text col s12">
-                    <span id="sge_header" class="card-title center" style="font-size: 16px;">Mean expressions of genes per cell type</span>
-                      <div id="sge" style="width:1000px"></div>
+                      <span id="sge_header" class="card-title center" style="font-size: 16px;">Mean expressions of genes per cell type</span>
+                        <div id="sge" style="width:1000px"></div>
+                    </div>
+                </div>
+              </div>
+          </div> <!-- <div class="row"> -->
+        </div> <!-- <div class="col s12"> -->
+
+        <div class="col s12">
+          <div class="row">
+            <!-- Celltype composition sankey plot -->
+            <div>
+              <div class="col s12 m6 l6">
+                <div class="card blue-grey darken-1" >
+                  <div class="card-content black-text col s12">
+                    <span class="card-title center">Cell-cell Communication</span>
+                    <span id="ccc_header1" class="card-title center" style="font-size: 16px;">Microenvironment 1</span>
+                      <div id="ccc1" style="width:800px"></div>
+                  </div>
                 </div>
               </div>
 
-          </div> <!-- <div class="row"> -->
-        </div>
+            <!-- Spatial micro-environments plot -->
+            <div>
+              <div class="col s12 m6 l6">
+                <div class="card" >
+                  <div class="card-content black-text col s12">
+                    <span class="card-title center">Cell-cell Communication</span>
+                    <span id="ccc_header2" class="card-title center" style="font-size: 16px;">Microenvironment 2</span>
+                      <div id="ccc2" style="width:800px"></div>
+                  </div>
+                </div>
+              </div>
 
-        </div>
+            </div>
+          </div> <!-- <div class="row"> -->
+        </div> <!-- <div class="col s12"> -->
+
   </body>
 </html>

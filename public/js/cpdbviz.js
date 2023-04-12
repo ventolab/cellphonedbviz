@@ -53,7 +53,16 @@ document.addEventListener('DOMContentLoaded', function() {
             enable_autocomplete('sge-gene-input', 'sge_selected_genes', res['all_genes']);
             enable_autocomplete('sge-celltype-input', 'sge_selected_celltypes', res['all_cell_types']);
         }
+     });
 
+     // Generate cell-cell interaction plot
+    $.ajax({
+        url: '/api/data/'+projectId+'/single_gene_expression',
+        contentType: "application/json",
+        dataType: 'json',
+        success: function(res) {
+            generateCellCellInteractionPlot(res);
+        }
      });
 });
 
@@ -598,3 +607,217 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-650)+"px").style("left",(event.pageX+10-350)+"px")})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
     }
+
+ function generateCellCellInteractionPlot(data) {
+    var height = 800,
+        width = 1000,
+        yMargin = 180,
+        xMargin = 120,
+        yVals = ['Ciliated', 'Ciliated_LRG5', 'Fibroblast_C7', 'Fibroblast_dS', 'Fibroblast_eS', 'Glandular', 'Glandular_secretory', 'Lumenal_1', 'Lumenal_2', 'Lymphoid', 'Myeloid', 'Preciliated', 'SOX9', 'SOX9_LGR5', 'SOX9_prolif'],
+        yMin = -1,
+        xMin = -1,
+        yMax = yVals.length - 1,
+        xVals = yVals.reverse(),
+        xMax= xVals.length - 1,
+        num_interactions = [[1, 0, 1, 4, 2, 1, 0, 3, 375, 2, 1, 0, 6, 3, 6, 57, 8], [0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 2, 6, 57, 8], [1, 0, 1, 6, 9, 2, 0, 5, 0, 5, 3, 0, 375, 3, 6, 57, 8], [1, 0, 1, 4, 2, 1, 0, 3, 0, 2, 1, 0, 6, 3, 6, 57, 8], [0, 5, 1, 0, 0, 1, 2, 2, 0, 0, 0, 2, 4, 5, 3, 57, 8], [858, 38, 29, 19, 11, 585, 263, 375, 758, 38, 13, 449, 503, 783, 602, 57, 8], [1, 0, 3, 1, 7, 0, 0, 0, 0, 0, 6, 0, 1, 2, 6, 57, 8], [5, 011, 19, 26, 15, 5, 6, 4, 4, 7, 369, 41, 19, 8, 34, 57, 8], [1, 0, 0, 0, 0, 2, 0, 1, 0, 0, 1, 2, 2, 3, 1, 57, 8], [3, 5, 1, 3, 1, 6, 3, 5, 33, 466, 13, 02, 7, 4, 5, 57, 8], [2, 33, 49, 3, 12, 5, 2, 12, 7, 13, 15, 245, 1, 23, 14, 57, 8], [4, 0, 0, 1, 1, 2, 375, 0, 0, 0, 0, 0, 3, 0, 0, 57, 8], [0, 0, 3, 1, 6, 0, 0, 0, 0, 3, 5, 0, 0, 0, 1, 57, 8],[0, 0, 3, 1, 6, 0, 0, 0, 0, 3, 5, 0, 0, 0, 1, 57, 8],[0, 0, 3, 1, 6, 0, 0, 0, 0, 3, 5, 0, 0, 0, 1, 57, 8]]
+        // min_ints, max_ints needed for color scale
+        min_ints=0,
+        max_ints=783,
+        colorDomain = yVals;
+
+
+      var svg = d3
+        .select("#ccc1")
+        .append("svg")
+        .attr("class", "axis")
+        .attr("width", width)
+        .attr("height", height);
+
+      var yAxisLength = height - 2 * yMargin,
+          xAxisLength = yAxisLength;
+
+      var xScale = d3
+          .scaleLinear()
+          .domain([xMin, xMax])
+          .range([0, xAxisLength]),
+        yScale = d3
+          .scaleLinear()
+          .domain([yMax, yMin])
+          .range([0, yAxisLength]),
+        colorscale = d3
+          .scaleSequential()
+          .domain([max_ints, min_ints])
+          // See: https://observablehq.com/@d3/sequential-scales
+          .interpolator(d3.interpolateRdYlBu)
+
+      function cccRenderXAxis() {
+        var xAxis = d3
+          .axisBottom()
+          .ticks(xVals.length)
+          .tickFormat(t => {
+            return xVals[t];
+          })
+          .scale(xScale);
+        svg
+          .append("g")
+          .attr("class", "x-axis")
+          .attr("transform", function() {
+            return "translate(" + xMargin + "," + (height - yMargin) + ")";
+          })
+          .attr("opacity", 1)
+          .call(xAxis)
+          .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "-1.7em")
+          .attr("dy", "-0.9em")
+          .attr("transform", "rotate(-45)");
+      }
+
+      function cccRenderYAxis() {
+        var yAxis = d3
+          .axisLeft()
+          .ticks(yVals.length)
+          .tickFormat(t => {
+            return yVals[t];
+          })
+          .scale(yScale);
+        svg
+          .append("g")
+          .attr("class", "y-axis")
+          .attr("transform", function() {
+            return "translate(" + xMargin + "," + yMargin + ")";
+          })
+          .call(yAxis)
+          .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "-0.15em")
+          .attr("dy", "1.5em");
+      }
+
+      function cccRenderRectangle(x, y, num_ints) {
+        var boxWidth = Math.round(435/yVals.length);
+        // Assumption: yVals.length == xVals.length
+        var boxHeight = boxWidth;
+        var cellType1 = yVals[y];
+        var cellType2 = xVals[x];
+        var tooltip = d3.select("#ccc1")
+            .append("div")
+            .style("position", "absolute")
+            .style("visibility", "hidden")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "0px")
+            .style("border-radius", "5px")
+            .style("padding", "10px")
+            .style("box-shadow", "2px 2px 20px")
+            .style("opacity", "0.9")
+            .html("Number of interactions<br>between " + cellType1 + " and " + cellType2 + ": " + num_ints);
+
+        svg.append('rect')
+            .attr("id","geneexpr")
+            .attr("transform", function() {
+              return "translate(" + xMargin + "," + yMargin + ")";
+            })
+            .attr('x', xScale(x) - boxWidth)
+            .attr('y', yScale(y))
+            .attr('width', boxWidth)
+            .attr('height', boxHeight)
+            .attr("fill", colorscale(num_ints))
+            .attr('stroke', 'transparent')
+            .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
+            .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1650)+"px").style("left",(event.pageX+10-100)+"px")})
+            .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
+        }
+
+
+      cccRenderYAxis();
+      cccRenderXAxis();
+      // cellType1
+      for (var i = 0; i <= yVals.length - 1; i++) {
+        // cellType2
+        for (var j = 0; j <= xVals.length - 1; j++) {
+          var num_ints = num_interactions[j][i];
+          var cellType1 = yVals[i];
+          var cellType2 = xVals[j];
+          cccRenderRectangle(j, i, num_ints);
+        }
+      }
+
+      // Colour legend:
+      // See: https://blog.scottlogic.com/2019/03/13/how-to-create-a-continuous-colour-range-legend-using-d3-and-d3fc.html
+      // Band scale for x-axis
+      const legend_width=50
+      const legend_height=150
+      const legend_xPos=width-380
+      const legend_yPos=yMargin+50
+      domain=[min_ints, max_ints]
+
+      const legend_xScale = d3
+        .scaleBand()
+        .domain([0, 1])
+        .range([0, legend_width]);
+
+      // Linear scale for y-axis
+      const legend_yScale = d3
+        .scaleLinear()
+        .domain(domain)
+        .range([legend_height, 0]);
+
+      // An array interpolated over our domain where height is the height of the bar
+      // Padding the domain by 10%
+      // This will have an effect of the bar being 10% longer than the axis label
+      // (otherwise top/bottom figures on the legend axis would be cut in half)
+      const paddedDomain = fc.extentLinear()
+        .pad([0.1, 0.1])
+        .padUnit("percent")(domain);
+      [min, max] = paddedDomain;
+      const expandedDomain = d3.range(min_ints, max_ints, (max_ints - min_ints) / legend_height);
+
+      // Define the colour legend bar
+      const svgBar = fc
+        .autoBandwidth(fc.seriesSvgBar())
+        .xScale(legend_xScale)
+        .yScale(legend_yScale)
+        .crossValue(0)
+        .baseValue((_, i) => (i > 0 ? expandedDomain[i - 1] : 0))
+        .mainValue(d => d)
+        .decorate(selection => {
+          selection.selectAll("path").style("fill", d => colorscale(d));
+        });
+
+        // Add the colour legend header
+        svg
+        .append("text").attr("x", legend_xPos-12).attr("y", yMargin+10).text("Number of").style("font-size", "15px")
+        .append('tspan').attr("x", legend_xPos-12).attr("y", yMargin+30).text("interactions")
+        .attr("alignment-baseline","middle");
+
+      // Draw the legend bar
+      const colourLegendBar = svg
+        .append("g")
+        .attr("transform", function() {
+            return "translate(" + legend_xPos + "," + legend_yPos + ")";
+          })
+        .datum(expandedDomain)
+        .call(svgBar);
+
+      // Linear scale for legend label
+      const legendLabel_yScale = d3
+        .scaleLinear()
+        .domain(paddedDomain)
+        .range([legend_height, 0]);
+
+      // Defining our label
+      const axisLabel = fc
+        .axisRight(legendLabel_yScale)
+        .tickValues([...domain, (domain[1] + domain[0]) / 2])
+        .tickSizeOuter(0);
+
+      // Drawing and translating the label
+      colourLegendBar.append("g")
+        // .attr("transform", `translate(${barWidth})`)
+        .attr("transform", "translate(" + 15 + ")")
+        .datum(expandedDomain)
+        .call(axisLabel)
+        .select(".domain")
+        .attr("visibility", "hidden");
+ }
