@@ -18,6 +18,17 @@ document.addEventListener('DOMContentLoaded', function() {
         dataType: 'json',
         success: function(res) {
           generateCellCompositionPlot(res);
+
+          // Populate 'filter cell types by micro-environment' select dropdown for single-gene expression plot
+          $.each(res['microenviroments'], function (i, item) {
+            $('#sge_ct_filter').append($('<option>', {
+                value: item,
+                text : item
+            }));
+          });
+
+          // Initialise 'Filter cell types by micro-environment in single gene expression plot' select dropdown
+          enable_sge_me2ct_select(res['microenvironment2cell_types']);
         }
     });
 
@@ -45,6 +56,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
      });
 });
+
+function enable_sge_me2ct_select(microenvironment2cell_types) {
+    var elems = document.querySelectorAll('select');
+    var options = {};
+    var instances = M.FormSelect.init(elems, options);
+    $('#sge_ct_filter').on('change', function(event){
+        selected_microenvironment = event.target.value;
+        console.log(selected_microenvironment);
+        // Clear previously selected cell types
+        $('.sge_selected_celltypes').empty();
+        selected_cell_types = microenvironment2cell_types[selected_microenvironment];
+        for (var i = 0; i < selected_cell_types.length; i++) {
+            storeToken(selected_cell_types[i], "sge_selected_celltypes", "sge-celltype-input");
+        }
+    });
+}
 
 function enable_autocomplete(input_field_id, target_div_class, vals) {
     const autocomplete_data = Object.fromEntries(vals.map(e => [e, null]));
@@ -312,7 +339,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
 
     var sge_height = 700,
     sge_width = 1000,
-    sge_bottom_yMargin = 150,
+    sge_bottom_yMargin = 180,
     sge_top_yMargin = 30,
     sge_xMargin = 120,
     yVals = data['cell_types'],

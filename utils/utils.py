@@ -6,7 +6,7 @@ import re
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 DATA_ROOT = f"{base_path}/../data"
-CONFIG_KEYS = ['title','celltype_composition','deconvoluted_result','degs']
+CONFIG_KEYS = ['title','cell_type_data','microenvironments_data','celltype_composition','deconvoluted_result','degs']
 VIZZES = ['celltype_composition','single_gene_expression']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SANKEY_EDGE_WEIGHT = 30
@@ -25,7 +25,9 @@ def get_projects() -> dict:
                 with open('{}/config.yml'.format(root), 'r') as file:
                     config = yaml.safe_load(file)
                     dict['title'] = config['title']
-                    for key in CONFIG_KEYS[1:]:
+                    dict['cell_type_col_name'] = config['cell_type_data']
+                    dict['microenvironments_col_name'] = config['microenvironments_data']
+                    for key in CONFIG_KEYS[3:]:
                         fpath = "{}/{}".format(root, config[key])
                         df = pd.read_csv(fpath, sep='\t')
                         populate_data4viz(key, dict, df)
@@ -79,9 +81,16 @@ def populate_celltype_composition_data(result_dict, df):
         dict_cc['y_vals'] = sorted(list(set(df['Cell type'].values)))
         dict_cc['x_vals'] = sorted(list(set(df['Lineage'].values)))
         dict_cc['color_domain'] = sorted(list(set(df['Menstrual stage'].values)))
+    # Data for filtering of cell types by micro-environment in single gene expression plot
+    cell_type_col_name = result_dict['cell_type_col_name']
+    microenvironments_col_name = result_dict['microenvironments_col_name']
+    dict_cc['microenviroments'] = sorted(list(set(df[microenvironments_col_name].values)))
+    dict_cc['microenvironment2cell_types'] = {}
+    for i, j in zip(df[microenvironments_col_name].values.tolist(), df[cell_type_col_name].values.tolist()):
+        dict_cc['microenvironment2cell_types'].setdefault(i, []).append(j)
 
 def populate_deconvoluted_data(dict_dd, df, selected_genes = None, selected_cell_types = None):
-    # TODO: Will need all_genes for autocomplete - for the user to include genes in the plot
+    # Note: all_genes is needed for autocomplete - for the user to include genes in the plot
     all_genes = set(df['gene_name'].values)
     gene2complexes = {}
     for i, j in zip(df['gene_name'], df['complex_name']):

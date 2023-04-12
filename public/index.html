@@ -78,7 +78,9 @@
                         <div class="row">
                           <div style="padding-left: 20px; padding-top: 0px;">
                               <div class="section">
-                                <button id="refresh_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light" onclick="refreshSGEPlot()">Refresh plot</button>
+                                <button id="refresh_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshSGEPlot()">Refresh plot
+                                    <i class="material-icons right">refresh</i>
+                                </button>
                               </div>
                               <div class="input-field">
                                 <input style="padding-top: 30px;" type="text" id="sge-gene-input" id="genes_autocomplete" placeholder="Gene name">
@@ -90,6 +92,14 @@
                                 <label style="padding-top: 30px;" for="sge-celltype-input" class="black-text text-lighten-10">Add cell types to the plot</label>
                               </div>
                               <div class="sge_selected_celltypes"></div>
+                              <div style="padding-top: 30px;">
+                                  <label class="black-text text-lighten-10">Filter cell types by microenvironment</label>
+                                  <div style="padding-top: 10px;">
+                                      <select id="sge_ct_filter" class="browser-default z-depth-2">
+                                        <option value="" disabled selected>All microenvironments</option>
+                                      </select>
+                                  </div>
+                              </div>
                           </div>
                         </div>
                       </div>
