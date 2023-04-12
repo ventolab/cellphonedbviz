@@ -179,10 +179,10 @@ function generateCellCompositionPlot(data) {
 }
 
 function generateMicroenvironmentsPlot(data) {
-     var spme_height = 450,
-        spme_width = 550,
-        spme_x_margin = 120,
-        spme_y_margin = 70,
+     var height = 450,
+        width = 550,
+        x_margin = 120,
+        y_margin = 70,
         yVals = data['y_vals'],
         yMin = -1,
         xMin = -1,
@@ -197,40 +197,40 @@ function generateMicroenvironmentsPlot(data) {
         .select("#spme")
         .append("svg")
         .attr("class", "axis")
-        .attr("width", spme_width)
-        .attr("height", spme_height);
+        .attr("width", width)
+        .attr("height", height);
 
-      var spme_yAxisLength = spme_height - 2 * spme_y_margin,
-        spme_xAxisLength = spme_width - 2 * spme_x_margin;
+      var yAxisLength = height - 2 * y_margin,
+        xAxisLength = width - 2 * x_margin;
 
-      var spme_xScale = d3
+      var xScale = d3
           .scaleLinear()
           .domain([xMin, xMax])
-          .range([0, spme_xAxisLength]),
-          spme_yScale = d3
+          .range([0, xAxisLength]),
+          yScale = d3
           .scaleLinear()
           .domain([yMax, yMin])
-          .range([0, spme_yAxisLength]),
+          .range([0, yAxisLength]),
         colorscale = d3.scaleOrdinal()
           .domain(colorDomain)
           .range(d3.schemeTableau10);
 
-      spmeRenderYAxis(svg, yVals, spme_yScale, spme_x_margin, spme_y_margin, spme_xAxisLength, colorscale);
-      spmeRenderXAxis(svg, xVals, spme_xScale, spme_x_margin, spme_height, spme_y_margin);
+      spmeRenderYAxis(svg, yVals, yScale, x_margin, y_margin, xAxisLength, colorscale);
+      spmeRenderXAxis(svg, xVals, xScale, x_margin, height, y_margin);
       for (var i = 0; i <= mapping.length - 1; i++) {
         vals = mapping[i];
         yPos = yVals.indexOf(vals[0]);
         xPos = xVals.indexOf(vals[2]);
         colorPos = colorDomain.indexOf(vals[1]);
-        spmeRenderPoint(svg, xPos, yPos, colorPos, spme_x_margin, spme_y_margin, spme_xScale, spme_yScale, colorscale);
+        spmeRenderPoint(svg, xPos, yPos, colorPos, x_margin, y_margin, xScale, yScale, colorscale);
       }
 
       svg.selectAll("legend_dots")
         .data(colorDomain)
         .enter()
         .append("circle")
-          .attr("cx", spme_width - 100)
-          .attr("cy", function(d,i){ return spme_y_margin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+          .attr("cx", width - 100)
+          .attr("cy", function(d,i){ return y_margin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .attr("r", 7)
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
 
@@ -238,28 +238,28 @@ function generateMicroenvironmentsPlot(data) {
         .data(colorDomain)
         .enter()
         .append("text")
-          .attr("x", spme_width - 80)
-          .attr("y", function(d,i){ return spme_y_margin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+          .attr("x", width - 80)
+          .attr("y", function(d,i){ return y_margin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
           .text(function(d){ return d})
           .attr("text-anchor", "left")
           .style("alignment-baseline", "middle");
 }
 
-function spmeRenderXAxis(svg, xVals, spme_xScale, spme_x_margin, spme_height, spme_y_margin) {
+function spmeRenderXAxis(svg, xVals, xScale, x_margin, height, y_margin) {
     var xAxis = d3
       .axisBottom()
       .ticks(xVals.length)
       .tickFormat(t => {
         return xVals[t];
       })
-      .scale(spme_xScale);
+      .scale(xScale);
     svg
       .append("g")
       .attr("class", "x-axis")
       .attr("id", "spme_x-axis")
       .attr("transform", function() {
-        return "translate(" + spme_x_margin + "," + (spme_height - spme_y_margin) + ")";
+        return "translate(" + x_margin + "," + (height - y_margin) + ")";
       })
       .attr("opacity", 1)
       .call(xAxis)
@@ -275,23 +275,23 @@ function spmeRenderXAxis(svg, xVals, spme_xScale, spme_x_margin, spme_height, sp
       .attr("x1", 0)
       .attr("y1", 0)
       .attr("x2", 0)
-      .attr("y2", -(spme_height - 2 * spme_y_margin));
+      .attr("y2", -(height - 2 * y_margin));
 }
 
-function spmeRenderYAxis(svg, yVals, spme_yScale, spme_x_margin, spme_y_margin, spme_xAxisLength, colorscale) {
+function spmeRenderYAxis(svg, yVals, yScale, x_margin, y_margin, xAxisLength, colorscale) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
       .tickFormat(t => {
         return yVals[t];
       })
-      .scale(spme_yScale);
+      .scale(yScale);
     svg
       .append("g")
       .attr("class", "y-axis")
       .attr("id", "spme_y-axis")
       .attr("transform", function() {
-        return "translate(" + spme_x_margin + "," + spme_y_margin + ")";
+        return "translate(" + x_margin + "," + y_margin + ")";
       })
       .call(yAxis);
 
@@ -300,21 +300,21 @@ function spmeRenderYAxis(svg, yVals, spme_yScale, spme_x_margin, spme_y_margin, 
       .classed("grid-line", true)
       .attr("x1", 0)
       .attr("y1", 0)
-      .attr("x2", spme_xAxisLength)
+      .attr("x2", xAxisLength)
       .attr("y2", 0)
       .attr("fill", colorscale(0));
 }
 
-function spmeRenderPoint(svg, x, y, colorPos, spme_x_margin, spme_y_margin, spme_xScale, spme_yScale, colorscale) {
+function spmeRenderPoint(svg, x, y, colorPos, x_margin, y_margin, xScale, yScale, colorscale) {
     svg
       .append("circle")
       .attr("transform", function() {
-        return "translate(" + spme_x_margin + "," + spme_y_margin + ")";
+        return "translate(" + x_margin + "," + y_margin + ")";
       })
-      .attr("cx", spme_xScale(x))
-      .attr("cy", spme_yScale(y))
+      .attr("cx", xScale(x))
+      .attr("cy", yScale(y))
       .attr("fill", colorscale(colorPos))
-      // .attr("r", spme_xScale(x)/25);
+      // .attr("r", xScale(x)/25);
       .attr("r", 7);
 }
 
@@ -337,11 +337,11 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
         }
     }
 
-    var sge_height = 700,
-    sge_width = 1000,
-    sge_bottom_yMargin = 180,
-    sge_top_yMargin = 30,
-    sge_xMargin = 120,
+    var height = 700,
+    width = 1000,
+    bottom_yMargin = 180,
+    top_yMargin = 30,
+    xMargin = 120,
     yVals = data['cell_types'],
     yMin = -1,
     xMin = -1,
@@ -361,20 +361,20 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     .select("#sge")
     .append("svg")
     .attr("class", "axis")
-    .attr("width", sge_width)
-    .attr("height", sge_height);
+    .attr("width", width)
+    .attr("height", height);
 
-  var sge_yAxisLength = sge_height - sge_top_yMargin - sge_bottom_yMargin,
-      sge_xAxisLength = sge_yAxisLength;
+  var yAxisLength = height - top_yMargin - bottom_yMargin,
+      xAxisLength = yAxisLength;
 
-  var sge_xScale = d3
+  var xScale = d3
       .scaleLinear()
       .domain([xMin, xMax])
-      .range([0, sge_xAxisLength]),
-      sge_yScale = d3
+      .range([0, xAxisLength]),
+      yScale = d3
       .scaleLinear()
       .domain([yMax, yMin])
-      .range([0, sge_yAxisLength]),
+      .range([0, yAxisLength]),
     colorscale = d3
       .scaleSequential()
       .domain([min_expr, max_expr])
@@ -382,8 +382,8 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       .interpolator(d3.interpolateHsl("#D3D3D3", "red"));
 
 
-  sgeRenderYAxis(svg, yVals, sge_yScale, sge_xMargin, sge_top_yMargin, sge_yAxisLength, colorscale);
-  sgeRenderXAxis(svg, xVals, sge_xScale, sge_xMargin, sge_height, sge_top_yMargin, sge_bottom_yMargin);
+  sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, yAxisLength, colorscale);
+  sgeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
   // cell types
   for (var i = 0; i <= yVals.length - 1; i++) {
     // genes
@@ -392,7 +392,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       var cellType = yVals[i];
       var gene = xVals[j];
       deg = cellType2Degs[cellType] && cellType2Degs[cellType].includes(gene) ? true : false;
-      sgeRenderPoint(svg, j, i, expression, deg, sge_xMargin, sge_top_yMargin, sge_xScale, sge_yScale, xVals, yVals, colorscale);
+      sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale);
     }
   }
 
@@ -401,8 +401,8 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
   // Band scale for x-axis
   const legend_width=50
   const legend_height=150
-  const legend_xPos=sge_width-300
-  const legend_yPos=sge_top_yMargin+50
+  const legend_xPos=width-300
+  const legend_yPos=top_yMargin+50
   domain=[min_expr, max_expr]
 
   const legend_xScale = d3
@@ -440,8 +440,8 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
 
     // Add the colour legend header
     svg
-    .append("text").attr("x", legend_xPos-12).attr("y", sge_top_yMargin+10).text("Mean expression").style("font-size", "15px")
-    .append('tspan').attr("x", legend_xPos-12).attr("y", sge_top_yMargin+30).text("z-score")
+    .append("text").attr("x", legend_xPos-12).attr("y", top_yMargin+10).text("Mean expression").style("font-size", "15px")
+    .append('tspan').attr("x", legend_xPos-12).attr("y", top_yMargin+30).text("z-score")
     .attr("alignment-baseline","middle");
 
   // Draw the legend bar
@@ -481,20 +481,20 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
   svg.append("text").attr("x", legend_xPos+20).attr("y", deg_legend_yPos).text("Is DEG gene").style("font-size", "15px").attr("alignment-baseline","middle")
 }
 
-function sgeRenderXAxis(svg, xVals, sge_xScale, sge_xMargin, sge_height, sge_top_yMargin, sge_bottom_yMargin) {
+function sgeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin) {
     var xAxis = d3
       .axisBottom()
       .ticks(xVals.length)
       .tickFormat(t => {
         return xVals[t];
       })
-      .scale(sge_xScale);
+      .scale(xScale);
     svg
       .append("g")
       .attr("class", "x-axis")
       .attr("id", "sge_x-axis")
       .attr("transform", function() {
-        return "translate(" + sge_xMargin + "," + (sge_height - sge_bottom_yMargin) + ")";
+        return "translate(" + xMargin + "," + (height - bottom_yMargin) + ")";
       })
       .attr("opacity", 1)
       .call(xAxis)
@@ -510,23 +510,23 @@ function sgeRenderXAxis(svg, xVals, sge_xScale, sge_xMargin, sge_height, sge_top
       .attr("x1", 0)
       .attr("y1", 0)
       .attr("x2", 0)
-      .attr("y2", -(sge_height - sge_top_yMargin - sge_bottom_yMargin))
+      .attr("y2", -(height - top_yMargin - bottom_yMargin))
   }
 
-function sgeRenderYAxis(svg, yVals, sge_yScale, sge_xMargin, sge_top_yMargin, sge_yAxisLength, colorscale) {
+function sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, yAxisLength, colorscale) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
       .tickFormat(t => {
         return yVals[t];
       })
-      .scale(sge_yScale);
+      .scale(yScale);
     svg
       .append("g")
       .attr("class", "y-axis")
       .attr("id", "sge_y-axis")
       .attr("transform", function() {
-        return "translate(" + sge_xMargin + "," + sge_top_yMargin + ")";
+        return "translate(" + xMargin + "," + top_yMargin + ")";
       })
       .call(yAxis);
 
@@ -535,12 +535,12 @@ function sgeRenderYAxis(svg, yVals, sge_yScale, sge_xMargin, sge_top_yMargin, sg
       .classed("grid-line", true)
       .attr("x1", 0)
       .attr("y1", 0)
-      .attr("x2", sge_yAxisLength)
+      .attr("x2", yAxisLength)
       .attr("y2", 0)
       .attr("fill", colorscale(0));
   }
 
-function sgeRenderPoint(svg, j, i, expression, deg, sge_xMargin, sge_top_yMargin, sge_xScale, sge_yScale, xVals, yVals, colorscale) {
+function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale) {
     var innerRadius;
     // outerRadius is used for deg cell type-gene tuples only
     var outerRadius;
@@ -560,10 +560,10 @@ function sgeRenderPoint(svg, j, i, expression, deg, sge_xMargin, sge_top_yMargin
       svg
       .append("circle")
         .attr("transform", function() {
-          return "translate(" + sge_xMargin + "," + sge_top_yMargin + ")";
+          return "translate(" + xMargin + "," + top_yMargin + ")";
         })
-        .attr("cx", sge_xScale(j))
-        .attr("cy", sge_yScale(i))
+        .attr("cx", xScale(j))
+        .attr("cy", yScale(i))
         .attr("fill", "#3DE397")
         .attr("r", outerRadius);
     }
@@ -588,10 +588,10 @@ function sgeRenderPoint(svg, j, i, expression, deg, sge_xMargin, sge_top_yMargin
       .append("circle")
         .attr("id","geneexpr")
         .attr("transform", function() {
-          return "translate(" + sge_xMargin + "," + sge_top_yMargin + ")";
+          return "translate(" + xMargin + "," + top_yMargin + ")";
         })
-        .attr("cx", sge_xScale(j))
-        .attr("cy", sge_yScale(i))
+        .attr("cx", xScale(j))
+        .attr("cy", yScale(i))
         .attr("fill", colorscale(expression))
         .attr("r", innerRadius)
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
