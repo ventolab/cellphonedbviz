@@ -609,9 +609,10 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
     }
 
  function generateCellCellInteractionPlot(data) {
-    var height = 800,
+    var height = 650,
         width = 1000,
-        yMargin = 180,
+        bottom_yMargin = 180,
+        top_yMargin = 30,
         xMargin = 120,
         yVals = ['Ciliated', 'Ciliated_LRG5', 'Fibroblast_C7', 'Fibroblast_dS', 'Fibroblast_eS', 'Glandular', 'Glandular_secretory', 'Lumenal_1', 'Lumenal_2', 'Lymphoid', 'Myeloid', 'Preciliated', 'SOX9', 'SOX9_LGR5', 'SOX9_prolif'],
         yMin = -1,
@@ -632,7 +633,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         .attr("width", width)
         .attr("height", height);
 
-      var yAxisLength = height - 2 * yMargin,
+      var yAxisLength = height - top_yMargin - bottom_yMargin,
           xAxisLength = yAxisLength;
 
       var xScale = d3
@@ -649,8 +650,8 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
           // See: https://observablehq.com/@d3/sequential-scales
           .interpolator(d3.interpolateRdYlBu)
 
-      cccRenderYAxis(svg, yVals, yScale, xMargin, yMargin, colorscale);
-      cccRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin);
+      cccRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale);
+      cccRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin);
       // cellType1
       for (var i = 0; i <= yVals.length - 1; i++) {
         // cellType2
@@ -658,7 +659,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
           var num_ints = num_interactions[j][i];
           var cellType1 = yVals[i];
           var cellType2 = xVals[j];
-          cccRenderRectangle(svg, j, i, yVals, xMargin, yMargin, xVals, xScale, yScale, colorscale, num_ints);
+          cccRenderRectangle(svg, j, i, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints);
         }
       }
 
@@ -668,7 +669,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
       const legend_width=50
       const legend_height=150
       const legend_xPos=width-380
-      const legend_yPos=yMargin+50
+      const legend_yPos=top_yMargin+50
       domain=[min_ints, max_ints]
 
       const legend_xScale = d3
@@ -706,8 +707,8 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
 
         // Add the colour legend header
         svg
-        .append("text").attr("x", legend_xPos-12).attr("y", yMargin+10).text("Number of").style("font-size", "15px")
-        .append('tspan').attr("x", legend_xPos-12).attr("y", yMargin+30).text("interactions")
+        .append("text").attr("x", legend_xPos-12).attr("y", top_yMargin+10).text("Number of").style("font-size", "15px")
+        .append('tspan').attr("x", legend_xPos-12).attr("y", top_yMargin+30).text("interactions")
         .attr("alignment-baseline","middle");
 
       // Draw the legend bar
@@ -741,7 +742,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         .attr("visibility", "hidden");
  }
 
-function cccRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin) {
+function cccRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin) {
   var xAxis = d3
   .axisBottom()
   .ticks(xVals.length)
@@ -753,7 +754,7 @@ function cccRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin) {
   .append("g")
   .attr("class", "x-axis")
   .attr("transform", function() {
-    return "translate(" + xMargin + "," + (height - yMargin) + ")";
+    return "translate(" + xMargin + "," + (height - bottom_yMargin) + ")";
   })
   .attr("opacity", 1)
   .call(xAxis)
@@ -764,7 +765,7 @@ function cccRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin) {
   .attr("transform", "rotate(-45)");
 }
 
-function cccRenderYAxis(svg, yVals, yScale, xMargin, yMargin, colorscale) {
+function cccRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale) {
   var yAxis = d3
   .axisLeft()
   .ticks(yVals.length)
@@ -776,7 +777,7 @@ function cccRenderYAxis(svg, yVals, yScale, xMargin, yMargin, colorscale) {
   .append("g")
   .attr("class", "y-axis")
   .attr("transform", function() {
-    return "translate(" + xMargin + "," + yMargin + ")";
+    return "translate(" + xMargin + "," + top_yMargin + ")";
   })
   .call(yAxis)
   .selectAll("text")
@@ -785,7 +786,7 @@ function cccRenderYAxis(svg, yVals, yScale, xMargin, yMargin, colorscale) {
   .attr("dy", "1.5em");
 }
 
-function cccRenderRectangle(svg, x, y, yVals, xMargin, yMargin, xVals, xScale, yScale, colorscale, num_ints) {
+function cccRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints) {
     var boxWidth = Math.round(435/yVals.length);
     // Assumption: yVals.length == xVals.length
     var boxHeight = boxWidth;
@@ -807,7 +808,7 @@ function cccRenderRectangle(svg, x, y, yVals, xMargin, yMargin, xVals, xScale, y
     svg.append('rect')
         .attr("id","geneexpr")
         .attr("transform", function() {
-          return "translate(" + xMargin + "," + yMargin + ")";
+          return "translate(" + xMargin + "," + top_yMargin + ")";
         })
         .attr('x', xScale(x) - boxWidth)
         .attr('y', yScale(y))
@@ -816,6 +817,6 @@ function cccRenderRectangle(svg, x, y, yVals, xMargin, yMargin, xVals, xScale, y
         .attr("fill", colorscale(num_ints))
         .attr('stroke', 'transparent')
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1650)+"px").style("left",(event.pageX+10-100)+"px")})
+        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1650)+"px").style("left",(event.pageX+10)+"px")})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
