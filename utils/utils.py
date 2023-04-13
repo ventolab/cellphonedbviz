@@ -52,6 +52,8 @@ def populate_data4viz(config_key, result_dict, df, separator):
 
 def populate_celltype_composition_data(result_dict, df):
     dict_cc = result_dict['celltype_composition']
+    dict_sge = result_dict['single_gene_expression']
+    dict_cci = result_dict['cell_cell_interaction']
     dict_cc['title'] = ' - '.join(df.columns.values)
     edges = set([])
     dict_cc['raw_data'] = df.values.tolist()
@@ -87,10 +89,11 @@ def populate_celltype_composition_data(result_dict, df):
     # Data for filtering of cell types by micro-environment in single gene expression plot
     cell_type_col_name = result_dict['cell_type_col_name']
     microenvironments_col_name = result_dict['microenvironments_col_name']
-    dict_cc['microenviroments'] = sorted(list(set(df[microenvironments_col_name].values)))
-    dict_cc['microenvironment2cell_types'] = {}
+    dict_sge['microenvironments'] = sorted(list(set(df[microenvironments_col_name].values)))
+    dict_sge['microenvironment2cell_types'] = {}
     for i, j in zip(df[microenvironments_col_name].values.tolist(), df[cell_type_col_name].values.tolist()):
-        dict_cc['microenvironment2cell_types'].setdefault(i, []).append(j)
+        dict_sge['microenvironment2cell_types'].setdefault(i, []).append(j)
+    dict_cci['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
 
 def populate_significant_means_data(dict_dd, df, separator):
     all_cell_types_combinations = list(df.columns[12:])
@@ -109,9 +112,9 @@ def populate_significant_means_data(dict_dd, df, separator):
         num_ints[ct2indx[ct1], ct2indx[ct2]] = len(s[s>0])
     dict_dd['all_cell_types'] = all_cell_types
     dict_dd['num_ints'] = num_ints.tolist()
-    print(np.max(num_ints))
     dict_dd['min_num_ints'] = str(np.min(num_ints))
     dict_dd['max_num_ints'] = str(np.max(num_ints))
+    dict_dd['ct2indx'] = ct2indx
 
 def populate_deconvoluted_data(dict_dd, df, selected_genes = None, selected_cell_types = None):
     # Note: all_genes is needed for autocomplete - for the user to include genes in the plot

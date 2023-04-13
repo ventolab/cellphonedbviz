@@ -18,17 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
         dataType: 'json',
         success: function(res) {
           generateCellCompositionPlot(res);
-
-          // Populate 'filter cell types by micro-environment' select dropdown for single-gene expression plot
-          $.each(res['microenviroments'], function (i, item) {
-            $('#sge_ct_filter').append($('<option>', {
-                value: item,
-                text : item
-            }));
-          });
-
-          // Initialise 'Filter cell types by micro-environment in single gene expression plot' select dropdown
-          enable_sge_me2ct_select(res['microenvironment2cell_types']);
         }
     });
 
@@ -52,6 +41,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Enable gene and cell type input autocompletes for gene expression plot
             enable_autocomplete('sge-gene-input', 'sge_selected_genes', res['all_genes']);
             enable_autocomplete('sge-celltype-input', 'sge_selected_celltypes', res['all_cell_types']);
+            // Populate 'filter cell types by micro-environment' select dropdown for single-gene expression plot
+            $.each(res['microenvironments'], function (i, item) {
+              $('#sge_ct_filter').append($('<option>', {
+                  value: item,
+                  text : item
+              }));
+            });
+            // Initialise 'Filter cell types by micro-environment in single gene expression plot' select dropdown
+            enable_sge_me2ct_select(res['microenvironment2cell_types'], res['all_cell_types']);
         }
      });
 
@@ -61,21 +59,39 @@ document.addEventListener('DOMContentLoaded', function() {
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
-            generateCellCellInteractionPlot(res);
+            microenvironment2cell_types = res['microenvironment2cell_types'];
+            const map = new Map(Object.entries(microenvironment2cell_types));
+           if (map.size > 0) {
+                var cnt = 1;
+                for (let [microenvironment, cellTypes] of map.entries()) {
+	                generateCellCellInteractionPlot(res, cellTypes.sort(), microenvironment, cnt);
+	                cnt++;
+	                if (cnt > 2) {
+                        // TODO: We currently only have two slots for cci plots per environment - to be reviewed
+	                    break;
+	                }
+                }
+            } else {
+                generateCellCellInteractionPlot(res, res['all_cell_types'], "", 1);
+            }
         }
      });
 });
 
-function enable_sge_me2ct_select(microenvironment2cell_types) {
+function enable_sge_me2ct_select(microenvironment2cell_types, all_cell_types) {
     var elems = document.querySelectorAll('select');
     var options = {};
     var instances = M.FormSelect.init(elems, options);
     $('#sge_ct_filter').on('change', function(event){
         selected_microenvironment = event.target.value;
-        console.log(selected_microenvironment);
+        // DEBUG console.log(selected_microenvironment);
         // Clear previously selected cell types
         $('.sge_selected_celltypes').empty();
-        selected_cell_types = microenvironment2cell_types[selected_microenvironment];
+        if (selected_microenvironment != 'All microenvironments') {
+            selected_cell_types = microenvironment2cell_types[selected_microenvironment];
+        } else {
+            selected_cell_types = all_cell_types;
+        }
         for (var i = 0; i < selected_cell_types.length; i++) {
             storeToken(selected_cell_types[i], "sge_selected_celltypes", "sge-celltype-input");
         }
@@ -608,28 +624,41 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
     }
 
- function generateCellCellInteractionPlot(data) {
-    var height = 650,
-        width = 1000,
+ function generateCellCellInteractionPlot(data, cellTypes, title, plotCnt) {
+      var height = 600,
+        width = 800,
         bottom_yMargin = 180,
         top_yMargin = 30,
         xMargin = 120,
-        yVals = data['all_cell_types'],
+        yVals = cellTypes,
         yMin = -1,
         xMin = -1,
         yMax = yVals.length - 1,
-        xVals = data['all_cell_types'],
+        xVals = cellTypes,
         xMax= xVals.length - 1,
-        num_interactions = data['num_ints'],
-        // min_ints, max_ints needed for color scale
+        numInteractions = data['num_ints'],
+        // total_min_ints, total_max_ints needed for color scale
         min_ints=parseInt(data['min_num_ints']),
         max_ints=parseInt(data['max_num_ints']),
+        ct2indx = data['ct2indx'],
         colorDomain = yVals;
 
-        console.log(data);
+      // Filter rows and columns of numInteractions by cellTypes
+      // N.B. that we don't recalculate min_ints, max_ints for filteredNumInteractions because
+      // if we show one heatmap per microenvironment, we need colours comparable across all heatmaps
+      var ctIndexes = cellTypes.map(ct => ct2indx[ct])
+      var filteredNumInteractions = [];
+      for (let i = 0; i < numInteractions.length; i++) {
+          if (ctIndexes.includes(i)) {
+            var filteredRow = ctIndexes.map(idx => numInteractions[i][idx]);
+            filteredNumInteractions.push(filteredRow);
+          }
+      }
+      $("#cci"+plotCnt + "_div").show();
+      $("#cci"+plotCnt + "_header").text(title);
 
       var svg = d3
-        .select("#ccc1")
+        .select("#cci" + plotCnt)
         .append("svg")
         .attr("class", "axis")
         .attr("width", width)
@@ -652,16 +681,16 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
           // See: https://observablehq.com/@d3/sequential-scales
           .interpolator(d3.interpolateRdYlBu)
 
-      cccRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale);
-      cccRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin);
+      cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale);
+      cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin);
       // cellType1
       for (var i = 0; i <= yVals.length - 1; i++) {
         // cellType2
         for (var j = 0; j <= xVals.length - 1; j++) {
-          var num_ints = num_interactions[j][i];
+          var num_ints = filteredNumInteractions[j][i];
           var cellType1 = yVals[i];
           var cellType2 = xVals[j];
-          cccRenderRectangle(svg, j, i, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints);
+          cciRenderRectangle(svg, j, i, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt);
         }
       }
 
@@ -670,7 +699,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
       // Band scale for x-axis
       const legend_width=50
       const legend_height=150
-      const legend_xPos=width-380
+      const legend_xPos=width-240
       const legend_yPos=top_yMargin+50
       domain=[min_ints, max_ints]
 
@@ -744,7 +773,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         .attr("visibility", "hidden");
  }
 
-function cccRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin) {
+function cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin) {
   var xAxis = d3
   .axisBottom()
   .ticks(xVals.length)
@@ -767,7 +796,7 @@ function cccRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin) {
   .attr("transform", "rotate(-45)");
 }
 
-function cccRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale) {
+function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale) {
   var yAxis = d3
   .axisLeft()
   .ticks(yVals.length)
@@ -785,16 +814,16 @@ function cccRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale) {
   .selectAll("text")
   .style("text-anchor", "end")
   .attr("dx", "-0.15em")
-  .attr("dy", "1.5em");
+  .attr("dy", "2.5em");
 }
 
-function cccRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints) {
-    var boxWidth = Math.round(435/yVals.length);
+function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt) {
+    var boxWidth = Math.round(380/yVals.length);
     // Assumption: yVals.length == xVals.length
     var boxHeight = boxWidth;
     var cellType1 = yVals[y];
     var cellType2 = xVals[x];
-    var tooltip = d3.select("#ccc1")
+    var tooltip = d3.select("#cci" + plotCnt)
         .append("div")
         .style("position", "absolute")
         .style("visibility", "hidden")
@@ -808,7 +837,6 @@ function cccRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScal
         .html("Number of interactions<br>between " + cellType1 + " and " + cellType2 + ": " + num_ints);
 
     svg.append('rect')
-        .attr("id","geneexpr")
         .attr("transform", function() {
           return "translate(" + xMargin + "," + top_yMargin + ")";
         })
@@ -819,6 +847,6 @@ function cccRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScal
         .attr("fill", colorscale(num_ints))
         .attr('stroke', 'transparent')
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1650)+"px").style("left",(event.pageX+10)+"px")})
+        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1620)+"px").style("left",(event.pageX+10-(plotCnt-1)*700)+"px")})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
