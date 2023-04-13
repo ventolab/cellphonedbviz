@@ -190,8 +190,8 @@ function generateCellCompositionPlot(data) {
 function generateMicroenvironmentsPlot(data) {
      var height = 450,
         width = 550,
-        x_margin = 120,
-        y_margin = 70,
+        xMargin = 120,
+        yMargin = 70,
         yVals = data['y_vals'],
         yMin = -1,
         xMin = -1,
@@ -209,8 +209,8 @@ function generateMicroenvironmentsPlot(data) {
         .attr("width", width)
         .attr("height", height);
 
-      var yAxisLength = height - 2 * y_margin,
-        xAxisLength = width - 2 * x_margin;
+      var yAxisLength = height - 2 * yMargin,
+        xAxisLength = width - 2 * xMargin;
 
       var xScale = d3
           .scaleLinear()
@@ -224,14 +224,14 @@ function generateMicroenvironmentsPlot(data) {
           .domain(colorDomain)
           .range(d3.schemeTableau10);
 
-      spmeRenderYAxis(svg, yVals, yScale, x_margin, y_margin, xAxisLength, colorscale);
-      spmeRenderXAxis(svg, xVals, xScale, x_margin, height, y_margin);
+      spmeRenderYAxis(svg, yVals, yScale, xMargin, yMargin, xAxisLength, colorscale);
+      spmeRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin);
       for (var i = 0; i <= mapping.length - 1; i++) {
         vals = mapping[i];
         yPos = yVals.indexOf(vals[0]);
         xPos = xVals.indexOf(vals[2]);
         colorPos = colorDomain.indexOf(vals[1]);
-        spmeRenderPoint(svg, xPos, yPos, colorPos, x_margin, y_margin, xScale, yScale, colorscale);
+        spmeRenderPoint(svg, xPos, yPos, colorPos, xMargin, yMargin, xScale, yScale, colorscale);
       }
 
       svg.selectAll("legend_dots")
@@ -239,7 +239,7 @@ function generateMicroenvironmentsPlot(data) {
         .enter()
         .append("circle")
           .attr("cx", width - 100)
-          .attr("cy", function(d,i){ return y_margin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+          .attr("cy", function(d,i){ return yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .attr("r", 7)
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
 
@@ -248,14 +248,14 @@ function generateMicroenvironmentsPlot(data) {
         .enter()
         .append("text")
           .attr("x", width - 80)
-          .attr("y", function(d,i){ return y_margin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+          .attr("y", function(d,i){ return yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
           .text(function(d){ return d})
           .attr("text-anchor", "left")
           .style("alignment-baseline", "middle");
 }
 
-function spmeRenderXAxis(svg, xVals, xScale, x_margin, height, y_margin) {
+function spmeRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin) {
     var xAxis = d3
       .axisBottom()
       .ticks(xVals.length)
@@ -268,7 +268,7 @@ function spmeRenderXAxis(svg, xVals, xScale, x_margin, height, y_margin) {
       .attr("class", "x-axis")
       .attr("id", "spme_x-axis")
       .attr("transform", function() {
-        return "translate(" + x_margin + "," + (height - y_margin) + ")";
+        return "translate(" + xMargin + "," + (height - yMargin) + ")";
       })
       .attr("opacity", 1)
       .call(xAxis)
@@ -284,10 +284,10 @@ function spmeRenderXAxis(svg, xVals, xScale, x_margin, height, y_margin) {
       .attr("x1", 0)
       .attr("y1", 0)
       .attr("x2", 0)
-      .attr("y2", -(height - 2 * y_margin));
+      .attr("y2", -(height - 2 * yMargin));
 }
 
-function spmeRenderYAxis(svg, yVals, yScale, x_margin, y_margin, xAxisLength, colorscale) {
+function spmeRenderYAxis(svg, yVals, yScale, xMargin, yMargin, xAxisLength, colorscale) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -300,7 +300,7 @@ function spmeRenderYAxis(svg, yVals, yScale, x_margin, y_margin, xAxisLength, co
       .attr("class", "y-axis")
       .attr("id", "spme_y-axis")
       .attr("transform", function() {
-        return "translate(" + x_margin + "," + y_margin + ")";
+        return "translate(" + xMargin + "," + yMargin + ")";
       })
       .call(yAxis);
 
@@ -314,11 +314,11 @@ function spmeRenderYAxis(svg, yVals, yScale, x_margin, y_margin, xAxisLength, co
       .attr("fill", colorscale(0));
 }
 
-function spmeRenderPoint(svg, x, y, colorPos, x_margin, y_margin, xScale, yScale, colorscale) {
+function spmeRenderPoint(svg, x, y, colorPos, xMargin, yMargin, xScale, yScale, colorscale) {
     svg
       .append("circle")
       .attr("transform", function() {
-        return "translate(" + x_margin + "," + y_margin + ")";
+        return "translate(" + xMargin + "," + yMargin + ")";
       })
       .attr("cx", xScale(x))
       .attr("cy", yScale(y))
@@ -625,7 +625,6 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         max_ints=783,
         colorDomain = yVals;
 
-
       var svg = d3
         .select("#ccc1")
         .append("svg")
@@ -650,88 +649,8 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
           // See: https://observablehq.com/@d3/sequential-scales
           .interpolator(d3.interpolateRdYlBu)
 
-      function cccRenderXAxis() {
-        var xAxis = d3
-          .axisBottom()
-          .ticks(xVals.length)
-          .tickFormat(t => {
-            return xVals[t];
-          })
-          .scale(xScale);
-        svg
-          .append("g")
-          .attr("class", "x-axis")
-          .attr("transform", function() {
-            return "translate(" + xMargin + "," + (height - yMargin) + ")";
-          })
-          .attr("opacity", 1)
-          .call(xAxis)
-          .selectAll("text")
-          .style("text-anchor", "end")
-          .attr("dx", "-1.7em")
-          .attr("dy", "-0.9em")
-          .attr("transform", "rotate(-45)");
-      }
-
-      function cccRenderYAxis() {
-        var yAxis = d3
-          .axisLeft()
-          .ticks(yVals.length)
-          .tickFormat(t => {
-            return yVals[t];
-          })
-          .scale(yScale);
-        svg
-          .append("g")
-          .attr("class", "y-axis")
-          .attr("transform", function() {
-            return "translate(" + xMargin + "," + yMargin + ")";
-          })
-          .call(yAxis)
-          .selectAll("text")
-          .style("text-anchor", "end")
-          .attr("dx", "-0.15em")
-          .attr("dy", "1.5em");
-      }
-
-      function cccRenderRectangle(x, y, num_ints) {
-        var boxWidth = Math.round(435/yVals.length);
-        // Assumption: yVals.length == xVals.length
-        var boxHeight = boxWidth;
-        var cellType1 = yVals[y];
-        var cellType2 = xVals[x];
-        var tooltip = d3.select("#ccc1")
-            .append("div")
-            .style("position", "absolute")
-            .style("visibility", "hidden")
-            .style("background-color", "white")
-            .style("border", "solid")
-            .style("border-width", "0px")
-            .style("border-radius", "5px")
-            .style("padding", "10px")
-            .style("box-shadow", "2px 2px 20px")
-            .style("opacity", "0.9")
-            .html("Number of interactions<br>between " + cellType1 + " and " + cellType2 + ": " + num_ints);
-
-        svg.append('rect')
-            .attr("id","geneexpr")
-            .attr("transform", function() {
-              return "translate(" + xMargin + "," + yMargin + ")";
-            })
-            .attr('x', xScale(x) - boxWidth)
-            .attr('y', yScale(y))
-            .attr('width', boxWidth)
-            .attr('height', boxHeight)
-            .attr("fill", colorscale(num_ints))
-            .attr('stroke', 'transparent')
-            .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-            .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1650)+"px").style("left",(event.pageX+10-100)+"px")})
-            .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
-        }
-
-
-      cccRenderYAxis();
-      cccRenderXAxis();
+      cccRenderYAxis(svg, yVals, yScale, xMargin, yMargin, colorscale);
+      cccRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin);
       // cellType1
       for (var i = 0; i <= yVals.length - 1; i++) {
         // cellType2
@@ -739,7 +658,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
           var num_ints = num_interactions[j][i];
           var cellType1 = yVals[i];
           var cellType2 = xVals[j];
-          cccRenderRectangle(j, i, num_ints);
+          cccRenderRectangle(svg, j, i, yVals, xMargin, yMargin, xVals, xScale, yScale, colorscale, num_ints);
         }
       }
 
@@ -821,3 +740,82 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         .select(".domain")
         .attr("visibility", "hidden");
  }
+
+function cccRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin) {
+  var xAxis = d3
+  .axisBottom()
+  .ticks(xVals.length)
+  .tickFormat(t => {
+    return xVals[t];
+  })
+  .scale(xScale);
+  svg
+  .append("g")
+  .attr("class", "x-axis")
+  .attr("transform", function() {
+    return "translate(" + xMargin + "," + (height - yMargin) + ")";
+  })
+  .attr("opacity", 1)
+  .call(xAxis)
+  .selectAll("text")
+  .style("text-anchor", "end")
+  .attr("dx", "-1.7em")
+  .attr("dy", "-0.9em")
+  .attr("transform", "rotate(-45)");
+}
+
+function cccRenderYAxis(svg, yVals, yScale, xMargin, yMargin, colorscale) {
+  var yAxis = d3
+  .axisLeft()
+  .ticks(yVals.length)
+  .tickFormat(t => {
+    return yVals[t];
+  })
+  .scale(yScale);
+  svg
+  .append("g")
+  .attr("class", "y-axis")
+  .attr("transform", function() {
+    return "translate(" + xMargin + "," + yMargin + ")";
+  })
+  .call(yAxis)
+  .selectAll("text")
+  .style("text-anchor", "end")
+  .attr("dx", "-0.15em")
+  .attr("dy", "1.5em");
+}
+
+function cccRenderRectangle(svg, x, y, yVals, xMargin, yMargin, xVals, xScale, yScale, colorscale, num_ints) {
+    var boxWidth = Math.round(435/yVals.length);
+    // Assumption: yVals.length == xVals.length
+    var boxHeight = boxWidth;
+    var cellType1 = yVals[y];
+    var cellType2 = xVals[x];
+    var tooltip = d3.select("#ccc1")
+        .append("div")
+        .style("position", "absolute")
+        .style("visibility", "hidden")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "0px")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+        .style("box-shadow", "2px 2px 20px")
+        .style("opacity", "0.9")
+        .html("Number of interactions<br>between " + cellType1 + " and " + cellType2 + ": " + num_ints);
+
+    svg.append('rect')
+        .attr("id","geneexpr")
+        .attr("transform", function() {
+          return "translate(" + xMargin + "," + yMargin + ")";
+        })
+        .attr('x', xScale(x) - boxWidth)
+        .attr('y', yScale(y))
+        .attr('width', boxWidth)
+        .attr('height', boxHeight)
+        .attr("fill", colorscale(num_ints))
+        .attr('stroke', 'transparent')
+        .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
+        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1650)+"px").style("left",(event.pageX+10-100)+"px")})
+        .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
+}
