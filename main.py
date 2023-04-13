@@ -19,14 +19,17 @@ def list_projects():
 
 @api.get("/data/{project}/{viz}")
 def get_viz_data(project: str, viz: str, genes: str = None, cell_types: str = None):
-    selected_genes = None
-    if jsonable_encoder(genes):
-        selected_genes = jsonable_encoder(genes).split(",")
-    selected_cell_types = None
-    if jsonable_encoder(cell_types):
-        selected_cell_types = jsonable_encoder(cell_types).split(",")
-    ret = copy.deepcopy(dir_name2project_data[project][viz])
-    utils.populate_deconvoluted_data(ret, dir_name2deconvoluted_df[project], selected_genes, selected_cell_types)
+    if viz == 'single_gene_expression':
+        selected_genes = None
+        if jsonable_encoder(genes):
+            selected_genes = jsonable_encoder(genes).split(",")
+        selected_cell_types = None
+        if jsonable_encoder(cell_types):
+            selected_cell_types = jsonable_encoder(cell_types).split(",")
+        ret = copy.deepcopy(dir_name2project_data[project][viz])
+        utils.populate_deconvoluted_data(ret, dir_name2deconvoluted_df[project], selected_genes, selected_cell_types)
+    else:
+        ret = dir_name2project_data[project][viz]
     return ret
 
 app = FastAPI()

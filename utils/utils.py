@@ -1,13 +1,14 @@
 import os
 import pandas as pd
+import numpy as np
 import yaml
 import random
 import re
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 DATA_ROOT = f"{base_path}/../data"
-CONFIG_KEYS = ['title','cell_type_data','microenvironments_data','celltype_composition','deconvoluted_result','degs']
-VIZZES = ['celltype_composition','single_gene_expression']
+CONFIG_KEYS = ['title','cell_type_data','microenvironments_data','celltype_composition','deconvoluted_result','significant_means','degs']
+VIZZES = ['celltype_composition','single_gene_expression','cell_cell_interaction']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SANKEY_EDGE_WEIGHT = 30
 
@@ -30,13 +31,13 @@ def get_projects() -> dict:
                     for key in CONFIG_KEYS[3:]:
                         fpath = "{}/{}".format(root, config[key])
                         df = pd.read_csv(fpath, sep='\t')
-                        populate_data4viz(key, dict, df)
+                        populate_data4viz(key, dict, df, config['separator'])
                         if key == 'deconvoluted_result':
                             dir_name2deconvoluted_df[dir_name] = df
                     dir_name2project_data[dir_name] = dict
     return (dir_name2project_data, dir_name2deconvoluted_df)
 
-def populate_data4viz(config_key, result_dict, df):
+def populate_data4viz(config_key, result_dict, df, separator):
     for viz in VIZZES:
         if viz not in result_dict:
             result_dict[viz] = {}
@@ -44,6 +45,8 @@ def populate_data4viz(config_key, result_dict, df):
         populate_celltype_composition_data(result_dict, df)
     elif config_key == 'deconvoluted_result':
         populate_deconvoluted_data(result_dict['single_gene_expression'], df)
+    elif config_key == 'significant_means':
+        populate_significant_means_data(result_dict['cell_cell_interaction'], df, separator)
     elif config_key == 'degs':
         populate_degs_data(result_dict, df)
 
@@ -88,6 +91,27 @@ def populate_celltype_composition_data(result_dict, df):
     dict_cc['microenvironment2cell_types'] = {}
     for i, j in zip(df[microenvironments_col_name].values.tolist(), df[cell_type_col_name].values.tolist()):
         dict_cc['microenvironment2cell_types'].setdefault(i, []).append(j)
+
+def populate_significant_means_data(dict_dd, df, separator):
+    all_cell_types_combinations = list(df.columns[12:])
+    all_cell_types = set([])
+    for ct_pair in all_cell_types_combinations:
+        all_cell_types.update(ct_pair.split(separator))
+    all_cell_types = sorted(list(all_cell_types))
+    ct2indx = dict([(ct, all_cell_types.index(ct)) for ct in all_cell_types])
+    size = len(all_cell_types)
+    num_ints = np.zeros((size, size),dtype=np.uint32)
+    for ct_pair in all_cell_types_combinations:
+        ct1 = ct_pair.split(separator)[0]
+        ct2 = ct_pair.split(separator)[1]
+        s = df[ct_pair].dropna()
+        # NB. s>0 test below is in case means file from basic analysis is provided in config for significant_means key
+        num_ints[ct2indx[ct1], ct2indx[ct2]] = len(s[s>0])
+    dict_dd['all_cell_types'] = all_cell_types
+    dict_dd['num_ints'] = num_ints.tolist()
+    print(np.max(num_ints))
+    dict_dd['min_num_ints'] = str(np.min(num_ints))
+    dict_dd['max_num_ints'] = str(np.max(num_ints))
 
 def populate_deconvoluted_data(dict_dd, df, selected_genes = None, selected_cell_types = None):
     # Note: all_genes is needed for autocomplete - for the user to include genes in the plot

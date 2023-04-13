@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
      // Generate cell-cell interaction plot
     $.ajax({
-        url: '/api/data/'+projectId+'/single_gene_expression',
+        url: '/api/data/'+projectId+'/cell_cell_interaction',
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
@@ -614,17 +614,19 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         bottom_yMargin = 180,
         top_yMargin = 30,
         xMargin = 120,
-        yVals = ['Ciliated', 'Ciliated_LRG5', 'Fibroblast_C7', 'Fibroblast_dS', 'Fibroblast_eS', 'Glandular', 'Glandular_secretory', 'Lumenal_1', 'Lumenal_2', 'Lymphoid', 'Myeloid', 'Preciliated', 'SOX9', 'SOX9_LGR5', 'SOX9_prolif'],
+        yVals = data['all_cell_types'],
         yMin = -1,
         xMin = -1,
         yMax = yVals.length - 1,
-        xVals = yVals.reverse(),
+        xVals = data['all_cell_types'],
         xMax= xVals.length - 1,
-        num_interactions = [[1, 0, 1, 4, 2, 1, 0, 3, 375, 2, 1, 0, 6, 3, 6, 57, 8], [0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 2, 6, 57, 8], [1, 0, 1, 6, 9, 2, 0, 5, 0, 5, 3, 0, 375, 3, 6, 57, 8], [1, 0, 1, 4, 2, 1, 0, 3, 0, 2, 1, 0, 6, 3, 6, 57, 8], [0, 5, 1, 0, 0, 1, 2, 2, 0, 0, 0, 2, 4, 5, 3, 57, 8], [858, 38, 29, 19, 11, 585, 263, 375, 758, 38, 13, 449, 503, 783, 602, 57, 8], [1, 0, 3, 1, 7, 0, 0, 0, 0, 0, 6, 0, 1, 2, 6, 57, 8], [5, 011, 19, 26, 15, 5, 6, 4, 4, 7, 369, 41, 19, 8, 34, 57, 8], [1, 0, 0, 0, 0, 2, 0, 1, 0, 0, 1, 2, 2, 3, 1, 57, 8], [3, 5, 1, 3, 1, 6, 3, 5, 33, 466, 13, 02, 7, 4, 5, 57, 8], [2, 33, 49, 3, 12, 5, 2, 12, 7, 13, 15, 245, 1, 23, 14, 57, 8], [4, 0, 0, 1, 1, 2, 375, 0, 0, 0, 0, 0, 3, 0, 0, 57, 8], [0, 0, 3, 1, 6, 0, 0, 0, 0, 3, 5, 0, 0, 0, 1, 57, 8],[0, 0, 3, 1, 6, 0, 0, 0, 0, 3, 5, 0, 0, 0, 1, 57, 8],[0, 0, 3, 1, 6, 0, 0, 0, 0, 3, 5, 0, 0, 0, 1, 57, 8]]
+        num_interactions = data['num_ints'],
         // min_ints, max_ints needed for color scale
-        min_ints=0,
-        max_ints=783,
+        min_ints=parseInt(data['min_num_ints']),
+        max_ints=parseInt(data['max_num_ints']),
         colorDomain = yVals;
+
+        console.log(data);
 
       var svg = d3
         .select("#ccc1")
