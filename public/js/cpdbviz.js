@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
      // Generate cell-cell interaction plot
     $.ajax({
-        url: '/api/data/'+projectId+'/cell_cell_interaction',
+        url: '/api/data/'+projectId+'/cell_cell_interaction_summary',
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
