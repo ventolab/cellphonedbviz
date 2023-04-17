@@ -97,6 +97,7 @@ def populate_celltype_composition_data(result_dict, df):
     cell_type_col_name = result_dict['cell_type_col_name']
     microenvironments_col_name = result_dict['microenvironments_col_name']
     dict_sge['microenvironments'] = sorted(list(set(df[microenvironments_col_name].values)))
+    dict_cci_search['microenvironments'] = dict_sge['microenvironments']
     dict_sge['microenvironment2cell_types'] = {}
     for i, j in zip(df[microenvironments_col_name].values.tolist(), df[cell_type_col_name].values.tolist()):
         dict_sge['microenvironment2cell_types'].setdefault(i, []).append(j)

@@ -40,21 +40,22 @@ document.addEventListener('DOMContentLoaded', function() {
             sge_data = res['single_gene_expression'];
             generateSingleGeneExpressionPlot(sge_data, storeTokens=true);
             // Enable gene and cell type input autocompletes for gene expression plot
-            enable_autocomplete('sge-gene-input', 'sge_selected_genes', sge_data['all_genes']);
-            enable_autocomplete('sge-celltype-input', 'sge_selected_celltypes', sge_data['all_cell_types']);
+            enable_autocomplete('sge_gene_input', 'sge_selected_genes', sge_data['all_genes']);
+            enable_autocomplete('sge_celltype_input', 'sge_selected_celltypes', sge_data['all_cell_types']);
             // Populate 'filter cell types by micro-environment' select dropdown for single-gene expression plot
             $.each(sge_data['microenvironments'], function (i, item) {
-              $('#sge_ct_filter').append($('<option>', {
+              $('#sge_me_filter').append($('<option>', {
                   value: item,
                   text : item
               }));
             });
             // Initialise 'Filter cell types by micro-environment in single gene expression plot' select dropdown
-            enable_sge_me2ct_select(sge_data['microenvironment2cell_types'], sge_data['all_cell_types']);
+            enable_me2ct_select(sge_data['microenvironment2cell_types'], sge_data['all_cell_types'],
+                                    'sge_me_filter', 'sge_selected_celltypes', 'sge_celltype_input');
         }
      });
 
-     // Generate cell-cell interaction plot
+     // Generate cell-cell interaction summary plot
     $.ajax({
         url: '/api/data/'+projectId+'/cell_cell_interaction_summary',
         contentType: "application/json",
@@ -77,24 +78,66 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
      });
+
+    // Generate cell-cell interaction search plot
+    $.ajax({
+        url: '/api/data/'+projectId+'/cell_cell_interaction_search',
+        contentType: "application/json",
+        dataType: 'json',
+        success: function(res) {
+            generateCellCellInteractionSearchPlot(res, storeTokens=true);
+            // Enable gene and cell type input autocompletes for gene expression plot
+            enable_autocomplete('cci_search_celltype_input', 'cci_search_selected_celltypes', res['all_cell_types']);
+            enable_autocomplete('cci_search_gene_input', 'cci_search_selected_genes', res['all_genes']);
+            // Populate 'filter cell types by micro-environment' select dropdown for single-gene expression plot
+            $.each(res['microenvironments'], function (i, item) {
+              $('#cci_search_me_filter').append($('<option>', {
+                  value: item,
+                  text : item
+              }));
+            });
+            // Initialise 'Filter cell types by micro-environment in 'cell-cell interaction search' plot select dropdown
+            enable_me2ct_select(res['microenvironment2cell_types'], res['all_cell_types'],
+                                    'cci_search_me_filter','cci_search_selected_celltypes', 'cci_search_celltype_input');
+
+        }
+     });
 });
 
-function enable_sge_me2ct_select(microenvironment2cell_types, all_cell_types) {
+function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
+                             microenv_filter, selected_celltypes_div, celltype_input_div) {
     var elems = document.querySelectorAll('select');
     var options = {};
     var instances = M.FormSelect.init(elems, options);
-    $('#sge_ct_filter').on('change', function(event){
+    $('#' + microenv_filter).on('change', function(event){
         selected_microenvironment = event.target.value;
-        // DEBUG console.log(selected_microenvironment);
-        // Clear previously selected cell types
-        $('.sge_selected_celltypes').empty();
+        $('.'+ selected_celltypes_div).empty();
         if (selected_microenvironment != 'All microenvironments') {
             selected_cell_types = microenvironment2cell_types[selected_microenvironment];
+            if (microenv_filter == 'sge_me_filter') {
+               $('.sge_selected_celltypes').hide();
+               $('#sge_celltype_input').prop( "disabled", true );
+            } else if (microenv_filter == 'cci_search_me_filter') {
+              // Disable cell type and cell type pair inputs as the requirement is for
+              // microenvironments, cell type and cell type pair inputs to be mutually exclusive
+              $('#cci_search_celltype_input').prop( "disabled", true );
+              $('#cci_search_celltype_pair_input').prop( "disabled", true );
+              $('.cci_search_selected_celltypes').hide();
+              $('.cci_search_selected_celltype_pairs').empty();
+            }
         } else {
             selected_cell_types = all_cell_types;
+            if (microenv_filter == 'sge_me_filter') {
+               $('.sge_selected_celltypes').show();
+               $('#sge_celltype_input').prop( "disabled", false );
+            } else if (microenv_filter == 'cci_search_me_filter') {
+              $('#cci_search_celltype_input').prop( "disabled", false );
+              $('#cci_search_celltype_pair_input').prop( "disabled", false );
+              $('.cci_search_selected_celltypes').show();
+            }
         }
         for (var i = 0; i < selected_cell_types.length; i++) {
-            storeToken(selected_cell_types[i], "sge_selected_celltypes", "sge-celltype-input");
+            storeToken(selected_cell_types[i], selected_celltypes_div, celltype_input_div);
         }
     });
 }
@@ -120,11 +163,12 @@ function sortBy(a, b) {
 
 
 // Collect genes and cell types selected in sge_selected_genes and sge_selected_celltypes divs respectively
+// TODO: Generalize for cci_search plot also
 function getSelectedGenesCellTypes(divClassList) {
     var selectedGenesCellTypes = [];
     for (let i = 0; i < divClassList.length; i++) {
         divClass = divClassList[i];
-        var vals = $("."+divClass).map((_,el) => el.innerText.replace(/\nclose\n/g,",").replace(/\nclose/,"")).get()[0];
+        var vals = $("."+divClass).map((_,el) => el.innerText.replace(/(\n)*close(\n)*/g,",").replace(/,$/,"")).get()[0];
         if (vals) {
             selectedGenes = vals.split(",");
             selectedGenesCellTypes[i] = vals;
@@ -153,7 +197,8 @@ function refreshSGEPlot() {
             contentType: "application/json",
             dataType: 'json',
             success: function(res) {
-                generateSingleGeneExpressionPlot(res, storeTokens=false);
+                sge_data = res['single_gene_expression'];
+                generateSingleGeneExpressionPlot(sge_data, storeTokens=false);
             }
      });
 }
@@ -356,10 +401,10 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     }
     if (storeTokens) {
         for (var i = 0; i < unique_genes.length; i++) {
-            storeToken(unique_genes[i], "sge_selected_genes", "sge-gene-input");
+            storeToken(unique_genes[i], "sge_selected_genes", "sge_gene_input");
         }
         for (var i = 0; i < data['cell_types'].length; i++) {
-            storeToken(data['cell_types'][i], "sge_selected_celltypes", "sge-celltype-input");
+            storeToken(data['cell_types'][i], "sge_selected_celltypes", "sge_celltype_input");
         }
     }
 
@@ -850,4 +895,8 @@ function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScal
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
         .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1620)+"px").style("left",(event.pageX+10-(plotCnt-1)*700)+"px")})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
+}
+
+function generateCellCellInteractionSearchPlot(data, cellTypes) {
+    // &&&& TBC
 }

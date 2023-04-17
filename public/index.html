@@ -83,19 +83,19 @@
                                 </button>
                               </div>
                               <div class="input-field">
-                                <input style="padding-top: 30px;" type="text" id="sge-gene-input" id="genes_autocomplete" placeholder="Gene name">
-                                <label style="padding-top: 30px;" for="sge-gene-input" class="black-text text-lighten-10">Add genes to the plot</label>
+                                <input style="padding-top: 30px;" type="text" id="sge_gene_input" placeholder="Gene name">
+                                <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10">Add genes to the plot</label>
                               </div>
                               <div class="sge_selected_genes"></div>
                               <div class="input-field">
-                                <input style="padding-top: 30px;" type="text" id="sge-celltype-input" id="celltypes_autocomplete" placeholder="Cell type">
-                                <label style="padding-top: 30px;" for="sge-celltype-input" class="black-text text-lighten-10">Add cell types to the plot</label>
+                                <input style="padding-top: 30px;" type="text" id="sge_celltype_input" placeholder="Cell type">
+                                <label style="padding-top: 30px;" for="sge_celltype_input" class="black-text text-lighten-10">Add cell types to the plot</label>
                               </div>
                               <div class="sge_selected_celltypes"></div>
                               <div style="padding-top: 30px;">
                                   <label class="black-text text-lighten-10">Filter cell types by microenvironment</label>
                                   <div style="padding-top: 10px;">
-                                      <select id="sge_ct_filter" class="browser-default z-depth-2">
+                                      <select id="sge_me_filter" class="browser-default z-depth-2">
                                         <option value="All microenvironments" selected>All microenvironments</option>
                                       </select>
                                   </div>
@@ -152,26 +152,52 @@
 
         <div class="col s12">
           <div class="row">
-            <!-- Cell-cell Interaction Search Inputs -->
-            <div id="ccis_input1_div" hidden>
+              <div class="card blue-grey darken-1" >
+                  <div class="card-content black-text col s12">
+                      <span class="card-title center">Cell-cell Communication - Search</span>
+<!--                      <span id="ccis_input_header" class="card-title center" style="font-size: 16px;">Placeholder/span>-->
+                  </div>
+              </div>
+            <!-- Cell-cell Interaction Search - Microenvironment/Cell type Inputs -->
+            <div id="ccis_input1_div">
               <div class="col s12 m6 l6">
                 <div class="card blue-grey darken-1" >
                   <div class="card-content black-text col s12">
-                    <span class="card-title center">Cell-cell Communication - Summary</span>
-                    <span id="ccis_input1_header" class="card-title center" style="font-size: 16px;"></span>
-                      <div id="ccis_input1" style="width:800px"></div>
+                          <label class="black-text text-lighten-10">Filter cell types by microenvironment</label>
+                          <div style="padding-top: 20px;">
+                              <select id="cci_search_me_filter" class="browser-default z-depth-2">
+                                <option value="All microenvironments" selected>All microenvironments</option>
+                              </select>
+                          </div>
+                          <div class="input-field">
+                            <input style="padding-top: 20px;" type="text" id="cci_search_celltype_input" placeholder="Cell type">
+                            <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10">Filter by cell types</label>
+                          </div>
+                          <div class="cci_search_selected_celltypes"></div>
+                          <div class="input-field">
+                            <input style="padding-top: 20px;" type="text" id="cci_search_celltype_pair_input" placeholder="Cell type pair">
+                            <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10">Filter by cell type pairs</label>
+                          </div>
+                          <div class="cci_search_selected_celltype_pairs"></div>
                   </div>
                 </div>
               </div>
 
-            <!-- Cell-cell Interaction Search Inputs -->
-            <div id="ccis_input2_div" hidden>
+            <!-- Cell-cell Interaction Search - Gene/Interaction Inputs -->
+            <div id="ccis_input2_div" style="padding-left: 20px;">
               <div class="col s12 m6 l6">
                 <div class="card" >
                   <div class="card-content black-text col s12">
-                    <span class="card-title center">Cell-cell Communication - Summary</span>
-                    <span id="ccis_input2_header" class="card-title center" style="font-size: 16px;"></span>
-                      <div id="ccis_input2" style="width:800px"></div>
+                      <div class="input-field">
+                        <input style="padding-top: 20px;" type="text" id="cci_search_gene_input" placeholder="Gene">
+                        <label style="padding-top: 20px;" for="cci_search_gene_input" class="black-text text-lighten-10">Filter by genes</label>
+                      </div>
+                      <div class="cci_search_selected_genes"></div>
+                      <div class="input-field">
+                        <input style="padding-top: 20px;" type="text" id="cci_search_interaction_input" placeholder="Interaction">
+                        <label style="padding-top: 20px;" for="cci_search_interaction_input" class="black-text text-lighten-10">Filter by interactions</label>
+                      </div>
+                      <div class="cci_search_selected_interactions"></div>
                   </div>
                 </div>
               </div>
