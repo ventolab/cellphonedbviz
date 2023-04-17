@@ -1,4 +1,5 @@
 import os
+import math
 import pandas as pd
 import numpy as np
 import yaml
@@ -32,13 +33,13 @@ def get_projects() -> dict:
                     for key in CONFIG_KEYS[3:]:
                         fpath = "{}/{}".format(root, config[key])
                         df = pd.read_csv(fpath, sep='\t')
-                        populate_data4viz(dir_name, key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
+                        populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
                     dict['cell_cell_interaction_search']['separator'] = config['separator']
                     filter_interactions(dict['cell_cell_interaction_search'], dir_name2file_name2df[dir_name])
                     dir_name2project_data[dir_name] = dict
     return (dir_name2project_data, dir_name2file_name2df)
 
-def populate_data4viz(project, config_key, result_dict, df, separator, file_name2df):
+def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
     for viz in VIZZES:
         if viz not in result_dict:
             result_dict[viz] = {}
@@ -50,7 +51,9 @@ def populate_data4viz(project, config_key, result_dict, df, separator, file_name
         populate_significant_means_data_for_cci(result_dict, df, separator)
     elif config_key == 'degs':
         populate_degs_data(result_dict, df)
-    if config_key in ['deconvoluted_result', 'significant_means', 'pvalues']:
+    elif config_key == 'pvalues':
+        populate_pvalues_data(result_dict, df)
+    if config_key in ['deconvoluted_result', 'significant_means']:
         file_name2df[config_key] = df
 
 def populate_celltype_composition_data(result_dict, df):
@@ -161,6 +164,23 @@ def populate_deconvoluted_data(dict_dd, df, selected_genes = None, selected_cell
     dict_cci_search['all_genes'] = all_genes
     dict_cci_search['all_cell_types'] = all_cell_types
 
+def populate_pvalues_data(result_dict, df):
+    dict_cci_search = result_dict['cell_cell_interaction_search']
+    dict_pvals = {}
+    all_cell_types_combinations = list(df.columns[12:])
+    for ct_pair in all_cell_types_combinations:
+        # Filter out pvals = 1.0 - no point bloating the API call result
+        df_filtered = df[df[ct_pair].apply(pval4plot) > 0]
+        dict_pvals[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair].apply(pval4plot)))
+    dict_cci_search['pvalues'] = dict_pvals
+
+def pval4plot(pvalue) -> int:
+    if pvalue > 0:
+        val = min(round(abs(math.log10(pvalue))),3)
+    else:
+        val = 3
+    return val
+
 def populate_degs_data(result_dict, df):
     dict_degs = result_dict['single_gene_expression']
     deg2cell_type = dict(zip(df['gene'], df['cluster']))
@@ -183,7 +203,6 @@ def filter_interactions(result_dict,
                         microenvironments = None):
     means_df = file_name2df['significant_means']
     deconvoluted_df = file_name2df['deconvoluted_result']
-    pvalues_df = file_name2df['pvalues']
     separator = result_dict['separator']
 
     # Collect all combinations of cell types (disregarding the order) from query_cell_types_1 and query_cell_types_2
@@ -204,7 +223,6 @@ def filter_interactions(result_dict,
     else:
         selected_cell_type_pairs = cell_type_pairs
     means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
-    pvalues_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
 
     # Collect all interactions from query_genes and query_interactions
     interactions = set([])
@@ -214,14 +232,10 @@ def filter_interactions(result_dict,
     if interacting_pairs:
         interactions = interactions.update( \
             interacting_pairs[interacting_pairs['interacting_pair'].isin(interacting_pairs)]['id_cp_interaction'].tolist())
-
-    # TODO: pvalues_df does not have the same cell types as means_df - hence need to implement a dict instead:  interacting_pair->ct_pair->pvalue
     if interactions:
         result_means_df = means_df[means_df['id_cp_interaction'].isin(interactions)]
-        result_pvalues_df = means_df[means_df['id_cp_interaction'].isin(interactions)]
     else:
         result_means_df = means_df
-        result_pvalues_df = pvalues_df
 
     # Filter out cell_type_pairs/columns in cols_filter for which no interaction in interactions set is significant
     means_cols_filter = means_cols_filter[result_means_df[means_cols_filter].notna().any(axis=0)]
@@ -237,4 +251,14 @@ def filter_interactions(result_dict,
     # Replace nan with 0's in result_means_df.values
     means_np_arr = np.nan_to_num(result_means_df.values, copy=False, nan=0.0)
     result_dict['means'] = means_np_arr.tolist()
+    result_dict['filtered_pvalues'] = result_dict['means'].copy()
+    for i, row in enumerate(result_dict['filtered_pvalues']):
+        for j, _ in enumerate(row):
+            cell_type = selected_cell_type_pairs[j]
+            interacting_pair = result_dict['interacting_pairs_means'][i]
+            if cell_type in result_dict['pvalues'] and interacting_pair in result_dict['pvalues'][cell_type]:
+                result_dict['filtered_pvalues'][i][j] = result_dict['pvalues'][cell_type][interacting_pair]
+            else:
+                # pvalues = 1.0 have been filtered out to reduce API output
+                result_dict['filtered_pvalues'][i][j] = 0
 
