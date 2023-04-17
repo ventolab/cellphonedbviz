@@ -33,7 +33,7 @@ def get_viz_data(project: str,
         selected_cell_types = None
         if jsonable_encoder(cell_types):
             selected_cell_types = jsonable_encoder(cell_types).split(",")
-        ret = copy.deepcopy(dir_name2project_data[project][viz])
+        ret = copy.deepcopy(dir_name2project_data[project])
         utils.populate_deconvoluted_data(ret, dir_name2file_name2df[project]['deconvoluted_result'], selected_genes, selected_cell_types)
     elif viz == 'cell_cell_interaction_search':
         ret = copy.deepcopy(dir_name2project_data[project][viz])
