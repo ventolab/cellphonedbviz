@@ -37,19 +37,20 @@ document.addEventListener('DOMContentLoaded', function() {
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
-            generateSingleGeneExpressionPlot(res, storeTokens=true);
+            sge_data = res['single_gene_expression'];
+            generateSingleGeneExpressionPlot(sge_data, storeTokens=true);
             // Enable gene and cell type input autocompletes for gene expression plot
-            enable_autocomplete('sge-gene-input', 'sge_selected_genes', res['all_genes']);
-            enable_autocomplete('sge-celltype-input', 'sge_selected_celltypes', res['all_cell_types']);
+            enable_autocomplete('sge-gene-input', 'sge_selected_genes', sge_data['all_genes']);
+            enable_autocomplete('sge-celltype-input', 'sge_selected_celltypes', sge_data['all_cell_types']);
             // Populate 'filter cell types by micro-environment' select dropdown for single-gene expression plot
-            $.each(res['microenvironments'], function (i, item) {
+            $.each(sge_data['microenvironments'], function (i, item) {
               $('#sge_ct_filter').append($('<option>', {
                   value: item,
                   text : item
               }));
             });
             // Initialise 'Filter cell types by micro-environment in single gene expression plot' select dropdown
-            enable_sge_me2ct_select(res['microenvironment2cell_types'], res['all_cell_types']);
+            enable_sge_me2ct_select(sge_data['microenvironment2cell_types'], sge_data['all_cell_types']);
         }
      });
 
