@@ -82,7 +82,9 @@ document.addEventListener('DOMContentLoaded', function() {
             generateCellCellInteractionSearchPlot(res, storeTokens=true);
             // Enable gene and cell type input autocompletes for gene expression plot
             enable_autocomplete('cci_search_celltype_input', 'cci_search_selected_celltypes', res['all_cell_types']);
+            enable_autocomplete('cci_search_celltype_pair_input', 'cci_search_selected_celltype_pairs', res['all_cell_type_pairs']);
             enable_autocomplete('cci_search_gene_input', 'cci_search_selected_genes', res['all_genes']);
+            enable_autocomplete('cci_search_interaction_input', 'cci_search_selected_interactions', res['all_interacting_pairs']);
             enable_autocomplete('cci_search_microenvironment_input', 'cci_search_selected_microenvironments', res['microenvironments']);
             // Populate 'filter cell types by micro-environment' select dropdown for single-gene expression plot
             $.each(res['microenvironments'], function (i, item) {
@@ -94,7 +96,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Initialise 'Filter cell types by micro-environment in 'cell-cell interaction search' plot select dropdown
             enable_me2ct_select(res['microenvironment2cell_types'], res['all_cell_types'],
                                     'cci_search_selected_microenvironments','cci_search_selected_celltypes', 'cci_search_celltype_input');
-
         }
      });
 });
@@ -166,23 +167,21 @@ function sortBy(a, b) {
 
 
 // Collect genes and cell types selected in sge_selected_genes and sge_selected_celltypes divs respectively
-// TODO: Generalize for cci_search plot also
-function getSelectedGenesCellTypes(divClassList) {
-    var selectedGenesCellTypes = [];
+function getSelectedTokens(divClassList) {
+    var selectedTokens = [];
     for (let i = 0; i < divClassList.length; i++) {
         divClass = divClassList[i];
         var vals = $("."+divClass).map((_,el) => el.innerText.replace(/(\n)*close(\n)*/g,",").replace(/,$/,"")).get()[0];
         if (vals) {
-            selectedGenes = vals.split(",");
-            selectedGenesCellTypes[i] = vals;
+            selectedTokens[i] = vals.split(",");
         }
     }
-    return selectedGenesCellTypes;
+    return selectedTokens;
 }
 
 function refreshSGEPlot() {
     var projectId = $("#project_id").text();
-    var ret = getSelectedGenesCellTypes(["sge_selected_genes", "sge_selected_celltypes"]);
+    var ret = getSelectedTokens(["sge_selected_genes", "sge_selected_celltypes"]);
     var selectedGenes = ret[0];
     var selectedCellTypes = ret[1];
     var url = '/api/data/'+projectId+'/single_gene_expression';
@@ -456,7 +455,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       .interpolator(d3.interpolateHsl("#D3D3D3", "red"));
 
 
-  sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, yAxisLength, colorscale);
+  sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   sgeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
   // cell types
   for (var i = 0; i <= yVals.length - 1; i++) {
@@ -587,7 +586,7 @@ function sgeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom
       .attr("y2", -(height - top_yMargin - bottom_yMargin))
   }
 
-function sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, yAxisLength, colorscale) {
+function sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -609,7 +608,7 @@ function sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, yAxisLength, c
       .classed("grid-line", true)
       .attr("x1", 0)
       .attr("y1", 0)
-      .attr("x2", yAxisLength)
+      .attr("x2", xAxisLength)
       .attr("y2", 0)
       .attr("fill", colorscale(0));
   }
@@ -660,7 +659,6 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
 
     svg
       .append("circle")
-        .attr("id","geneexpr")
         .attr("transform", function() {
           return "translate(" + xMargin + "," + top_yMargin + ")";
         })
@@ -900,6 +898,324 @@ function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScal
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
-function generateCellCellInteractionSearchPlot(data, cellTypes) {
-    // &&&& TBC
+function generateCellCellInteractionSearchPlot(data, storeTokens) {
+    // DEBUG console.log(data);
+    $("#cci_search").empty();
+    const selectedGenes = data['selected_genes'];
+    const selectedInteractingPairs = data['interacting_pairs_means'];
+    const selectedCellTypes = data['selected_cell_types'];
+    const selectedCellTypePairs = data['cell_type_pairs_means'];
+    if (storeTokens) {
+        for (var i = 0; i < selectedGenes.length; i++) {
+            storeToken(selectedGenes[i], "cci_search_selected_genes", "cci_search_gene_input");
+        }
+        for (var i = 0; i < selectedCellTypes.length; i++) {
+            storeToken(selectedCellTypes[i], "cci_search_selected_celltypes", "cci_search_celltype_input");
+        }
+        // On the initial page load, selectedInteractingPairs and selectedCellTypePairs are a function of the default
+        // selectedGenes and selectedCellTypes, so we don't show them in cci_search_selected_* divs (plus there are too many to
+        // show anyway)
+    }
+
+    if (data['interacting_pairs_means'].length == 0) {
+        d3.select("#cci_search")
+        .style("color", "purple")
+        .text('No significant interactions were found - please try another search.');
+        return
+    }
+
+    // Needed for calculating the left margin
+    var longest_ip_label = data['interacting_pairs_means'].sort(
+        function (a, b) {
+            return b.length - a.length;
+        })[0];
+
+    var height = 700,
+    width = 1400,
+    bottom_yMargin = 180,
+    top_yMargin = 30,
+    xMargin = longest_ip_label.length * 7.3,
+    yVals = data['interacting_pairs_means'],
+    yMin = -1,
+    xMin = -1,
+    yMax = yVals.length - 1,
+    // TODO: May need to restrict the maximum number of genes that can be displayed at any one time -
+    // to keep the plot readable at all times (If necessary increase the plot size to accommodate the maximum
+    // possible number of genes). Could the plot size be increased dynamically??
+    xVals = data['cell_type_pairs_means'],
+    xMax= xVals.length - 1,
+    mean_expressions = data['means'],
+    // min_expr, max_expr needed for color scale
+    min_expr=data['min_expression'],
+    max_expr=data['max_expression'],
+    pvalues = data['filtered_pvalues'],
+    colorDomain = yVals
+  var svg = d3
+    .select("#cci_search")
+    .append("svg")
+    .attr("class", "axis")
+    .attr("width", width)
+    .attr("height", height);
+
+  var yAxisLength = height - top_yMargin - bottom_yMargin,
+      xAxisLength = width - xMargin - 400;
+
+  var xScale = d3
+      .scaleLinear()
+      .domain([xMin, xMax])
+      .range([0, xAxisLength]),
+      yScale = d3
+      .scaleLinear()
+      .domain([yMax, yMin])
+      .range([0, yAxisLength]),
+    colorscale = d3
+      .scaleSequential()
+      .domain([min_expr, max_expr])
+      // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
+      .interpolator(d3.interpolateHsl("#D3D3D3", "red"));
+
+
+  cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
+  cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
+  // interacting pairs
+  for (var i = 0; i <= yVals.length - 1; i++) {
+    // cell type pairs
+    for (var j = 0; j <= xVals.length - 1; j++) {
+      var expression = mean_expressions[i][j];
+      var minusLog10PVal = pvalues[i][j];
+      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale);
+    }
+  }
+
+  // Colour legend:
+  // See: https://blog.scottlogic.com/2019/03/13/how-to-create-a-continuous-colour-range-legend-using-d3-and-d3fc.html
+  // Band scale for x-axis
+  const legend_width=50
+  const legend_height=150
+  const legend_xPos=width-300
+  const legend_yPos=top_yMargin+50
+  domain=[min_expr, max_expr]
+
+  const legend_xScale = d3
+    .scaleBand()
+    .domain([0, 1])
+    .range([0, legend_width]);
+
+  // Linear scale for y-axis
+  const legend_yScale = d3
+    .scaleLinear()
+    .domain(domain)
+    .range([legend_height, 0]);
+
+  // An array interpolated over our domain where height is the height of the bar
+  // Padding the domain by 10%
+  // This will have an effect of the bar being 10% longer than the axis label
+  // (otherwise top/bottom figures on the legend axis would be cut in half)
+  const paddedDomain = fc.extentLinear()
+    .pad([0.1, 0.1])
+    .padUnit("percent")(domain);
+  [min, max] = paddedDomain;
+  const expandedDomain = d3.range(min_expr, max_expr, (max_expr - min_expr) / legend_height);
+
+  // Define the colour legend bar
+  const svgBar = fc
+    .autoBandwidth(fc.seriesSvgBar())
+    .xScale(legend_xScale)
+    .yScale(legend_yScale)
+    .crossValue(0)
+    .baseValue((_, i) => (i > 0 ? expandedDomain[i - 1] : 0))
+    .mainValue(d => d)
+    .decorate(selection => {
+      selection.selectAll("path").style("fill", d => colorscale(d));
+    });
+
+    // Add the colour legend header
+    svg
+    .append("text").attr("x", legend_xPos-12).attr("y", top_yMargin+10).text("Mean expression").style("font-size", "15px")
+    .append('tspan').attr("x", legend_xPos-12).attr("y", top_yMargin+30).text("z-score")
+    .attr("alignment-baseline","middle");
+
+  // Draw the legend bar
+  const colourLegendBar = svg
+    .append("g")
+    .attr("transform", function() {
+        return "translate(" + legend_xPos + "," + legend_yPos + ")";
+      })
+    .datum(expandedDomain)
+    .call(svgBar);
+
+  // Linear scale for legend label
+  const legendLabel_yScale = d3
+    .scaleLinear()
+    .domain(paddedDomain)
+    .range([legend_height, 0]);
+
+  // Defining our label
+  const axisLabel = fc
+    .axisRight(legendLabel_yScale)
+    .tickValues([...domain, (domain[1] + domain[0]) / 2])
+    .tickSizeOuter(0);
+
+  // Drawing and translating the label
+  colourLegendBar.append("g")
+    // .attr("transform", `translate(${barWidth})`)
+    .attr("transform", "translate(" + 15 + ")")
+    .datum(expandedDomain)
+    .call(axisLabel)
+    .select(".domain")
+    .attr("visibility", "hidden");
+
+  // P-Value legend - dot size
+  const dotlegend_xPos=width-315
+  const dotlegend_yPos=top_yMargin+legend_height+10
+  const dotSizeLegend = svg
+        .append("svg")
+        .attr("width", 450)
+        .attr("height", 300)
+        .attr("x", dotlegend_xPos)
+        .attr("y", dotlegend_yPos);
+
+  // Dot size legend header
+  dotSizeLegend
+    .append("text").attr("x", 5).attr("y", 100).text("-log").style("font-size", "15px")
+    .append('tspan').text('10').style('font-size', '.7rem').attr('dx', '.1em').attr('dy', '.9em')
+    .append('tspan').text("P").style("font-size", "15px").attr('dx', '-.1em').attr('dy', '-.9em')
+    .attr("alignment-baseline","middle")
+  // dot size legend content
+  dotSizeLegend.append("circle").attr("cx",15).attr("cy",130).attr("r", 2).style("fill", "#404080")
+  dotSizeLegend.append("circle").attr("cx",15).attr("cy",160).attr("r", 4).style("fill", "#404080")
+  dotSizeLegend.append("circle").attr("cx",15).attr("cy",190).attr("r", 6).style("fill", "#404080")
+  dotSizeLegend.append("circle").attr("cx",15).attr("cy",220).attr("r", 8).style("fill", "#404080")
+  dotSizeLegend.append("text").attr("x", 35).attr("y", 130).text("0").style("font-size", "15px").attr("alignment-baseline","middle")
+  dotSizeLegend.append("text").attr("x", 35).attr("y", 160).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
+  dotSizeLegend.append("text").attr("x", 35).attr("y", 190).text("2").style("font-size", "15px").attr("alignment-baseline","middle")
+  dotSizeLegend.append("text").attr("x", 35).attr("y", 220).text(">=3").style("font-size", "15px").attr("alignment-baseline","middle")
+  }
+
+function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin) {
+    var xAxis = d3
+      .axisBottom()
+      .ticks(xVals.length)
+      .tickFormat(t => {
+        return xVals[t];
+      })
+      .scale(xScale);
+    svg
+      .append("g")
+      .attr("class", "x-axis")
+      .attr("id", "cci_search_x-axis")
+      .attr("transform", function() {
+        return "translate(" + xMargin + "," + (height - bottom_yMargin) + ")";
+      })
+      .attr("opacity", 1)
+      .call(xAxis)
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-45)");
+
+    d3.selectAll("#cci_search_x-axis g.tick")
+      .append("line")
+      .classed("grid-line", true)
+      .attr("x1", 0)
+      .attr("y1", 0)
+      .attr("x2", 0)
+      .attr("y2", -(height - top_yMargin - bottom_yMargin))
+}
+
+function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale) {
+    var yAxis = d3
+      .axisLeft()
+      .ticks(yVals.length)
+      .tickFormat(t => {
+        return yVals[t];
+      })
+      .scale(yScale);
+    svg
+      .append("g")
+      .attr("class", "y-axis")
+      .attr("id", "cci_search_y-axis")
+      .attr("transform", function() {
+        return "translate(" + xMargin + "," + top_yMargin + ")";
+      })
+      .call(yAxis);
+
+    d3.selectAll("#cci_search_y-axis g.tick")
+      .append("line")
+      .classed("grid-line", true)
+      .attr("x1", 0)
+      .attr("y1", 0)
+      .attr("x2", xAxisLength)
+      .attr("y2", 0)
+      .attr("fill", colorscale(0));
+}
+
+function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale) {
+    var radius = minusLog10PVal * 2 + 2;
+
+    var cellType = yVals[i];
+    var gene = xVals[j];
+    var tooltip = d3.select("#cci_search")
+    .append("div")
+    .style("position", "absolute")
+    .style("visibility", "hidden")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "0px")
+    .style("border-radius", "5px")
+    .style("padding", "10px")
+    .style("box-shadow", "2px 2px 20px")
+    .style("opacity", "0.9")
+    .attr("id", "tooltip")
+    .html(cellType + "<br>" + gene+ "<br>Expression: " + expression);
+
+    svg
+      .append("circle")
+        .attr("transform", function() {
+          return "translate(" + xMargin + "," + top_yMargin + ")";
+        })
+        .attr("cx", xScale(j))
+        .attr("cy", yScale(i))
+        .attr("fill", colorscale(expression))
+        .attr("r", radius)
+        .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
+        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-650)+"px").style("left",(event.pageX+10-350)+"px")})
+        .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
+}
+
+function refreshCCISearchPlot() {
+    var projectId = $("#project_id").text();
+    var ret = getSelectedTokens([
+        "cci_search_selected_genes", "cci_search_selected_celltypes",
+        "cci_search_selected_celltype_pairs", "cci_search_selected_interactions"]);
+    var selectedGenes = ret[0];
+    var selectedCellTypes = ret[1];
+    var selectedCellTypePairs = ret[2];
+    var selectedInteractions = ret[3];
+    // DEBUG console.log(selectedGenes, selectedCellTypes, selectedCellTypePairs, selectedInteractions);
+    var url = '/api/data/'+projectId+'/cell_cell_interaction_search';
+    if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs) {
+        url += "?";
+        if (selectedGenes) {
+            url += "genes=" + selectedGenes + "&";
+        }
+        if (selectedInteractions) {
+            url += "interacting_pairs=" + selectedGenes + "&";
+        }
+        if (selectedCellTypes) {
+            url += "cell_types=" + selectedCellTypes;
+        }
+        if (selectedCellTypePairs) {
+            url += "cell_type_pairs=" + selectedCellTypes;
+        }
+    }
+    $.ajax({
+            url: url,
+            contentType: "application/json",
+            dataType: 'json',
+            success: function(res) {
+                generateCellCellInteractionSearchPlot(res, storeTokens=false);
+            }
+     });
 }

@@ -27,19 +27,27 @@ def get_viz_data(project: str,
                  microenvironments: str = None
                  ):
     if viz == 'single_gene_expression':
-        selected_genes = None
-        if jsonable_encoder(genes):
-            selected_genes = jsonable_encoder(genes).split(",")
-        selected_cell_types = None
-        if jsonable_encoder(cell_types):
-            selected_cell_types = jsonable_encoder(cell_types).split(",")
+        selected_genes = get_jsonable(genes)
+        selected_cell_types = get_jsonable(cell_types)
         ret = copy.deepcopy(dir_name2project_data[project])
         utils.populate_deconvoluted_data(ret, dir_name2file_name2df[project]['deconvoluted_result'], selected_genes, selected_cell_types)
     elif viz == 'cell_cell_interaction_search':
+        selected_genes = get_jsonable(genes)
+        selected_interacting_pairs = get_jsonable(interacting_pairs)
+        selected_cell_types = get_jsonable(cell_types)
+        selected_cell_type_pairs = get_jsonable(cell_type_pairs)
         ret = copy.deepcopy(dir_name2project_data[project][viz])
-        utils.filter_interactions(ret, dir_name2file_name2df[project], genes, interacting_pairs, cell_types, cell_type_pairs, microenvironments)
+        utils.filter_interactions(ret, dir_name2file_name2df[project],
+                                  selected_genes, selected_interacting_pairs, selected_cell_types, selected_cell_type_pairs,
+                                  microenvironments)
     else:
         ret = dir_name2project_data[project][viz]
+    return ret
+
+def get_jsonable(val: str) -> list:
+    ret = None
+    if jsonable_encoder(val):
+        ret = jsonable_encoder(val).split(",")
     return ret
 
 app = FastAPI()

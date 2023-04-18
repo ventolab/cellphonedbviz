@@ -184,9 +184,14 @@
               <div class="col s12 m6 l6">
                 <div class="card" >
                   <div class="card-content black-text col s12">
+                      <div class="section">
+                        <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
+                            <i class="material-icons right">refresh</i>
+                        </button>
+                      </div>
                       <div class="input-field">
-                        <input style="padding-top: 20px;" type="text" id="cci_search_gene_input" placeholder="Gene">
-                        <label style="padding-top: 20px;" for="cci_search_gene_input" class="black-text text-lighten-10">Filter by genes</label>
+                        <input style="padding-top: 57px;" type="text" id="cci_search_gene_input" placeholder="Gene">
+                        <label style="padding-top: 57px;" for="cci_search_gene_input" class="black-text text-lighten-10">Filter by genes</label>
                       </div>
                       <div class="cci_search_selected_genes"></div>
                       <div class="input-field">
@@ -195,6 +200,15 @@
                       </div>
                       <div class="cci_search_selected_interactions"></div>
                   </div>
+                </div>
+              </div>
+
+              <div class="col s12">
+                <div class="card" >
+                    <div class="card-content black-text col s12">
+                      <span id="cci_search_header" class="card-title center" style="font-size: 16px;">Interactions per cell type pair</span>
+                        <div id="cci_search" style="width:1400px"></div>
+                    </div>
                 </div>
               </div>
 

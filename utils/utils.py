@@ -216,7 +216,9 @@ def filter_interactions(result_dict,
         elif cell_types:
             selected_cell_types = cell_types
         else:
-            selected_cell_types = result_dict['all_cell_types']
+            # TODO - decide how the initial cell types sample is selected
+            selected_cell_types = random.sample(list(result_dict['all_cell_types']), 7)
+        result_dict['selected_cell_types'] = sorted(list(set(selected_cell_types)))
         selected_cell_type_pairs = []
         for ct in selected_cell_types:
             for ct1 in selected_cell_types:
@@ -227,11 +229,16 @@ def filter_interactions(result_dict,
 
     # Collect all interactions from query_genes and query_interactions
     interactions = set([])
+    if not genes and not interacting_pairs:
+        # If neither genes nor interactions are selected, choose N random genes
+        # TODO - decide how the initial genes sample is selected
+        genes = random.sample(list(result_dict['all_genes']), 10)
     if genes:
-            interactions = interactions.update( \
+            interactions.update( \
                 deconvoluted_df[deconvoluted_df['gene_name'].isin(genes)]['id_cp_interaction'].tolist())
+            result_dict['selected_genes'] = sorted(list(set(genes)))
     if interacting_pairs:
-        interactions = interactions.update( \
+        interactions.update( \
             interacting_pairs[interacting_pairs['interacting_pair'].isin(interacting_pairs)]['id_cp_interaction'].tolist())
     if interactions:
         result_means_df = means_df[means_df['id_cp_interaction'].isin(interactions)]
@@ -252,7 +259,11 @@ def filter_interactions(result_dict,
     # Replace nan with 0's in result_means_df.values
     means_np_arr = np.nan_to_num(result_means_df.values, copy=False, nan=0.0)
     result_dict['means'] = means_np_arr.tolist()
-    result_dict['filtered_pvalues'] = result_dict['means'].copy()
+    if len(means_np_arr) > 0:
+        # Some significant interactions were found
+        result_dict['min_expression'] = means_np_arr.min(axis=None)
+        result_dict['max_expression'] = means_np_arr.max(axis=None)
+    result_dict['filtered_pvalues'] = means_np_arr.copy().tolist()
     for i, row in enumerate(result_dict['filtered_pvalues']):
         for j, _ in enumerate(row):
             cell_type = selected_cell_type_pairs[j]
