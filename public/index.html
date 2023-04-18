@@ -92,14 +92,11 @@
                                 <label style="padding-top: 30px;" for="sge_celltype_input" class="black-text text-lighten-10">Add cell types to the plot</label>
                               </div>
                               <div class="sge_selected_celltypes"></div>
-                              <div style="padding-top: 30px;">
-                                  <label class="black-text text-lighten-10">Filter cell types by microenvironment</label>
-                                  <div style="padding-top: 10px;">
-                                      <select id="sge_me_filter" class="browser-default z-depth-2">
-                                        <option value="All microenvironments" selected>All microenvironments</option>
-                                      </select>
-                                  </div>
+                              <div class="input-field">
+                                <input style="padding-top: 30px;" type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
+                                <label style="padding-top: 30px;" for="sge_microenvironment_input" class="black-text text-lighten-10">Filter by microenvironment</label>
                               </div>
+                              <div class="sge_selected_microenvironments"></div>
                           </div>
                         </div>
                       </div>
@@ -163,12 +160,11 @@
               <div class="col s12 m6 l6">
                 <div class="card blue-grey darken-1" >
                   <div class="card-content black-text col s12">
-                          <label class="black-text text-lighten-10">Filter cell types by microenvironment</label>
-                          <div style="padding-top: 20px;">
-                              <select id="cci_search_me_filter" class="browser-default z-depth-2">
-                                <option value="All microenvironments" selected>All microenvironments</option>
-                              </select>
+                          <div class="input-field">
+                            <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
+                            <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10">Filter by microenvironment</label>
                           </div>
+                          <div class="cci_search_selected_microenvironments"></div>
                           <div class="input-field">
                             <input style="padding-top: 20px;" type="text" id="cci_search_celltype_input" placeholder="Cell type">
                             <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10">Filter by cell types</label>
