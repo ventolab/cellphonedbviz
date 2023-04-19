@@ -35,7 +35,6 @@ def get_projects() -> dict:
                         df = pd.read_csv(fpath, sep='\t')
                         populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
                     dict['cell_cell_interaction_search']['separator'] = config['separator']
-                    filter_interactions(dict['cell_cell_interaction_search'], dir_name2file_name2df[dir_name])
                     dir_name2project_data[dir_name] = dict
     return (dir_name2project_data, dir_name2file_name2df)
 
@@ -177,7 +176,7 @@ def populate_pvalues_data(result_dict, df):
 
 def pval4plot(pvalue) -> int:
     if pvalue > 0:
-        val = min(round(abs(math.log10(pvalue))),3)
+        val = min(round(abs(math.log10(pvalue))), 3)
     else:
         val = 3
     return val
@@ -231,6 +230,7 @@ def filter_interactions(result_dict,
     for ct in selected_cell_types:
         for ct1 in selected_cell_types:
             selected_cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
+    selected_cell_type_pairs = sorted(selected_cell_type_pairs)
     means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
 
     # Collect all interactions from query_genes and query_interactions
