@@ -954,7 +954,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     // and so far I've not been able to make it work with min_expr > 0
     min_expr = 0,
     max_expr=data['max_expression'],
-    pvalues = data['filtered_pvalues'],
+    pvalues=data['filtered_pvalues'],
     colorDomain = yVals;
 
   var svg = d3
@@ -991,7 +991,9 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     for (var j = 0; j <= xVals.length - 1; j++) {
       var expression = mean_expressions[i][j];
       var minusLog10PVal = pvalues[i][j];
-      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale);
+      var cellTypePair = data['cell_type_pairs_means'][j];
+      var interaction = data['interacting_pairs_means'][i];
+      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale);
     }
   }
 
@@ -1159,7 +1161,7 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
       .attr("fill", colorscale(0));
 }
 
-function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale) {
+function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale) {
     var radius = minusLog10PVal * 2 + 2;
 
     var cellType = yVals[i];
@@ -1176,7 +1178,7 @@ function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, xMargin, to
     .style("box-shadow", "2px 2px 20px")
     .style("opacity", "0.9")
     .attr("id", "tooltip")
-    .html(cellType + "<br>" + gene+ "<br>Expression: " + expression);
+    .html("Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>Expression: " + expression + "<br>Rounded -log10(p-value): " + minusLog10PVal);
 
     svg
       .append("circle")
@@ -1188,7 +1190,7 @@ function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, xMargin, to
         .attr("fill", colorscale(expression))
         .attr("r", radius)
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-650)+"px").style("left",(event.pageX+10-350)+"px")})
+        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-2810)+"px").style("left",(event.pageX-10)+"px")})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
