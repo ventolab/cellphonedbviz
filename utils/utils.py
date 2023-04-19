@@ -206,25 +206,31 @@ def filter_interactions(result_dict,
     deconvoluted_df = file_name2df['deconvoluted_result']
     separator = result_dict['separator']
 
-    # Collect all combinations of cell types (disregarding the order) from query_cell_types_1 and query_cell_types_2
-    if not cell_type_pairs:
-        if microenvironments:
-            selected_cell_types = set([])
-            for me in microenvironments:
-                selected_cell_types = selected_cell_types.update(result_dict['microenvironment2cell_types'][me])
-            selected_cell_types = list(selected_cell_types)
-        elif cell_types:
-            selected_cell_types = cell_types
-        else:
-            # TODO - decide how the initial cell types sample is selected
-            selected_cell_types = random.sample(list(result_dict['all_cell_types']), 7)
-        result_dict['selected_cell_types'] = sorted(list(set(selected_cell_types)))
-        selected_cell_type_pairs = []
-        for ct in selected_cell_types:
-            for ct1 in selected_cell_types:
-                selected_cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
+    # Collect all combinations of cell types (disregarding the order) from cell_types and cell_type_pairs combined
+
+    # Populate selected_cell_types
+    if microenvironments:
+        # Some cell types can be in multiple microenvironments
+        selected_cell_types = set([])
+        for me in microenvironments:
+            selected_cell_types = selected_cell_types.update(result_dict['microenvironment2cell_types'][me])
+        selected_cell_types = list(selected_cell_types)
+    elif cell_types:
+        selected_cell_types = cell_types
+    elif not cell_type_pairs:
+        # TODO - decide how the initial cell types sample is selected
+        selected_cell_types = random.sample(list(result_dict['all_cell_types']), 5)
     else:
-        selected_cell_type_pairs = cell_type_pairs
+        selected_cell_types = []
+    result_dict['selected_cell_types'] = sorted(selected_cell_types)
+
+    # Populate selected_cell_type_pairs
+    selected_cell_type_pairs = []
+    if cell_type_pairs:
+        selected_cell_type_pairs += cell_type_pairs
+    for ct in selected_cell_types:
+        for ct1 in selected_cell_types:
+            selected_cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
     means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
 
     # Collect all interactions from query_genes and query_interactions
@@ -232,14 +238,14 @@ def filter_interactions(result_dict,
     if not genes and not interacting_pairs:
         # If neither genes nor interactions are selected, choose N random genes
         # TODO - decide how the initial genes sample is selected
-        genes = random.sample(list(result_dict['all_genes']), 10)
+        genes = random.sample(list(result_dict['all_genes']), 5)
     if genes:
             interactions.update( \
                 deconvoluted_df[deconvoluted_df['gene_name'].isin(genes)]['id_cp_interaction'].tolist())
             result_dict['selected_genes'] = sorted(list(set(genes)))
     if interacting_pairs:
         interactions.update( \
-            interacting_pairs[interacting_pairs['interacting_pair'].isin(interacting_pairs)]['id_cp_interaction'].tolist())
+            means_df[means_df['interacting_pair'].isin(interacting_pairs)]['id_cp_interaction'].tolist())
     if interactions:
         result_means_df = means_df[means_df['id_cp_interaction'].isin(interactions)]
     else:

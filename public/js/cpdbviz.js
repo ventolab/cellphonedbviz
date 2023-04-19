@@ -426,7 +426,9 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     xMax= xVals.length - 1,
     mean_expressions = data['mean_expressions'],
     // min_expr, max_expr needed for color scale
-    min_expr=data['min_expression'],
+    // N.B. We don't take data['min_expression'] as min_expr because the bar legend misbehaves when min_expr > 0
+    // and so far I've not been able to make it work with min_expr > 0
+    min_expr = 0,
     max_expr=data['max_expression'],
     cellType2Degs = data['celltype2degs'],
     colorDomain = yVals
@@ -490,13 +492,13 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     .range([legend_height, 0]);
 
   // An array interpolated over our domain where height is the height of the bar
-  // Padding the domain by 10%
-  // This will have an effect of the bar being 10% longer than the axis label
+  // Padding the domain by 3%
+  // This will have an effect of the bar being 3% longer than the axis label
   // (otherwise top/bottom figures on the legend axis would be cut in half)
   const paddedDomain = fc.extentLinear()
-    .pad([0.1, 0.1])
+    .pad([0.03, 0.03])
     .padUnit("percent")(domain);
-  [min, max] = paddedDomain;
+  [min_expr, max_expr] = paddedDomain;
   const expandedDomain = d3.range(min_expr, max_expr, (max_expr - min_expr) / legend_height);
 
   // Define the colour legend bar
@@ -685,7 +687,9 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         xMax= xVals.length - 1,
         numInteractions = data['num_ints'],
         // total_min_ints, total_max_ints needed for color scale
-        min_ints=parseInt(data['min_num_ints']),
+        // N.B. We don't take parseInt(data['min_num_ints']) as min_ints because the bar legend misbehaves when min_ints > 0
+        // and so far I've not been able to make it work with min_ints > 0
+        min_ints=0,
         max_ints=parseInt(data['max_num_ints']),
         ct2indx = data['ct2indx'],
         colorDomain = yVals;
@@ -762,13 +766,13 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         .range([legend_height, 0]);
 
       // An array interpolated over our domain where height is the height of the bar
-      // Padding the domain by 10%
-      // This will have an effect of the bar being 10% longer than the axis label
+      // Padding the domain by 3%
+      // This will have an effect of the bar being 3% longer than the axis label
       // (otherwise top/bottom figures on the legend axis would be cut in half)
       const paddedDomain = fc.extentLinear()
-        .pad([0.1, 0.1])
+        .pad([0.03, 0.03])
         .padUnit("percent")(domain);
-      [min, max] = paddedDomain;
+      [min_ints, max_ints] = paddedDomain;
       const expandedDomain = d3.range(min_ints, max_ints, (max_ints - min_ints) / legend_height);
 
       // Define the colour legend bar
@@ -894,7 +898,7 @@ function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScal
         .attr("fill", colorscale(num_ints))
         .attr('stroke', 'transparent')
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1620)+"px").style("left",(event.pageX+10-(plotCnt-1)*700)+"px")})
+        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1720)+"px").style("left",(event.pageX+10-(plotCnt-1)*700)+"px")})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
@@ -946,10 +950,13 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     xMax= xVals.length - 1,
     mean_expressions = data['means'],
     // min_expr, max_expr needed for color scale
-    min_expr=data['min_expression'],
+    // N.B. We don't take data['min_expression'] as min_expr because the bar legend misbehaves when min_expr > 0
+    // and so far I've not been able to make it work with min_expr > 0
+    min_expr = 0,
     max_expr=data['max_expression'],
     pvalues = data['filtered_pvalues'],
-    colorDomain = yVals
+    colorDomain = yVals;
+
   var svg = d3
     .select("#cci_search")
     .append("svg")
@@ -1008,13 +1015,13 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     .range([legend_height, 0]);
 
   // An array interpolated over our domain where height is the height of the bar
-  // Padding the domain by 10%
-  // This will have an effect of the bar being 10% longer than the axis label
+  // Padding the domain by 3%
+  // This will have an effect of the bar being 3% longer than the axis label
   // (otherwise top/bottom figures on the legend axis would be cut in half)
   const paddedDomain = fc.extentLinear()
-    .pad([0.1, 0.1])
+    .pad([0.03, 0.03])
     .padUnit("percent")(domain);
-  [min, max] = paddedDomain;
+  [min_expr, max_expr] = paddedDomain;
   const expandedDomain = d3.range(min_expr, max_expr, (max_expr - min_expr) / legend_height);
 
   // Define the colour legend bar
@@ -1201,13 +1208,13 @@ function refreshCCISearchPlot() {
             url += "genes=" + selectedGenes + "&";
         }
         if (selectedInteractions) {
-            url += "interacting_pairs=" + selectedGenes + "&";
+            url += "interacting_pairs=" + selectedInteractions + "&";
         }
         if (selectedCellTypes) {
-            url += "cell_types=" + selectedCellTypes;
+            url += "cell_types=" + selectedCellTypes + "&";
         }
         if (selectedCellTypePairs) {
-            url += "cell_type_pairs=" + selectedCellTypes;
+            url += "cell_type_pairs=" + selectedCellTypePairs;
         }
     }
     $.ajax({
