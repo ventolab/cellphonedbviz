@@ -959,6 +959,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
 
   var svg = d3
     .select("#cci_search")
+    .style("color", "black")
     .append("svg")
     .attr("class", "axis")
     .attr("width", width)
