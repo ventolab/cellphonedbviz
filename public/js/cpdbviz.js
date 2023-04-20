@@ -927,6 +927,12 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
         for (var i = 0; i < selectedCellTypes.length; i++) {
             storeToken(selectedCellTypes[i], "cci_search_selected_celltypes", "cci_search_celltype_input");
         }
+        for (var i = 0; i < selectedInteractingPairs.length; i++) {
+            storeToken(selectedInteractingPairs[i], "cci_search_selected_interactions", "cci_search_interaction_input");
+        }
+        for (var i = 0; i < selectedCellTypePairs.length; i++) {
+            storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
+        }
         // On the initial page load, selectedInteractingPairs and selectedCellTypePairs are a function of the default
         // selectedGenes and selectedCellTypes, so we don't show them in cci_search_selected_* divs (plus there are too many to
         // show anyway)

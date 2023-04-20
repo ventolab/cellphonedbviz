@@ -8,10 +8,15 @@ import re
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 DATA_ROOT = f"{base_path}/../data"
-CONFIG_KEYS = ['title','cell_type_data','microenvironments_data','celltype_composition','deconvoluted_result','significant_means','degs','pvalues']
+# Note that 'deconvoluted_result' has to come after 'significant_means' in CONFIG_KEYS. This is because of pre-filtering of interacting pairs
+# on first page load - from deconvoluted file we need to pre-select genes but we don't have interacting_pair information in that file, hence
+# we need to get the mapping: interacting pair->interaction_id from the means file and only then we can do interaction_id->genes in deconvoluted file.
+CONFIG_KEYS = ['title','cell_type_data','microenvironments_data','celltype_composition','significant_means','deconvoluted_result','degs','pvalues']
 VIZZES = ['celltype_composition','single_gene_expression','cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SANKEY_EDGE_WEIGHT = 30
+NUMBER_OF_INTERACTING_PAIRS_TO_PRESELECT_ON_FIRST_LOAD = 1
+NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD = 1
 
 def get_projects() -> dict:
     dir_name2project_data = {}
@@ -44,10 +49,10 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
             result_dict[viz] = {}
     if config_key == 'celltype_composition':
         populate_celltype_composition_data(result_dict, df)
-    elif config_key == 'deconvoluted_result':
-        populate_deconvoluted_data(result_dict, df)
     elif config_key == 'significant_means':
-        populate_significant_means_data_for_cci(result_dict, df, separator)
+        populate_significant_means_data(result_dict, df, separator)
+    elif config_key == 'deconvoluted_result':
+        populate_deconvoluted_data(result_dict, df, separator)
     elif config_key == 'degs':
         populate_degs_data(result_dict, df)
     elif config_key == 'pvalues':
@@ -103,7 +108,7 @@ def populate_celltype_composition_data(result_dict, df):
     dict_cci_summary['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
     dict_cci_search['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
 
-def populate_significant_means_data_for_cci(dict_dd, df, separator):
+def populate_significant_means_data(dict_dd, df, separator):
     dict_cci_summary = dict_dd['cell_cell_interaction_summary']
     dict_cci_search = dict_dd['cell_cell_interaction_search']
     all_cell_types_combinations = list(df.columns[12:])
@@ -128,31 +133,69 @@ def populate_significant_means_data_for_cci(dict_dd, df, separator):
     # Data below is needed for autocomplete functionality
     dict_cci_search['all_cell_type_pairs'] = sorted(all_cell_types_combinations)
     dict_cci_search['all_interacting_pairs'] = sorted(list(df['interacting_pair'].values))
+    # On first page load, we pre-select N interacting pairs (from means file), but we can map each interacting
+    # pair label to a pair of gene names using deconvoluted file (via interaction id - shared by deconvoluted and means files - hence the dict below
+    dict_cci_search['interaction_id2interacting_pair'] = {}
+    for i, j in zip(df['id_cp_interaction'].values.tolist(), df['interacting_pair'].values.tolist()):
+        dict_cci_search['interaction_id2interacting_pair'][i] = j
 
-def populate_deconvoluted_data(dict_dd, df, selected_genes = None, selected_cell_types = None, refresh_plot = False):
+def preselect_interacting_pairs(dict_cci_search: dict):
+    # This logic will change once we have output interactions scores from CellphoneDB -
+    # then we will pre-select top (=with the highest score) N interactions
+    return dict_cci_search['all_interacting_pairs'][0:NUMBER_OF_INTERACTING_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
+
+def preselect_cell_type_pairs(dict_cci_search: dict):
+    return dict_cci_search['all_cell_type_pairs']
+    # [0:NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
+
+def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False):
     dict_sge = dict_dd['single_gene_expression']
     dict_cci_search = dict_dd['cell_cell_interaction_search']
+    if not separator:
+        separator = dict_dd['cell_cell_interaction_search']['separator']
+
+    # On first page load, we pre-select N interacting pairs (from means file), but we can map each interacting
+    # pair label to a pair of gene names using deconvoluted file (via interaction id - shared by deconvoluted and means files -
+    # hence the need for interacting_pair2genes_names
+    interacting_pair2genes_names = {}
+    for i, j in zip(df['id_cp_interaction'].values.tolist(), df['gene_name'].values.tolist()):
+        if i in dict_cci_search['interaction_id2interacting_pair']:
+            interacting_pair = dict_cci_search['interaction_id2interacting_pair'][i]
+            interacting_pair2genes_names.setdefault(interacting_pair, set([])).add(j)
+
+    if not selected_genes:
+        if not refresh_plot:
+            # Pre-select interacting_pairs
+            selected_interacting_pairs = preselect_interacting_pairs(dict_cci_search)
+            selected_genes = set([])
+            # Derive pre-selected genes from the pre-selected interacting_pairs
+            for ip in selected_interacting_pairs:
+                selected_genes.update(interacting_pair2genes_names[ip])
+            selected_genes = sorted(list(selected_genes))
+        else:
+            selected_genes = []
+
+    if not selected_cell_types:
+        if not refresh_plot:
+            # Pre-select cell type pairs
+            selected_cell_type_pairs = preselect_cell_type_pairs(dict_cci_search)
+            # Derive pre-selected cell types from selected_cell_type_pairs
+            selected_cell_types = set([])
+            for ctp in selected_cell_type_pairs:
+                selected_cell_types.update(set(ctp.split(separator)))
+            selected_cell_types = list(selected_cell_types)
+        else:
+            selected_cell_types = []
+    selected_cell_types = sorted(list(set(selected_cell_types)))
+    dict_sge['cell_types'] = selected_cell_types
+
     # Note: all_genes is needed for autocomplete - for the user to include genes in the plot
     all_genes = set(df['gene_name'].values)
     gene2complexes = {}
     for i, j in zip(df['gene_name'], df['complex_name']):
         gene2complexes.setdefault(i, set([])).add(j)
     all_cell_types = list(df.columns[6:])
-    # TODO - decide how the initial genes sample is selected
-    if not selected_genes:
-        if not refresh_plot:
-            selected_genes = random.sample(list(all_genes), 10)
-        else:
-            selected_genes = []
-    selected_genes = sorted(list(set(selected_genes)))
-    # TODO - decide how the initial cell types sample is selected
-    if not selected_cell_types:
-        if not refresh_plot:
-            selected_cell_types = all_cell_types
-        else:
-            selected_cell_types = []
-    selected_cell_types = sorted(list(set(selected_cell_types)))
-    dict_sge['cell_types'] = selected_cell_types
+
     # Retrieve means for genes in selected_genes and cell types in all_cell_types
     selected_genes_means_df = df[df['gene_name'].isin(selected_genes)][['gene_name', 'complex_name'] + selected_cell_types].drop_duplicates()
     gene_complex_list = (selected_genes_means_df['gene_name'] + " in " + selected_genes_means_df['complex_name'].fillna('')).values
@@ -213,35 +256,38 @@ def filter_interactions(result_dict,
     # Collect all combinations of cell types (disregarding the order) from cell_types and cell_type_pairs combined
     if cell_types:
         selected_cell_types = cell_types
+        # Derive selected_cell_type_pairs from
+        selected_cell_type_pairs = []
+        if cell_type_pairs:
+            selected_cell_type_pairs += cell_type_pairs
+        for ct in selected_cell_types:
+            for ct1 in selected_cell_types:
+                selected_cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
+        selected_cell_type_pairs = sorted(selected_cell_type_pairs)
+        means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
     elif not cell_type_pairs:
+        selected_cell_types = []
         if not refresh_plot:
-            # TODO - decide how the initial cell types sample is selected
-            selected_cell_types = random.sample(list(result_dict['all_cell_types']), 5)
+            # Pre-select cell type pairs
+            selected_cell_type_pairs = preselect_cell_type_pairs(result_dict)
+            means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
         else:
-            selected_cell_types = []
+            selected_cell_type_pairs = []
     else:
         selected_cell_types = []
     result_dict['selected_cell_types'] = sorted(selected_cell_types)
-
-    # Populate selected_cell_type_pairs
-    selected_cell_type_pairs = []
-    if cell_type_pairs:
-        selected_cell_type_pairs += cell_type_pairs
-    for ct in selected_cell_types:
-        for ct1 in selected_cell_types:
-            selected_cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
-    selected_cell_type_pairs = sorted(selected_cell_type_pairs)
-    means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
+    result_dict['selected_cell_type_pairs'] = sorted(selected_cell_type_pairs)
 
     # Collect all interactions from query_genes and query_interactions
     interactions = set([])
     if not genes and not interacting_pairs:
         if not refresh_plot:
-            # If neither genes nor interactions are selected, choose N random genes
-            # TODO - decide how the initial genes sample is selected
-            genes = random.sample(list(result_dict['all_genes']), 5)
+            # If neither genes nor interactions are selected, pre-select interacting pairs
+            interacting_pairs = preselect_interacting_pairs(result_dict)
+            print(interacting_pairs)
         else:
             genes = []
+            interacting_pairs = []
     if genes:
             interactions.update( \
                 deconvoluted_df[deconvoluted_df['gene_name'].isin(genes)]['id_cp_interaction'].tolist())
