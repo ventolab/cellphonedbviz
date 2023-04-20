@@ -24,13 +24,13 @@ def get_viz_data(project: str,
                  interacting_pairs: str = None,
                  cell_types: str = None,
                  cell_type_pairs: str = None,
-                 microenvironments: str = None
+                 refresh_plot: bool = False
                  ):
     if viz == 'single_gene_expression':
         selected_genes = get_jsonable(genes)
         selected_cell_types = get_jsonable(cell_types)
         ret = copy.deepcopy(dir_name2project_data[project])
-        utils.populate_deconvoluted_data(ret, dir_name2file_name2df[project]['deconvoluted_result'], selected_genes, selected_cell_types)
+        utils.populate_deconvoluted_data(ret, dir_name2file_name2df[project]['deconvoluted_result'], selected_genes, selected_cell_types, refresh_plot)
     elif viz == 'cell_cell_interaction_search':
         selected_genes = get_jsonable(genes)
         selected_interacting_pairs = get_jsonable(interacting_pairs)
@@ -38,14 +38,13 @@ def get_viz_data(project: str,
         selected_cell_type_pairs = get_jsonable(cell_type_pairs)
         ret = copy.deepcopy(dir_name2project_data[project][viz])
         utils.filter_interactions(ret, dir_name2file_name2df[project],
-                                  selected_genes, selected_interacting_pairs, selected_cell_types, selected_cell_type_pairs,
-                                  microenvironments)
+                                  selected_genes, selected_interacting_pairs, selected_cell_types, selected_cell_type_pairs, refresh_plot)
     else:
         ret = dir_name2project_data[project][viz]
     return ret
 
 def get_jsonable(val: str) -> list:
-    ret = None
+    ret = []
     if jsonable_encoder(val):
         ret = jsonable_encoder(val).split(",")
     return ret

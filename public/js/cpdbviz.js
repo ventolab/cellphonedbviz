@@ -191,8 +191,10 @@ function refreshSGEPlot() {
             url += "genes=" + selectedGenes + "&";
         }
         if (selectedCellTypes) {
-            url += "cell_types=" + selectedCellTypes;
+            url += "cell_types=" + selectedCellTypes + "&";
         }
+        // In refresh mode, we don't pre-select interactions/cell type pairs - if the user did not enter any selections
+        url += "refresh=true";
     }
     $.ajax({
             url: url,
@@ -410,6 +412,13 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
         }
     }
 
+    if (data['mean_expressions'].length == 0) {
+        d3.select("#sge")
+        .style("color", "purple")
+        .text('No expressions were found - please try another search.');
+        return
+    }
+
     var height = 700,
     width = 1000,
     bottom_yMargin = 180,
@@ -435,6 +444,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
   var svg = d3
     .select("#sge")
     .append("svg")
+    .style("color", "black")
     .attr("class", "axis")
     .attr("width", width)
     .attr("height", height);
@@ -1218,8 +1228,10 @@ function refreshCCISearchPlot() {
             url += "cell_types=" + selectedCellTypes + "&";
         }
         if (selectedCellTypePairs) {
-            url += "cell_type_pairs=" + selectedCellTypePairs;
+            url += "cell_type_pairs=" + selectedCellTypePairs + "&";
         }
+        // In refresh mode, we don't pre-select interactions/cell type pairs - if the user did not enter any selections
+        url += "refresh=true";
     }
     $.ajax({
             url: url,
