@@ -62,8 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 for (let [microenvironment, cellTypes] of map.entries()) {
 	                generateCellCellInteractionPlot(res, cellTypes.sort(), microenvironment, cnt);
 	                cnt++;
-	                if (cnt > 2) {
-                        // TODO: We currently only have two slots for cci plots per environment - to be reviewed
+	                if (cnt > 4) {
+                        // TODO: We currently only have up to four slots for cci plots per environment - to be reviewed
 	                    break;
 	                }
                 }
@@ -240,11 +240,11 @@ function generateCellCompositionPlot(data) {
         return flow * 0.05;
       };
       sankey.convert_flow_labels_callback = function(flow) {
-        // return Math.round(flow);
+        // Switched off edge labels: return Math.round(flow);
         return "";
       };
       sankey.convert_box_value_labels_callback = function(flow) {
-        // return (""+Math.round(flow))
+        // // Switched off edge labels: return (""+Math.round(flow))
         return "";
       };
       sankey.setData(edges);
@@ -459,6 +459,8 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
 
   sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   sgeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
+  const legend_xPos=width-300
+  const legend_yPos=top_yMargin+50
   // cell types
   for (var i = 0; i <= yVals.length - 1; i++) {
     // genes
@@ -467,7 +469,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       var cellType = yVals[i];
       var gene = xVals[j];
       deg = cellType2Degs[cellType] && cellType2Degs[cellType].includes(gene) ? true : false;
-      sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale);
+      sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos-10, legend_yPos+320);
     }
   }
 
@@ -476,8 +478,6 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
   // Band scale for x-axis
   const legend_width=50
   const legend_height=150
-  const legend_xPos=width-300
-  const legend_yPos=top_yMargin+50
   domain=[min_expr, max_expr]
 
   const legend_xScale = d3
@@ -615,7 +615,7 @@ function sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, c
       .attr("fill", colorscale(0));
   }
 
-function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale) {
+function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos) {
     var innerRadius;
     // outerRadius is used for deg cell type-gene tuples only
     var outerRadius;
@@ -656,8 +656,8 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
     .style("padding", "10px")
     .style("box-shadow", "2px 2px 20px")
     .style("opacity", "0.9")
-    .attr("id", "tooltip")
-    .html(cellType + "<br>" + gene+ "<br>Expression: " + expression);
+    .attr("id", "sge_tooltip")
+    .html("Cell type: " + cellType + "<br>Gene: " + gene+ "<br>Expression: " + expression);
 
     svg
       .append("circle")
@@ -669,7 +669,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         .attr("fill", colorscale(expression))
         .attr("r", innerRadius)
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-650)+"px").style("left",(event.pageX+10-350)+"px")})
+        .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
     }
 
@@ -734,6 +734,8 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
 
       cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale);
       cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin);
+      const legend_xPos=width-240
+      const legend_yPos=top_yMargin+50
       // cellType1
       for (var i = 0; i <= yVals.length - 1; i++) {
         // cellType2
@@ -741,7 +743,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
           var num_ints = filteredNumInteractions[j][i];
           var cellType1 = yVals[i];
           var cellType2 = xVals[j];
-          cciRenderRectangle(svg, j, i, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt);
+          cciRenderRectangle(svg, j, i, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt, legend_xPos, legend_yPos+280);
         }
       }
 
@@ -750,8 +752,6 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
       // Band scale for x-axis
       const legend_width=50
       const legend_height=150
-      const legend_xPos=width-240
-      const legend_yPos=top_yMargin+50
       domain=[min_ints, max_ints]
 
       const legend_xScale = d3
@@ -868,7 +868,7 @@ function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale) {
   .attr("dy", "2.5em");
 }
 
-function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt) {
+function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt, tooltip_xPos, tooltip_yPos) {
     var boxWidth = Math.round(380/yVals.length);
     // Assumption: yVals.length == xVals.length
     var boxHeight = boxWidth;
@@ -885,6 +885,7 @@ function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScal
         .style("padding", "10px")
         .style("box-shadow", "2px 2px 20px")
         .style("opacity", "0.9")
+        .attr("id", "cci" + plotCnt + "_tooltip")
         .html("Number of interactions<br>between " + cellType1 + " and " + cellType2 + ": " + num_ints);
 
     svg.append('rect')
@@ -898,7 +899,7 @@ function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScal
         .attr("fill", colorscale(num_ints))
         .attr('stroke', 'transparent')
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-1720)+"px").style("left",(event.pageX+10-(plotCnt-1)*700)+"px")})
+        .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
@@ -985,6 +986,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
 
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
+  const legend_xPos=width-300
+  const legend_yPos=top_yMargin+50
   // interacting pairs
   for (var i = 0; i <= yVals.length - 1; i++) {
     // cell type pairs
@@ -993,7 +996,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       var minusLog10PVal = pvalues[i][j];
       var cellTypePair = data['cell_type_pairs_means'][j];
       var interaction = data['interacting_pairs_means'][i];
-      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale);
+      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos-10, legend_yPos+420);
     }
   }
 
@@ -1002,8 +1005,6 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
   // Band scale for x-axis
   const legend_width=50
   const legend_height=150
-  const legend_xPos=width-300
-  const legend_yPos=top_yMargin+50
   domain=[min_expr, max_expr]
 
   const legend_xScale = d3
@@ -1161,7 +1162,7 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
       .attr("fill", colorscale(0));
 }
 
-function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale) {
+function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos) {
     var radius = minusLog10PVal * 2 + 2;
 
     var cellType = yVals[i];
@@ -1177,8 +1178,8 @@ function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePai
     .style("padding", "10px")
     .style("box-shadow", "2px 2px 20px")
     .style("opacity", "0.9")
-    .attr("id", "tooltip")
-    .html("Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>Expression: " + expression + "<br>Rounded -log10(p-value): " + minusLog10PVal);
+    .attr("id", "cci_search_tooltip")
+    .html("Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>Expression: " + expression + "<br>Rounded -log10pvalue: " + minusLog10PVal);
 
     svg
       .append("circle")
@@ -1190,7 +1191,7 @@ function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePai
         .attr("fill", colorscale(expression))
         .attr("r", radius)
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-        .on("mousemove", function(event){return tooltip.style("top", (event.pageY-10-2810)+"px").style("left",(event.pageX-10)+"px")})
+        .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
