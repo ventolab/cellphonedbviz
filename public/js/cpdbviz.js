@@ -404,9 +404,6 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
         }
     }
 
-    // Empty the fields before populating them with new tokens
-    $('.sge_selected_genes').empty();
-    $('.sge_selected_celltypes').empty();
     if (storeTokens) {
         for (var i = 0; i < unique_genes.length; i++) {
             storeToken(unique_genes[i], "sge_selected_genes", "sge_gene_input");
@@ -923,11 +920,6 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     const selectedCellTypes = data['selected_cell_types'];
     const selectedCellTypePairs = data['selected_cell_type_pairs'];
 
-    // Empty the fields before populating them with new tokens
-    $('.cci_search_selected_genes').empty();
-    $('.cci_search_selected_celltypes').empty();
-    $('.cci_search_selected_interactions').empty();
-    $('.cci_search_selected_celltype_pairs').empty();
     if (storeTokens) {
         for (var i = 0; i < selectedGenes.length; i++) {
             storeToken(selectedGenes[i], "cci_search_selected_genes", "cci_search_gene_input");
