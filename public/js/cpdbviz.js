@@ -193,9 +193,11 @@ function refreshSGEPlot() {
         if (selectedCellTypes) {
             url += "cell_types=" + selectedCellTypes + "&";
         }
-        // In refresh mode, we don't pre-select interactions/cell type pairs - if the user did not enter any selections
-        url += "refresh=true";
+    } else {
+        url += "?";
     }
+    // In refresh mode, we don't pre-select interactions/cell type pairs - if the user did not enter any selections
+    url += "refresh_plot=True";
     $.ajax({
             url: url,
             contentType: "application/json",
@@ -912,6 +914,18 @@ function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScal
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
+function clearSGEFilters() {
+    $('.sge_selected_genes').empty();
+    $('.sge_selected_celltypes').empty();
+}
+
+function clearCCISearchFilters() {
+    $('.cci_search_selected_genes').empty();
+    $('.cci_search_selected_celltypes').empty();
+    $('.cci_search_selected_interactions').empty();
+    $('.cci_search_selected_celltype_pairs').empty();
+}
+
 function generateCellCellInteractionSearchPlot(data, storeTokens) {
     // DEBUG console.log(data);
     $("#cci_search").empty();
@@ -1229,9 +1243,11 @@ function refreshCCISearchPlot() {
         if (selectedCellTypePairs) {
             url += "cell_type_pairs=" + selectedCellTypePairs + "&";
         }
-        // In refresh mode, we don't pre-select interactions/cell type pairs - if the user did not enter any selections
-        url += "refresh=true";
+    } else {
+        url += "?";
     }
+    // In refresh mode, we don't pre-select interactions/cell type pairs - if the user did not enter any selections
+    url += "refresh_plot=True";
     $.ajax({
             url: url,
             contentType: "application/json",

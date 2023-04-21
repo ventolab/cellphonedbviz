@@ -252,6 +252,7 @@ def filter_interactions(result_dict,
     separator = result_dict['separator']
 
     # Collect all combinations of cell types (disregarding the order) from cell_types and cell_type_pairs combined
+
     if cell_types:
         selected_cell_types = cell_types
         # Derive selected_cell_type_pairs from
@@ -271,6 +272,7 @@ def filter_interactions(result_dict,
             means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
         else:
             selected_cell_type_pairs = []
+            means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
     else:
         selected_cell_types = []
     result_dict['selected_cell_types'] = sorted(selected_cell_types)
