@@ -15,8 +15,8 @@ CONFIG_KEYS = ['title','cell_type_data','microenvironments_data','celltype_compo
 VIZZES = ['celltype_composition','single_gene_expression','cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SANKEY_EDGE_WEIGHT = 30
-NUMBER_OF_INTERACTING_PAIRS_TO_PRESELECT_ON_FIRST_LOAD = 1
-NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD = 1
+NUMBER_OF_INTERACTING_PAIRS_TO_PRESELECT_ON_FIRST_LOAD = 15
+NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD = 15
 
 def get_projects() -> dict:
     dir_name2project_data = {}
@@ -145,8 +145,7 @@ def preselect_interacting_pairs(dict_cci_search: dict):
     return dict_cci_search['all_interacting_pairs'][0:NUMBER_OF_INTERACTING_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
 
 def preselect_cell_type_pairs(dict_cci_search: dict):
-    return dict_cci_search['all_cell_type_pairs']
-    # [0:NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
+    return dict_cci_search['all_cell_type_pairs'][0:NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
 
 def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False):
     dict_sge = dict_dd['single_gene_expression']
@@ -292,6 +291,7 @@ def filter_interactions(result_dict,
             interactions.update( \
                 deconvoluted_df[deconvoluted_df['gene_name'].isin(genes)]['id_cp_interaction'].tolist())
     result_dict['selected_genes'] = sorted(list(set(genes)))
+    result_dict['selected_interacting_pairs'] = interacting_pairs
     if interacting_pairs:
         interactions.update( \
             means_df[means_df['interacting_pair'].isin(interacting_pairs)]['id_cp_interaction'].tolist())

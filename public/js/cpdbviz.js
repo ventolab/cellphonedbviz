@@ -403,6 +403,10 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
             unique_genes.push(gene);
         }
     }
+
+    // Empty the fields before populating them with new tokens
+    $('.sge_selected_genes').empty();
+    $('.sge_selected_celltypes').empty();
     if (storeTokens) {
         for (var i = 0; i < unique_genes.length; i++) {
             storeToken(unique_genes[i], "sge_selected_genes", "sge_gene_input");
@@ -428,9 +432,6 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     yMin = -1,
     xMin = -1,
     yMax = yVals.length - 1,
-    // TODO: May need to restrict the maximum number of genes that can be displayed at any one time -
-    // to keep the plot readable at all times (If necessary increase the plot size to accommodate the maximum
-    // possible number of genes). Could the plot size be increased dynamically??
     xVals = data['gene_complex'],
     xMax= xVals.length - 1,
     mean_expressions = data['mean_expressions'],
@@ -917,9 +918,15 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     // DEBUG console.log(data);
     $("#cci_search").empty();
     const selectedGenes = data['selected_genes'];
-    const selectedInteractingPairs = data['interacting_pairs_means'];
+    const selectedInteractingPairs = data['selected_interacting_pairs'];
     const selectedCellTypes = data['selected_cell_types'];
-    const selectedCellTypePairs = data['cell_type_pairs_means'];
+    const selectedCellTypePairs = data['selected_cell_type_pairs'];
+
+    // Empty the fields before populating them with new tokens
+    $('.cci_search_selected_genes').empty();
+    $('.cci_search_selected_celltypes').empty();
+    $('.cci_search_selected_interactions').empty();
+    $('.cci_search_selected_celltype_pairs').empty();
     if (storeTokens) {
         for (var i = 0; i < selectedGenes.length; i++) {
             storeToken(selectedGenes[i], "cci_search_selected_genes", "cci_search_gene_input");
@@ -933,9 +940,6 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
         for (var i = 0; i < selectedCellTypePairs.length; i++) {
             storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
         }
-        // On the initial page load, selectedInteractingPairs and selectedCellTypePairs are a function of the default
-        // selectedGenes and selectedCellTypes, so we don't show them in cci_search_selected_* divs (plus there are too many to
-        // show anyway)
     }
 
     if (data['interacting_pairs_means'].length == 0) {
@@ -960,9 +964,6 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     yMin = -1,
     xMin = -1,
     yMax = yVals.length - 1,
-    // TODO: May need to restrict the maximum number of genes that can be displayed at any one time -
-    // to keep the plot readable at all times (If necessary increase the plot size to accommodate the maximum
-    // possible number of genes). Could the plot size be increased dynamically??
     xVals = data['cell_type_pairs_means'],
     xMax= xVals.length - 1,
     mean_expressions = data['means'],
@@ -998,7 +999,6 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       .domain([min_expr, max_expr])
       // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
       .interpolator(d3.interpolateHsl("#D3D3D3", "red"));
-
 
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
