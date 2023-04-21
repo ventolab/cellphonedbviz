@@ -33,7 +33,8 @@ def get_projects() -> dict:
                     config = yaml.safe_load(file)
                     dict['title'] = config['title']
                     dict['cell_type_col_name'] = config['cell_type_data']
-                    dict['microenvironments_col_name'] = config['microenvironments_data']
+                    if 'microenvironments_data' in config:
+                        dict['microenvironments_col_name'] = config['microenvironments_data']
                     for key in CONFIG_KEYS[3:]:
                         if key in config:
                             fpath = "{}/{}".format(root, config[key])
@@ -99,14 +100,15 @@ def populate_celltype_composition_data(result_dict, df):
         dict_cc['color_domain'] = sorted(list(set(df['Menstrual stage'].values)))
     # Data for filtering of cell types by micro-environment in single gene expression plot
     cell_type_col_name = result_dict['cell_type_col_name']
-    microenvironments_col_name = result_dict['microenvironments_col_name']
-    dict_sge['microenvironments'] = sorted(list(set(df[microenvironments_col_name].values)))
-    dict_cci_search['microenvironments'] = dict_sge['microenvironments']
-    dict_sge['microenvironment2cell_types'] = {}
-    for i, j in zip(df[microenvironments_col_name].values.tolist(), df[cell_type_col_name].values.tolist()):
-        dict_sge['microenvironment2cell_types'].setdefault(i, []).append(j)
-    dict_cci_summary['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
-    dict_cci_search['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
+    if 'microenvironments_col_name' in result_dict:
+        microenvironments_col_name = result_dict['microenvironments_col_name']
+        dict_sge['microenvironments'] = sorted(list(set(df[microenvironments_col_name].values)))
+        dict_cci_search['microenvironments'] = dict_sge['microenvironments']
+        dict_sge['microenvironment2cell_types'] = {}
+        for i, j in zip(df[microenvironments_col_name].values.tolist(), df[cell_type_col_name].values.tolist()):
+            dict_sge['microenvironment2cell_types'].setdefault(i, []).append(j)
+        dict_cci_summary['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
+        dict_cci_search['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
 
 def populate_significant_means_data(dict_dd, df, separator):
     dict_cci_summary = dict_dd['cell_cell_interaction_summary']
