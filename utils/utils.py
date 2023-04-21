@@ -249,10 +249,11 @@ def populate_degs_data(result_dict, df):
         cell_type2degs[cell_type] = list(degs)
     dict_degs['celltype2degs'] = cell_type2degs
 
-def sort_cell_type_pairs(cell_type_pairs, microenvironment2cell_types, separator):
-    if not microenvironment2cell_types:
+def sort_cell_type_pairs(cell_type_pairs, result_dict, separator):
+    if 'microenvironment2cell_types' not in result_dict:
         return sorted(cell_type_pairs)
     else:
+        microenvironment2cell_types = result_dict['microenvironment2cell_types']
         selected_cell_type_pairs = cell_type_pairs.copy()
         # Microenvironments are used - sort selected_cell_type_pairs by microenvironment
         me2ct_pairs = {}
@@ -312,9 +313,8 @@ def filter_interactions(result_dict,
     else:
         selected_cell_types = []
     result_dict['selected_cell_types'] = sorted(selected_cell_types)
-    selected_cell_type_pairs = sort_cell_type_pairs(selected_cell_type_pairs,
-                                             result_dict['microenvironment2cell_types'],
-                                             separator)
+    selected_cell_type_pairs = \
+        sort_cell_type_pairs(selected_cell_type_pairs, result_dict, separator)
     result_dict['selected_cell_type_pairs'] = selected_cell_type_pairs
     # Collect all interactions from query_genes and query_interactions
     interactions = set([])
