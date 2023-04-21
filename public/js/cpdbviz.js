@@ -1016,7 +1016,10 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     // cell type pairs
     for (var j = 0; j <= xVals.length - 1; j++) {
       var expression = mean_expressions[i][j];
-      var minusLog10PVal = pvalues[i][j];
+      var minusLog10PVal;
+      if (pvalues) {
+         minusLog10PVal = pvalues[i][j];
+      }
       var cellTypePair = data['cell_type_pairs_means'][j];
       var interaction = data['interacting_pairs_means'][i];
       cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos-10, legend_yPos+420);
@@ -1099,32 +1102,34 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     .select(".domain")
     .attr("visibility", "hidden");
 
-  // P-Value legend - dot size
-  const dotlegend_xPos=width-315
-  const dotlegend_yPos=top_yMargin+legend_height+10
-  const dotSizeLegend = svg
-        .append("svg")
-        .attr("width", 450)
-        .attr("height", 300)
-        .attr("x", dotlegend_xPos)
-        .attr("y", dotlegend_yPos);
+  if (pvalues) {
+      // P-Value legend - dot size
+      const dotlegend_xPos=width-315
+      const dotlegend_yPos=top_yMargin+legend_height+10
+      const dotSizeLegend = svg
+            .append("svg")
+            .attr("width", 450)
+            .attr("height", 300)
+            .attr("x", dotlegend_xPos)
+            .attr("y", dotlegend_yPos);
 
-  // Dot size legend header
-  dotSizeLegend
-    .append("text").attr("x", 5).attr("y", 100).text("-log").style("font-size", "15px")
-    .append('tspan').text('10').style('font-size', '.7rem').attr('dx', '.1em').attr('dy', '.9em')
-    .append('tspan').text("P").style("font-size", "15px").attr('dx', '-.1em').attr('dy', '-.9em')
-    .attr("alignment-baseline","middle")
-  // dot size legend content
-  dotSizeLegend.append("circle").attr("cx",15).attr("cy",130).attr("r", 2).style("fill", "#404080")
-  dotSizeLegend.append("circle").attr("cx",15).attr("cy",160).attr("r", 4).style("fill", "#404080")
-  dotSizeLegend.append("circle").attr("cx",15).attr("cy",190).attr("r", 6).style("fill", "#404080")
-  dotSizeLegend.append("circle").attr("cx",15).attr("cy",220).attr("r", 8).style("fill", "#404080")
-  dotSizeLegend.append("text").attr("x", 35).attr("y", 130).text("0").style("font-size", "15px").attr("alignment-baseline","middle")
-  dotSizeLegend.append("text").attr("x", 35).attr("y", 160).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
-  dotSizeLegend.append("text").attr("x", 35).attr("y", 190).text("2").style("font-size", "15px").attr("alignment-baseline","middle")
-  dotSizeLegend.append("text").attr("x", 35).attr("y", 220).text(">=3").style("font-size", "15px").attr("alignment-baseline","middle")
+      // Dot size legend header
+      dotSizeLegend
+        .append("text").attr("x", 5).attr("y", 100).text("-log").style("font-size", "15px")
+        .append('tspan').text('10').style('font-size', '.7rem').attr('dx', '.1em').attr('dy', '.9em')
+        .append('tspan').text("P").style("font-size", "15px").attr('dx', '-.1em').attr('dy', '-.9em')
+        .attr("alignment-baseline","middle")
+      // dot size legend content
+      dotSizeLegend.append("circle").attr("cx",15).attr("cy",130).attr("r", 2).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",15).attr("cy",160).attr("r", 4).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",15).attr("cy",190).attr("r", 6).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",15).attr("cy",220).attr("r", 8).style("fill", "#404080")
+      dotSizeLegend.append("text").attr("x", 35).attr("y", 130).text("0").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", 35).attr("y", 160).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", 35).attr("y", 190).text("2").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", 35).attr("y", 220).text(">=3").style("font-size", "15px").attr("alignment-baseline","middle")
   }
+}
 
 function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin) {
     var xAxis = d3
@@ -1186,7 +1191,11 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
 }
 
 function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos) {
-    var radius = minusLog10PVal * 2 + 2;
+
+    var radius = 5;
+    if (minusLog10PVal) {
+        radius = minusLog10PVal * 2 + 2;
+    }
 
     var cellType = yVals[i];
     var gene = xVals[j];

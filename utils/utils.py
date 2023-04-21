@@ -35,9 +35,10 @@ def get_projects() -> dict:
                     dict['cell_type_col_name'] = config['cell_type_data']
                     dict['microenvironments_col_name'] = config['microenvironments_data']
                     for key in CONFIG_KEYS[3:]:
-                        fpath = "{}/{}".format(root, config[key])
-                        df = pd.read_csv(fpath, sep='\t')
-                        populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
+                        if key in config:
+                            fpath = "{}/{}".format(root, config[key])
+                            df = pd.read_csv(fpath, sep='\t')
+                            populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
                     dict['cell_cell_interaction_search']['separator'] = config['separator']
                     dir_name2project_data[dir_name] = dict
     return (dir_name2project_data, dir_name2file_name2df)
@@ -284,7 +285,6 @@ def filter_interactions(result_dict,
         if not refresh_plot:
             # If neither genes nor interactions are selected, pre-select interacting pairs
             interacting_pairs = preselect_interacting_pairs(result_dict)
-            print(interacting_pairs)
         else:
             genes = []
             interacting_pairs = []
@@ -319,14 +319,15 @@ def filter_interactions(result_dict,
         # Some significant interactions were found
         result_dict['min_expression'] = means_np_arr.min(axis=None)
         result_dict['max_expression'] = means_np_arr.max(axis=None)
-    result_dict['filtered_pvalues'] = means_np_arr.copy().tolist()
-    for i, row in enumerate(result_dict['filtered_pvalues']):
-        for j, _ in enumerate(row):
-            cell_type = selected_cell_type_pairs[j]
-            interacting_pair = result_dict['interacting_pairs_means'][i]
-            if cell_type in result_dict['pvalues'] and interacting_pair in result_dict['pvalues'][cell_type]:
-                result_dict['filtered_pvalues'][i][j] = result_dict['pvalues'][cell_type][interacting_pair]
-            else:
-                # pvalues = 1.0 have been filtered out to reduce API output
-                result_dict['filtered_pvalues'][i][j] = 0
+    if 'pvalues' in result_dict:
+        result_dict['filtered_pvalues'] = means_np_arr.copy().tolist()
+        for i, row in enumerate(result_dict['filtered_pvalues']):
+            for j, _ in enumerate(row):
+                cell_type = selected_cell_type_pairs[j]
+                interacting_pair = result_dict['interacting_pairs_means'][i]
+                if cell_type in result_dict['pvalues'] and interacting_pair in result_dict['pvalues'][cell_type]:
+                    result_dict['filtered_pvalues'][i][j] = result_dict['pvalues'][cell_type][interacting_pair]
+                else:
+                    # pvalues = 1.0 have been filtered out to reduce API output
+                    result_dict['filtered_pvalues'][i][j] = 0
 
