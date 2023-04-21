@@ -304,9 +304,9 @@ def filter_interactions(result_dict,
         result_means_df = means_df
 
     # Filter out cell_type_pairs/columns in cols_filter for which no interaction in interactions set is significant
-    means_cols_filter = means_cols_filter[result_means_df[means_cols_filter].notna().any(axis=0)]
+    # TODO: means_cols_filter = means_cols_filter[result_means_df[means_cols_filter].notna().any(axis=0)]
     # Filter out interactions which are not significant in any cell_type_pair/column in cols_filter
-    result_means_df = result_means_df[result_means_df[means_cols_filter].notna().any(axis=1)]
+    # TODO: result_means_df = result_means_df[result_means_df[means_cols_filter].notna().any(axis=1)]
     # Sort rows by interacting_pair
     result_means_df = result_means_df.sort_values(by=['interacting_pair'])
     result_dict['interacting_pairs_means'] = result_means_df['interacting_pair'].values.tolist()

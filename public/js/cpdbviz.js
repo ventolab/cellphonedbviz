@@ -1037,7 +1037,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       }
       var cellTypePair = data['cell_type_pairs_means'][j];
       var interaction = data['interacting_pairs_means'][i];
-      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos-10, legend_yPos+420);
+      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos-10, legend_yPos+420, pvalues);
     }
   }
 
@@ -1205,13 +1205,23 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
       .attr("fill", colorscale(0));
 }
 
-function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos) {
+function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues) {
 
-    var radius = 5;
-    if (minusLog10PVal) {
-        radius = minusLog10PVal * 2 + 2;
+    var radius;
+    if (pvalues) {
+        if (minusLog10PVal) {
+            radius = minusLog10PVal * 2 + 2;
+        } else {
+            radius = 2;
+        }
+    } else {
+        radius = 5;
     }
 
+    var tooltipContent = "Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>Expression: " + expression;
+    if (pvalues) {
+        tooltipContent += "<br>Rounded -log10pvalue: " + minusLog10PVal;
+    }
     var cellType = yVals[i];
     var gene = xVals[j];
     var tooltip = d3.select("#cci_search")
@@ -1226,7 +1236,7 @@ function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePai
     .style("box-shadow", "2px 2px 20px")
     .style("opacity", "0.9")
     .attr("id", "cci_search_tooltip")
-    .html("Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>Expression: " + expression + "<br>Rounded -log10pvalue: " + minusLog10PVal);
+    .html(tooltipContent);
 
     svg
       .append("circle")
