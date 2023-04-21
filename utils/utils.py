@@ -3,7 +3,6 @@ import math
 import pandas as pd
 import numpy as np
 import yaml
-import random
 import re
 
 base_path = os.path.dirname(os.path.realpath(__file__))

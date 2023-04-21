@@ -424,8 +424,8 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     }
 
     var height = 700,
-    width = 1000,
-    bottom_yMargin = 180,
+    width = 900,
+    bottom_yMargin = 250,
     top_yMargin = 30,
     xMargin = 120,
     yVals = data['cell_types'],
@@ -441,7 +441,8 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     min_expr = 0,
     max_expr=data['max_expression'],
     cellType2Degs = data['celltype2degs'],
-    colorDomain = yVals
+    colorDomain = yVals,
+    legend_offset = 160;
   var svg = d3
     .select("#sge")
     .append("svg")
@@ -451,7 +452,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     .attr("height", height);
 
   var yAxisLength = height - top_yMargin - bottom_yMargin,
-      xAxisLength = yAxisLength;
+      xAxisLength = width - xMargin - legend_offset;
 
   var xScale = d3
       .scaleLinear()
@@ -470,8 +471,8 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
 
   sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   sgeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
-  const legend_xPos=width-300
-  const legend_yPos=top_yMargin+50
+  const legend_xPos=xAxisLength+legend_offset;
+  const legend_yPos=top_yMargin+50;
   // cell types
   for (var i = 0; i <= yVals.length - 1; i++) {
     // genes
@@ -480,7 +481,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       var cellType = yVals[i];
       var gene = xVals[j];
       deg = cellType2Degs[cellType] && cellType2Degs[cellType].includes(gene) ? true : false;
-      sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos-10, legend_yPos+320);
+      sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos, legend_yPos+320);
     }
   }
 
@@ -984,7 +985,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     .attr("height", height);
 
   var yAxisLength = height - top_yMargin - bottom_yMargin,
-      xAxisLength = width - xMargin - 400;
+      xAxisLength = width - xMargin - 350;
 
   var xScale = d3
       .scaleLinear()
