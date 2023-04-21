@@ -3,7 +3,9 @@ import math
 import pandas as pd
 import numpy as np
 import yaml
+import random
 import re
+from collections import OrderedDict
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 DATA_ROOT = f"{base_path}/../data"
@@ -147,7 +149,11 @@ def preselect_interacting_pairs(dict_cci_search: dict):
     return dict_cci_search['all_interacting_pairs'][0:NUMBER_OF_INTERACTING_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
 
 def preselect_cell_type_pairs(dict_cci_search: dict):
-    return dict_cci_search['all_cell_type_pairs'][0:NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
+    # TESTING:
+    # random.seed(10)
+    # TESTING:
+    return random.sample(list(dict_cci_search['all_cell_type_pairs']), NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD)
+    # return dict_cci_search['all_cell_type_pairs'][0:NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
 
 def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False):
     dict_sge = dict_dd['single_gene_expression']
@@ -243,6 +249,34 @@ def populate_degs_data(result_dict, df):
         cell_type2degs[cell_type] = list(degs)
     dict_degs['celltype2degs'] = cell_type2degs
 
+def sort_cell_type_pairs(cell_type_pairs, microenvironment2cell_types, separator):
+    if not microenvironment2cell_types:
+        return sorted(cell_type_pairs)
+    else:
+        selected_cell_type_pairs = cell_type_pairs.copy()
+        # Microenvironments are used - sort selected_cell_type_pairs by microenvironment
+        me2ct_pairs = {}
+        for me in microenvironment2cell_types:
+            cts = microenvironment2cell_types[me]
+            me2ct_pairs[me] = []
+            for ct_pair in selected_cell_type_pairs:
+                ct1 = ct_pair.split(separator)[0]
+                ct2 = ct_pair.split(separator)[1]
+                if ct1 in cts and ct2 in cts:
+                    me2ct_pairs[me].append(ct_pair)
+                    selected_cell_type_pairs.remove(ct_pair)
+            # Anything that remains in selected_cell_type_pairs has not been assigned to
+            # any microenvironment or contains cell types from different microenvironments
+            # (I'm not sure if the latter is in fact possible in CellphoneDB data)
+            # In any case, put these values into me2ct_pairs under '' key
+            me2ct_pairs[''] = selected_cell_type_pairs
+        # Collate me2ct_pairs.values into a single list (sorted_selected_cell_type_pairs)
+        # sorting cell type pairs within each environment alphabetically
+        sorted_selected_cell_type_pairs = []
+        for me in OrderedDict(sorted(me2ct_pairs.items(), reverse = True)):
+            sorted_selected_cell_type_pairs += sorted(me2ct_pairs[me])
+        return sorted_selected_cell_type_pairs
+
 def filter_interactions(result_dict,
                         file_name2df,
                         genes,
@@ -265,7 +299,6 @@ def filter_interactions(result_dict,
         for ct in selected_cell_types:
             for ct1 in selected_cell_types:
                 selected_cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
-        selected_cell_type_pairs = sorted(selected_cell_type_pairs)
         means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
     elif not cell_type_pairs:
         selected_cell_types = []
@@ -279,8 +312,10 @@ def filter_interactions(result_dict,
     else:
         selected_cell_types = []
     result_dict['selected_cell_types'] = sorted(selected_cell_types)
-    result_dict['selected_cell_type_pairs'] = sorted(selected_cell_type_pairs)
-
+    selected_cell_type_pairs = sort_cell_type_pairs(selected_cell_type_pairs,
+                                             result_dict['microenvironment2cell_types'],
+                                             separator)
+    result_dict['selected_cell_type_pairs'] = selected_cell_type_pairs
     # Collect all interactions from query_genes and query_interactions
     interactions = set([])
     if not genes and not interacting_pairs:
@@ -311,8 +346,8 @@ def filter_interactions(result_dict,
     result_means_df = result_means_df.sort_values(by=['interacting_pair'])
     result_dict['interacting_pairs_means'] = result_means_df['interacting_pair'].values.tolist()
     result_means_df = result_means_df[means_cols_filter.tolist()]
-    # Sort columns alphabetically
-    result_means_df = result_means_df.reindex(sorted(result_means_df.columns), axis=1)
+    # Sort columns according to the order in selected_cell_type_pairs (see sort_cell_type_pairs() call above)
+    result_means_df = result_means_df.reindex(selected_cell_type_pairs, axis=1)
     result_dict['cell_type_pairs_means'] = result_means_df.columns.tolist()
     # Replace nan with 0's in result_means_df.values
     means_np_arr = np.nan_to_num(result_means_df.values, copy=False, nan=0.0)

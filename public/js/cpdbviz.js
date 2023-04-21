@@ -721,7 +721,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         colorDomain = yVals;
 
       // Filter rows and columns of numInteractions by cellTypes
-      // N.B. that we don't recalculate min_ints, max_ints for filteredNumInteractions because
+      // N.B. we don't recalculate min_ints, max_ints for filteredNumInteractions because
       // if we show one heatmap per microenvironment, we need colours comparable across all heatmaps
       var ctIndexes = cellTypes.map(ct => ct2indx[ct])
       var filteredNumInteractions = [];
