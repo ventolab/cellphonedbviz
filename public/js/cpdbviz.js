@@ -457,6 +457,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     cellType2Degs = data['celltype2degs'],
     colorDomain = yVals,
     legend_offset = 160;
+
   var svg = d3
     .select("#sge")
     .append("svg")
@@ -493,9 +494,13 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     for (var j = 0; j <= xVals.length - 1; j++) {
       var expression = mean_expressions[j][i];
       var cellType = yVals[i];
-      var gene = xVals[j];
-      deg = cellType2Degs[cellType] && cellType2Degs[cellType].includes(gene) ? true : false;
-      sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos, legend_yPos+320);
+      var gene = xVals[j]
+      if (cellType2Degs) {
+          deg = cellType2Degs[cellType] && cellType2Degs[cellType].includes(gene) ? true : false;
+      } else {
+          deg = false;
+      }
+      sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos, 20);
     }
   }
 
@@ -576,10 +581,12 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     .attr("visibility", "hidden");
 
   // DEG legend:
-  var deg_legend_yPos=legend_yPos+legend_height+30
-  svg.append("circle").attr("cx",legend_xPos).attr("cy",deg_legend_yPos).attr("r", 8).style("fill", "#3DE397")
-  svg.append("circle").attr("cx",legend_xPos).attr("cy",deg_legend_yPos).attr("r", 5).style("fill", "#FFFFFF")
-  svg.append("text").attr("x", legend_xPos+20).attr("y", deg_legend_yPos).text("Is DEG gene").style("font-size", "15px").attr("alignment-baseline","middle")
+  if (cellType2Degs) {
+      var deg_legend_yPos=legend_yPos+legend_height+30
+      svg.append("circle").attr("cx",legend_xPos).attr("cy",deg_legend_yPos).attr("r", 8).style("fill", "#3DE397")
+      svg.append("circle").attr("cx",legend_xPos).attr("cy",deg_legend_yPos).attr("r", 5).style("fill", "#FFFFFF")
+      svg.append("text").attr("x", legend_xPos+20).attr("y", deg_legend_yPos).text("Is DEG gene").style("font-size", "15px").attr("alignment-baseline","middle")
+  }
 }
 
 function sgeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin) {
@@ -949,6 +956,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     const selectedCellTypes = data['selected_cell_types'];
     const selectedCellTypePairs = data['selected_cell_type_pairs'];
     const selectedCTP2Me = data['selected_cell_type_pairs2microenvironment'];
+    const microenvironments = data['microenvironments']
 
     // See: https://observablehq.com/@d3/color-schemes
     const colours = d3.schemeCategory10;
@@ -964,11 +972,16 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       }
     }
 
+    var mes4Legend = [];
     var ctp2Colour = {}
     for (var i = 0; i < selectedCellTypePairs.length; i++) {
       const ctp = selectedCellTypePairs[i];
       const me = selectedCTP2Me[ctp];
       ctp2Colour[ctp] = me2Colour[me];
+      if (!mes4Legend.includes(me)) {
+        // We need mes4Legend to be in the same order as the groups of cell type pairs on the x-axis
+        mes4Legend.push(me);
+      }
     }
 
     if (storeTokens) {
@@ -1046,8 +1059,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
 
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
-  const legend_xPos=width-300
-  const legend_yPos=top_yMargin+50
+  const barLegend_xPos=width-300
+  const barLegend_yPos=top_yMargin+50
   // interacting pairs
   for (var i = 0; i <= yVals.length - 1; i++) {
     // cell type pairs
@@ -1059,27 +1072,27 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       }
       var cellTypePair = data['cell_type_pairs_means'][j];
       var interaction = data['interacting_pairs_means'][i];
-      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos-10, legend_yPos+420, pvalues);
+      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-10, -30, pvalues);
     }
   }
 
-  // Colour legend:
+  // Mean expression heatmap colour legend:
   // See: https://blog.scottlogic.com/2019/03/13/how-to-create-a-continuous-colour-range-legend-using-d3-and-d3fc.html
   // Band scale for x-axis
-  const legend_width=50
-  const legend_height=150
+  const barLegendWidth=50
+  const barLegendHeight=150
   domain=[min_expr, max_expr]
 
   const legend_xScale = d3
     .scaleBand()
     .domain([0, 1])
-    .range([0, legend_width]);
+    .range([0, barLegendWidth]);
 
   // Linear scale for y-axis
   const legend_yScale = d3
     .scaleLinear()
     .domain(domain)
-    .range([legend_height, 0]);
+    .range([barLegendHeight, 0]);
 
   // An array interpolated over our domain where height is the height of the bar
   // Padding the domain by 3%
@@ -1089,7 +1102,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     .pad([0.03, 0.03])
     .padUnit("percent")(domain);
   [min_expr, max_expr] = paddedDomain;
-  const expandedDomain = d3.range(min_expr, max_expr, (max_expr - min_expr) / legend_height);
+  const expandedDomain = d3.range(min_expr, max_expr, (max_expr - min_expr) / barLegendHeight);
 
   // Define the colour legend bar
   const svgBar = fc
@@ -1105,15 +1118,15 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
 
     // Add the colour legend header
     svg
-    .append("text").attr("x", legend_xPos-12).attr("y", top_yMargin+10).text("Mean expression").style("font-size", "15px")
-    .append('tspan').attr("x", legend_xPos-12).attr("y", top_yMargin+30).text("z-score")
+    .append("text").attr("x", barLegend_xPos-12).attr("y", top_yMargin+10).text("Mean expression").style("font-size", "15px")
+    .append('tspan').attr("x", barLegend_xPos-12).attr("y", top_yMargin+30).text("z-score")
     .attr("alignment-baseline","middle");
 
   // Draw the legend bar
   const colourLegendBar = svg
     .append("g")
     .attr("transform", function() {
-        return "translate(" + legend_xPos + "," + legend_yPos + ")";
+        return "translate(" + barLegend_xPos + "," + barLegend_yPos + ")";
       })
     .datum(expandedDomain)
     .call(svgBar);
@@ -1122,7 +1135,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
   const legendLabel_yScale = d3
     .scaleLinear()
     .domain(paddedDomain)
-    .range([legend_height, 0]);
+    .range([barLegendHeight, 0]);
 
   // Defining our label
   const axisLabel = fc
@@ -1139,14 +1152,17 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     .select(".domain")
     .attr("visibility", "hidden");
 
+  var dotLegendHeight = 0;
   if (pvalues) {
       // P-Value legend - dot size
       const dotlegend_xPos=width-315
-      const dotlegend_yPos=top_yMargin+legend_height+10
+      const dotlegend_yPos=top_yMargin+barLegendHeight+10
+      const dotLegendWidth = 450;
+      dotLegendHeight = 300;
       const dotSizeLegend = svg
             .append("svg")
-            .attr("width", 450)
-            .attr("height", 300)
+            .attr("width", dotLegendWidth)
+            .attr("height", dotLegendHeight)
             .attr("x", dotlegend_xPos)
             .attr("y", dotlegend_yPos);
 
@@ -1165,6 +1181,43 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       dotSizeLegend.append("text").attr("x", 35).attr("y", 160).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
       dotSizeLegend.append("text").attr("x", 35).attr("y", 190).text("2").style("font-size", "15px").attr("alignment-baseline","middle")
       dotSizeLegend.append("text").attr("x", 35).attr("y", 220).text(">=3").style("font-size", "15px").attr("alignment-baseline","middle")
+  }
+  
+  if (microenvironments) {
+      // Legend for cell type pair colours - by micro-environment
+      const meLegend_xPos=width-315;
+      var meLegend_yPos;
+      if (pvalues) {
+        meLegend_yPos=top_yMargin+barLegendHeight+dotLegendHeight-110;
+      } else {
+        meLegend_yPos=top_yMargin+barLegendHeight+10;
+      }
+
+      const meLegenedWidth = 450;
+      const meLegendHeight = 300;
+      const meLegend = svg
+            .append("svg")
+            .attr("width", meLegenedWidth)
+            .attr("height", meLegendHeight)
+            .attr("x", meLegend_xPos)
+            .attr("y", meLegend_yPos);
+
+      // Microenvironments legend header
+      meLegend
+        .append("text").attr("x", 5).attr("y", 100).text("Microenvironments").style("font-size", "15px")
+        .attr("alignment-baseline","middle")
+
+      // Microenvironments legend content
+      const size = 12;
+      const meLegendStartYPos = 120;
+      var meLegendYPos = meLegendStartYPos;
+      for (var i = 0; i <= mes4Legend.length - 1; i++) {
+          var me = mes4Legend[i];
+          var colour = me2Colour[me];
+          meLegend.append("rect").attr("x",15).attr("y",meLegendYPos).attr("width", size).attr("height", size).style("fill", colour)
+          meLegend.append("text").attr("x", 35).attr("y", meLegendYPos+6).text(me).style("font-size", "15px").attr("alignment-baseline","middle");
+          meLegendYPos += 30;
+      }
   }
 }
 
@@ -1236,7 +1289,6 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
 }
 
 function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues) {
-
     var radius;
     if (pvalues) {
         if (minusLog10PVal) {
