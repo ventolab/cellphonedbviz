@@ -249,9 +249,11 @@ def populate_degs_data(result_dict, df):
         cell_type2degs[cell_type] = list(degs)
     dict_degs['celltype2degs'] = cell_type2degs
 
-def sort_cell_type_pairs(cell_type_pairs, result_dict, separator):
+def sort_cell_type_pairs(cell_type_pairs, result_dict, separator) -> (list, dict):
     if 'microenvironment2cell_types' not in result_dict:
-        return sorted(cell_type_pairs)
+        selected_cell_type_pairs = sorted(cell_type_pairs)
+        ctp2me = {ctp: 'all' for ctp in selected_cell_type_pairs}
+        return selected_cell_type_pairs, ctp2me
     else:
         microenvironment2cell_types = result_dict['microenvironment2cell_types']
         selected_cell_type_pairs = cell_type_pairs.copy()
@@ -266,17 +268,21 @@ def sort_cell_type_pairs(cell_type_pairs, result_dict, separator):
                 if ct1 in cts and ct2 in cts:
                     me2ct_pairs[me].append(ct_pair)
                     selected_cell_type_pairs.remove(ct_pair)
-            # Anything that remains in selected_cell_type_pairs has not been assigned to
-            # any microenvironment or contains cell types from different microenvironments
-            # (I'm not sure if the latter is in fact possible in CellphoneDB data)
-            # In any case, put these values into me2ct_pairs under '' key
-            me2ct_pairs[''] = selected_cell_type_pairs
+        # Anything that remains in selected_cell_type_pairs has not been assigned to
+        # any microenvironment or contains cell types from different microenvironments
+        # (I'm not sure if the latter is in fact possible in CellphoneDB data)
+        # In any case, put these values into me2ct_pairs under 'Mixed' key
+        me2ct_pairs['Mixed'] = selected_cell_type_pairs
         # Collate me2ct_pairs.values into a single list (sorted_selected_cell_type_pairs)
         # sorting cell type pairs within each environment alphabetically
         sorted_selected_cell_type_pairs = []
+        ctp2me = {}
         for me in OrderedDict(sorted(me2ct_pairs.items(), reverse = True)):
             sorted_selected_cell_type_pairs += sorted(me2ct_pairs[me])
-        return sorted_selected_cell_type_pairs
+            for ctp in sorted_selected_cell_type_pairs:
+                if ctp not in ctp2me:
+                    ctp2me[ctp] = me
+        return sorted_selected_cell_type_pairs, ctp2me
 
 def filter_interactions(result_dict,
                         file_name2df,
@@ -313,9 +319,12 @@ def filter_interactions(result_dict,
     else:
         selected_cell_types = []
     result_dict['selected_cell_types'] = sorted(selected_cell_types)
-    selected_cell_type_pairs = \
+    selected_cell_type_pairs, ctp2me = \
         sort_cell_type_pairs(selected_cell_type_pairs, result_dict, separator)
     result_dict['selected_cell_type_pairs'] = selected_cell_type_pairs
+    # The following will be used to colour cell type pair labels on the plot's x-axis depending on
+    # micro-environment they _both_ belong to.
+    result_dict['selected_cell_type_pairs2microenvironment'] = ctp2me
     # Collect all interactions from query_genes and query_interactions
     interactions = set([])
     if not genes and not interacting_pairs:

@@ -948,6 +948,28 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     const selectedInteractingPairs = data['selected_interacting_pairs'];
     const selectedCellTypes = data['selected_cell_types'];
     const selectedCellTypePairs = data['selected_cell_type_pairs'];
+    const selectedCTP2Me = data['selected_cell_type_pairs2microenvironment'];
+
+    // See: https://observablehq.com/@d3/color-schemes
+    const colours = d3.schemeCategory10;
+    var me2Colour = {};
+    var mes = Array.from(new Set(Object.values(selectedCTP2Me)));
+    for (var i = 0; i < mes.length; i++) {
+      const me = mes[i];
+      if (me === "all") {
+        // No micro-environments are specified in the config
+        me2Colour[me] = "black";
+      } else {
+        me2Colour[me] = colours[i % colours.length];
+      }
+    }
+
+    var ctp2Colour = {}
+    for (var i = 0; i < selectedCellTypePairs.length; i++) {
+      const ctp = selectedCellTypePairs[i];
+      const me = selectedCTP2Me[ctp];
+      ctp2Colour[ctp] = me2Colour[me];
+    }
 
     if (storeTokens) {
         for (var i = 0; i < selectedGenes.length; i++) {
@@ -1023,7 +1045,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       .interpolator(d3.interpolateHsl("#D3D3D3", "red"));
 
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
-  cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
+  cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
   const legend_xPos=width-300
   const legend_yPos=top_yMargin+50
   // interacting pairs
@@ -1146,7 +1168,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
   }
 }
 
-function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin) {
+function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour) {
     var xAxis = d3
       .axisBottom()
       .ticks(xVals.length)
@@ -1176,6 +1198,14 @@ function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, 
       .attr("y1", 0)
       .attr("x2", 0)
       .attr("y2", -(height - top_yMargin - bottom_yMargin))
+
+    // Colour cell type pairs in different colour per microenvironment
+    d3.selectAll("#cci_search_x-axis g.tick").each(function() {
+        d3.select(this).select("text").style("fill", function() {
+            var cell_type_pair = this.textContent;
+            return ctp2Colour[cell_type_pair];
+        })
+    })
 }
 
 function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale) {
