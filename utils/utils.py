@@ -344,36 +344,33 @@ def filter_interactions(result_dict,
             means_df[means_df['interacting_pair'].isin(interacting_pairs)]['id_cp_interaction'].tolist())
     if interactions:
         result_means_df = means_df[means_df['id_cp_interaction'].isin(interactions)]
-    else:
-        result_means_df = means_df
-
-    # Filter out cell_type_pairs/columns in cols_filter for which no interaction in interactions set is significant
-    # TODO: means_cols_filter = means_cols_filter[result_means_df[means_cols_filter].notna().any(axis=0)]
-    # Filter out interactions which are not significant in any cell_type_pair/column in cols_filter
-    # TODO: result_means_df = result_means_df[result_means_df[means_cols_filter].notna().any(axis=1)]
-    # Sort rows by interacting_pair
-    result_means_df = result_means_df.sort_values(by=['interacting_pair'])
-    result_dict['interacting_pairs_means'] = result_means_df['interacting_pair'].values.tolist()
-    result_means_df = result_means_df[means_cols_filter.tolist()]
-    # Sort columns according to the order in selected_cell_type_pairs (see sort_cell_type_pairs() call above)
-    result_means_df = result_means_df.reindex(selected_cell_type_pairs, axis=1)
-    result_dict['cell_type_pairs_means'] = result_means_df.columns.tolist()
-    # Replace nan with 0's in result_means_df.values
-    means_np_arr = np.nan_to_num(result_means_df.values, copy=False, nan=0.0)
-    result_dict['means'] = means_np_arr.tolist()
-    if len(means_np_arr) > 0:
-        # Some significant interactions were found
-        result_dict['min_expression'] = means_np_arr.min(axis=None)
-        result_dict['max_expression'] = means_np_arr.max(axis=None)
-    if 'pvalues' in result_dict:
-        result_dict['filtered_pvalues'] = means_np_arr.copy().tolist()
-        for i, row in enumerate(result_dict['filtered_pvalues']):
-            for j, _ in enumerate(row):
-                cell_type = selected_cell_type_pairs[j]
-                interacting_pair = result_dict['interacting_pairs_means'][i]
-                if cell_type in result_dict['pvalues'] and interacting_pair in result_dict['pvalues'][cell_type]:
-                    result_dict['filtered_pvalues'][i][j] = result_dict['pvalues'][cell_type][interacting_pair]
-                else:
-                    # pvalues = 1.0 have been filtered out to reduce API output
-                    result_dict['filtered_pvalues'][i][j] = 0
+        # Filter out cell_type_pairs/columns in cols_filter for which no interaction in interactions set is significant
+        # TODO: means_cols_filter = means_cols_filter[result_means_df[means_cols_filter].notna().any(axis=0)]
+        # Filter out interactions which are not significant in any cell_type_pair/column in cols_filter
+        # TODO: result_means_df = result_means_df[result_means_df[means_cols_filter].notna().any(axis=1)]
+        # Sort rows by interacting_pair
+        result_means_df = result_means_df.sort_values(by=['interacting_pair'])
+        result_dict['interacting_pairs_means'] = result_means_df['interacting_pair'].values.tolist()
+        result_means_df = result_means_df[means_cols_filter.tolist()]
+        # Sort columns according to the order in selected_cell_type_pairs (see sort_cell_type_pairs() call above)
+        result_means_df = result_means_df.reindex(selected_cell_type_pairs, axis=1)
+        result_dict['cell_type_pairs_means'] = result_means_df.columns.tolist()
+        # Replace nan with 0's in result_means_df.values
+        means_np_arr = np.nan_to_num(result_means_df.values, copy=False, nan=0.0)
+        result_dict['means'] = means_np_arr.tolist()
+        if means_np_arr.size > 0:
+            # Some significant interactions were found
+            result_dict['min_expression'] = means_np_arr.min(axis=None)
+            result_dict['max_expression'] = means_np_arr.max(axis=None)
+        if 'pvalues' in result_dict:
+            result_dict['filtered_pvalues'] = means_np_arr.copy().tolist()
+            for i, row in enumerate(result_dict['filtered_pvalues']):
+                for j, _ in enumerate(row):
+                    cell_type = selected_cell_type_pairs[j]
+                    interacting_pair = result_dict['interacting_pairs_means'][i]
+                    if cell_type in result_dict['pvalues'] and interacting_pair in result_dict['pvalues'][cell_type]:
+                        result_dict['filtered_pvalues'][i][j] = result_dict['pvalues'][cell_type][interacting_pair]
+                    else:
+                        # pvalues = 1.0 have been filtered out to reduce API output
+                        result_dict['filtered_pvalues'][i][j] = 0
 

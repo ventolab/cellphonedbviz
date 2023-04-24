@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang='en' xml:lang='en' xmlns='http://www.w3.org/1999/xhtml'>
+  <head>
+        <title></title>
+
+        <meta content='text/html; charset=utf-8' http-equiv='Content-Type' />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <link rel="stylesheet" href="css/cpdbviz.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.4/d3.min.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/d3fc@15.2.6/build/d3fc.js"></script>
+
+        <script type="text/javascript" src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+        <script src="./js/sankey.js" type="text/javascript"></script>
+        <script src="./js/cpdbviz.js" type="text/javascript"></script>
+  </head>
+  <body>
+        <h4 class="center" id="page_header"></h4>
+        <div id="project_id" hidden>endometrium_cpdbv4_deg</div>
+        <div class="col s12">
+          <div class="row">
+            <!-- Celltype composition sankey plot -->
+            <div>
+              <div class="col s12 m6 l6">
+                <div class="card blue-grey darken-1" >
+                  <div class="card-content black-text col s12">
+                    <span class="card-title center">Cell composition</span>
+                    <span id="ctcomp_header" class="card-title center" style="font-size: 16px;"></span>
+                      <div id="ctcomp" style="width:1000px"></div>
+                  </div>
+                </div>
+              </div>
+
+            <!-- Spatial micro-environments plot -->
+            <div>
+              <div class="col s12 m6 l6">
+                <div class="card" >
+                  <div class="card-content black-text col s12">
+                    <span class="card-title center">Spatial microenvironments</span>
+                    <span id="spme_header" class="card-title center" style="font-size: 16px;"></span>
+                      <div id="spme" style="width:800px"></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div> <!-- <div class="row"> -->
+        </div> <!-- <div class="col s12"> -->
+
+        <div class="col s12">
+          <div class="row">
+
+             <div id="search_results" hidden>
+               <div class="card">
+                 <div class="card-content black-text col s12">
+                   <div id="search_results_table"  class="col s12">
+                     <span id="search_results_title" class="card-title"></span>
+                     <div hidden id="search_results_csv"></div>
+                     <div class="divider"></div>
+                       <span style="color: blue"><i>Click on an interaction partner name for more information.</i></span>
+                     <p />
+                   </div>
+                 </div>
+               </div>
+             </div>
+
+              <div class="col s12 m3 l3">
+                <div class="card" >
+                  <div class="card-content black-text col s12">
+                    <div class="row">
+                      <div class="col s12">
+                        <div class="row">
+                          <div style="padding-left: 20px; padding-top: 0px;">
+                              <div class="section">
+                                <button id="refresh_sge_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshSGEPlot()">Refresh plot
+                                    <i class="material-icons right">refresh</i>
+                                </button>
+                                <div style="padding-top: 10px;"></div>
+                                <button id="clear_sge_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearSGEFilters()">Clear filters&nbsp;
+                                    <i class="material-icons right">clear_all</i>
+                                </button>
+                              </div>
+                              <div class="input-field">
+                                <input style="padding-top: 30px;" type="text" id="sge_gene_input" placeholder="Gene name">
+                                <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10">Add genes to the plot</label>
+                              </div>
+                              <div class="sge_selected_genes"></div>
+                              <div class="input-field">
+                                <input style="padding-top: 30px;" type="text" id="sge_celltype_input" placeholder="Cell type">
+                                <label style="padding-top: 30px;" for="sge_celltype_input" class="black-text text-lighten-10">Add cell types to the plot</label>
+                              </div>
+                              <div class="sge_selected_celltypes"></div>
+                              <div id="sge_microenvironment_sel" class="input-field">
+                                <input style="padding-top: 30px;" type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
+                                <label style="padding-top: 30px;" for="sge_microenvironment_input" class="black-text text-lighten-10">Filter by microenvironment</label>
+                              </div>
+                              <div class="sge_selected_microenvironments"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col s12 m9 l9 push-s1">
+                <div class="card" >
+                    <span class="card-title left" style="padding-left: 150px;">Single gene expression</span>
+                    <div class="card-content black-text col s12">
+                      <span id="sge_header" class="card-title center" style="font-size: 16px;">Mean expressions of genes per cell type</span>
+                        <div id="sge" style="width:1000px"></div>
+                    </div>
+                </div>
+              </div>
+          </div> <!-- <div class="row"> -->
+        </div> <!-- <div class="col s12"> -->
+
+        <div class="col s12">
+          <div class="row">
+            <!-- Cell cell interaction plot - Microenvironment 1 -->
+            <div id="cci1_div" hidden>
+              <div class="col s12 m6 l6">
+                <div class="card blue-grey darken-1" >
+                  <div class="card-content black-text col s12">
+                    <span class="card-title center">Cell-cell Communication - Summary</span>
+                    <span id="cci1_header" class="card-title center" style="font-size: 16px;"></span>
+                      <div id="cci1" style="width:800px"></div>
+                  </div>
+                </div>
+              </div>
+
+            <!-- Cell cell interaction plot - Microenvironment 2 -->
+            <div id="cci2_div" hidden>
+              <div class="col s12 m6 l6">
+                <div class="card" >
+                  <div class="card-content black-text col s12">
+                    <span class="card-title center">Cell-cell Communication - Summary</span>
+                    <span id="cci2_header" class="card-title center" style="font-size: 16px;"></span>
+                      <div id="cci2" style="width:800px"></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div> <!-- <div class="row"> -->
+        </div> <!-- <div class="col s12"> -->
+
+        <div class="col s12">
+          <div class="row">
+            <!-- Cell cell interaction plot - Microenvironment 3 -->
+            <div id="cci3_div" hidden>
+              <div class="col s12 m6 l6">
+                <div class="card blue-grey darken-1" >
+                  <div class="card-content black-text col s12">
+                    <span class="card-title center">Cell-cell Communication - Summary</span>
+                    <span id="cci3_header" class="card-title center" style="font-size: 16px;"></span>
+                      <div id="cci3" style="width:800px"></div>
+                  </div>
+                </div>
+              </div>
+
+            <!-- Cell cell interaction plot - Microenvironment 4 -->
+            <div id="cci4_div" hidden>
+              <div class="col s12 m6 l6">
+                <div class="card" >
+                  <div class="card-content black-text col s12">
+                    <span class="card-title center">Cell-cell Communication - Summary</span>
+                    <span id="cci4_header" class="card-title center" style="font-size: 16px;"></span>
+                      <div id="cci4" style="width:800px"></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div> <!-- <div class="row"> -->
+        </div> <!-- <div class="col s12"> -->
+
+        <div class="col s12">
+          <div class="row">
+              <div class="card blue-grey darken-1" >
+                  <div class="card-content black-text col s12">
+                      <span class="card-title center">Cell-cell Communication - Search</span>
+<!--                      <span id="ccis_input_header" class="card-title center" style="font-size: 16px;">Placeholder/span>-->
+                  </div>
+              </div>
+            <!-- Cell-cell Interaction Search - Microenvironment/Cell type Inputs -->
+            <div id="ccis_input1_div">
+              <div class="col s12 m6 l6">
+                <div class="card blue-grey darken-1" >
+                  <div class="card-content black-text col s12">
+                          <div id="cci_search_microenvironment_sel" class="input-field">
+                            <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
+                            <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10">Filter by microenvironment</label>
+                          </div>
+                          <div class="cci_search_selected_microenvironments"></div>
+                          <div class="input-field">
+                            <input style="padding-top: 20px;" type="text" id="cci_search_celltype_input" placeholder="Cell type">
+                            <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10">Filter by cell types</label>
+                          </div>
+                          <div class="cci_search_selected_celltypes"></div>
+                          <div class="input-field">
+                            <input style="padding-top: 20px;" type="text" id="cci_search_celltype_pair_input" placeholder="Cell type pair">
+                            <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10">Filter by cell type pairs</label>
+                          </div>
+                          <div class="cci_search_selected_celltype_pairs"></div>
+                  </div>
+                </div>
+              </div>
+
+            <!-- Cell-cell Interaction Search - Gene/Interaction Inputs -->
+            <div id="ccis_input2_div" style="padding-left: 20px;">
+              <div class="col s12 m6 l6">
+                <div class="card" >
+                  <div class="card-content black-text col s12">
+                      <div class="input-field">
+                        <input style="padding-top: 30px;" type="text" id="cci_search_gene_input" placeholder="Gene">
+                        <label style="padding-top: 30px;" for="cci_search_gene_input" class="black-text text-lighten-10">Filter by genes</label>
+                      </div>
+                      <div class="cci_search_selected_genes"></div>
+                      <div class="input-field">
+                        <input style="padding-top: 20px;" type="text" id="cci_search_interaction_input" placeholder="Interaction">
+                        <label style="padding-top: 20px;" for="cci_search_interaction_input" class="black-text text-lighten-10">Filter by interactions</label>
+                      </div>
+                      <div class="cci_search_selected_interactions"></div>
+                      <div class="section">
+                        <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
+                            <i class="material-icons right">refresh</i>
+                        </button>
+                        <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchFilters()">Clear filters
+                            <i class="material-icons right">clear_all</i>
+                        </button>
+                      </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col s12">
+                <div class="card" >
+                    <div class="card-content black-text col s12">
+                      <span id="cci_search_header" class="card-title center" style="font-size: 16px;">Interactions per cell type pair</span>
+                        <div id="cci_search" style="width:1400px"></div>
+                    </div>
+                </div>
+              </div>
+
+            </div>
+          </div> <!-- <div class="row"> -->
+        </div> <!-- <div class="col s12"> -->
+
+  </body>
+</html>

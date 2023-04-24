@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
     var projectId = $("#project_id").text();
-
    // Populate page title
    $.ajax({
             url: '/api/list',
@@ -999,7 +998,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
         }
     }
 
-    if (data['interacting_pairs_means'].length == 0) {
+    if (!data.hasOwnProperty('interacting_pairs_means')) {
         d3.select("#cci_search")
         .style("color", "purple")
         .text('No significant interactions were found - please try another search.');
