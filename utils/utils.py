@@ -86,6 +86,8 @@ def populate_celltype_composition_data(result_dict, df):
             if prev_item is not None:
                 edges.add((prev_item, SANKEY_EDGE_WEIGHT, item))
             prev_item = item
+    # dict_cc['num_stacks'] is used for working out the left margin of Cell composition plot
+    dict_cc['num_stacks'] = stack_idx
     dict_cc['edges'] = [list(x) for x in edges]
     dict_cc['all_elems'] = list(sorted(all_elems))
     cell_type_col_name = result_dict['cell_type_data']

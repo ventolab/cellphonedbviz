@@ -230,6 +230,7 @@ function storeToken(val, target_div_class, input_field_id) {
 
 function generateCellCompositionPlot(data) {
      var edges = data['edges'];
+     var numStacks = data['num_stacks'];
       $("#ctcomp_header").text(data['title']);
       var sankey = new Sankey('ctcomp');
       sankey.stack(0,data['list0'],data['y_space0'],data['y_box0']);
@@ -251,7 +252,7 @@ function generateCellCompositionPlot(data) {
       sankey.setColors(elem2colour);
       sankey.y_space = 20;
       sankey.right_margin = 100;
-      sankey.left_margin = 100;
+      sankey.left_margin = -100 * numStacks + 400;
       sankey.box_width = 60;
       // Box height
       sankey.convert_flow_values_callback = function(flow) {
