@@ -12,7 +12,7 @@ DATA_ROOT = f"{base_path}/../data"
 # Note that 'deconvoluted_result' has to come after 'significant_means' in CONFIG_KEYS. This is because of pre-filtering of interacting pairs
 # on first page load - from deconvoluted file we need to pre-select genes but we don't have interacting_pair information in that file, hence
 # we need to get the mapping: interacting pair->interaction_id from the means file and only then we can do interaction_id->genes in deconvoluted file.
-CONFIG_KEYS = ['title','cell_type_data','microenvironments_data','celltype_composition','significant_means','deconvoluted_result','degs','pvalues']
+CONFIG_KEYS = ['title','cell_type_data','lineage_data','microenvironments_data','celltype_composition','significant_means','deconvoluted_result','degs','pvalues']
 VIZZES = ['celltype_composition','single_gene_expression','cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SANKEY_EDGE_WEIGHT = 30
@@ -34,10 +34,11 @@ def get_projects() -> dict:
                 with open('{}/config.yml'.format(root), 'r') as file:
                     config = yaml.safe_load(file)
                     dict['title'] = config['title']
-                    dict['cell_type_col_name'] = config['cell_type_data']
+                    dict['cell_type_data'] = config['cell_type_data']
+                    dict['lineage_data'] = config['lineage_data']
                     if 'microenvironments_data' in config:
                         dict['microenvironments_col_name'] = config['microenvironments_data']
-                    for key in CONFIG_KEYS[3:]:
+                    for key in CONFIG_KEYS[4:]:
                         if key in config:
                             fpath = "{}/{}".format(root, config[key])
                             df = pd.read_csv(fpath, sep='\t')
@@ -87,6 +88,8 @@ def populate_celltype_composition_data(result_dict, df):
             prev_item = item
     dict_cc['edges'] = [list(x) for x in edges]
     dict_cc['all_elems'] = list(sorted(all_elems))
+    cell_type_col_name = result_dict['cell_type_data']
+    lineage_col_name = result_dict['lineage_data']
     for idx, items in enumerate(stacks):
         dict_cc['list{}'.format(idx)] = sorted(list(items))
         if items:
@@ -97,13 +100,13 @@ def populate_celltype_composition_data(result_dict, df):
         dict_cc['y_space{}'.format(idx)] = y_space
         dict_cc['y_box{}'.format(idx)] = y_box
         # Data for Spatial micro-environments plot
-        dict_cc['y_vals'] = sorted(list(set(df['Cell type'].values)))
-        dict_cc['x_vals'] = sorted(list(set(df['Lineage'].values)))
-        dict_cc['color_domain'] = sorted(list(set(df['Menstrual stage'].values)))
+        dict_cc['y_vals'] = sorted(list(set(df[cell_type_col_name].values)))
+        dict_cc['x_vals'] = sorted(list(set(df[lineage_col_name].values)))
     # Data for filtering of cell types by micro-environment in single gene expression plot
-    cell_type_col_name = result_dict['cell_type_col_name']
     if 'microenvironments_col_name' in result_dict:
         microenvironments_col_name = result_dict['microenvironments_col_name']
+        # If micro-environments, set colour domain to microenviroments; otherwise 'color_domain' is not set
+        dict_cc['color_domain'] = sorted(list(set(df[microenvironments_col_name].values)))
         dict_sge['microenvironments'] = sorted(list(set(df[microenvironments_col_name].values)))
         dict_cci_search['microenvironments'] = dict_sge['microenvironments']
         dict_sge['microenvironment2cell_types'] = {}

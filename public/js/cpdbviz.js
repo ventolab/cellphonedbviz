@@ -280,11 +280,17 @@ function generateMicroenvironmentsPlot(data) {
         yMax = yVals.length - 1,
         xVals = data['x_vals'],
         xMax= xVals.length - 1,
-        mapping = data['raw_data'],
-        colorDomain = data['color_domain'];
-      $("#spme_header").text(data['title']);
+        mapping = data['raw_data'];
 
-      var svg = d3
+    if (!data.hasOwnProperty('color_domain')) {
+        // N.B. 'color_domain' is set only if microenvironments_data is provided in config
+        $("#me_title").hide();
+        return;
+    }
+    colorDomain = data['color_domain'];
+    $("#spme_header").text(data['title']);
+
+    var svg = d3
         .select("#spme")
         .append("svg")
         .attr("class", "axis")
@@ -857,6 +863,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
  }
 
 function cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin) {
+  var yOffset = -0.048*xVals.length + 3.136;
   var xAxis = d3
   .axisBottom()
   .ticks(xVals.length)
@@ -874,12 +881,13 @@ function cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin) {
   .call(xAxis)
   .selectAll("text")
   .style("text-anchor", "end")
-  .attr("dx", "-1.7em")
-  .attr("dy", "-0.9em")
-  .attr("transform", "rotate(-45)");
+  .attr("dx", "-0.8em")
+  .attr("dy", "-" + yOffset + "em")
+  .attr("transform", "rotate(-90)");
 }
 
 function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale) {
+  var yOffset = -0.054*yVals.length + 2.99;
   var yAxis = d3
   .axisLeft()
   .ticks(yVals.length)
@@ -897,7 +905,7 @@ function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale) {
   .selectAll("text")
   .style("text-anchor", "end")
   .attr("dx", "-0.15em")
-  .attr("dy", "2.5em");
+  .attr("dy", yOffset + "em");
 }
 
 function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt, tooltip_xPos, tooltip_yPos) {
