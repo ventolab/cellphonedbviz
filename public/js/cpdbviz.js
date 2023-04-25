@@ -499,7 +499,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       } else {
           deg = false;
       }
-      sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos, 20);
+      sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos - 30, 10);
     }
   }
 
@@ -1071,7 +1071,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       }
       var cellTypePair = data['cell_type_pairs_means'][j];
       var interaction = data['interacting_pairs_means'][i];
-      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-10, -30, pvalues);
+      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, -50, pvalues);
     }
   }
 
