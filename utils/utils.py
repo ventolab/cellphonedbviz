@@ -37,7 +37,7 @@ def get_projects() -> dict:
                     dict['cell_type_data'] = config['cell_type_data']
                     dict['lineage_data'] = config['lineage_data']
                     if 'microenvironments_data' in config:
-                        dict['microenvironments_col_name'] = config['microenvironments_data']
+                        dict['microenvironments_data'] = config['microenvironments_data']
                     for key in CONFIG_KEYS[4:]:
                         if key in config:
                             fpath = "{}/{}".format(root, config[key])
@@ -71,7 +71,6 @@ def populate_celltype_composition_data(result_dict, df):
     dict_cci_search = result_dict['cell_cell_interaction_search']
     dict_cc['title'] = ' - '.join(df.columns.values)
     edges = set([])
-    dict_cc['raw_data'] = df.values.tolist()
     stacks = []
     all_elems = set([])
     for row in df.values:
@@ -105,8 +104,10 @@ def populate_celltype_composition_data(result_dict, df):
         dict_cc['y_vals'] = sorted(list(set(df[cell_type_col_name].values)))
         dict_cc['x_vals'] = sorted(list(set(df[lineage_col_name].values)))
     # Data for filtering of cell types by micro-environment in single gene expression plot
-    if 'microenvironments_col_name' in result_dict:
-        microenvironments_col_name = result_dict['microenvironments_col_name']
+    if 'microenvironments_data' in result_dict:
+        microenvironments_col_name = result_dict['microenvironments_data']
+        # N.B. The following is for spme plot only - to connect micro-environment legend to cell types
+        dict_cc['raw_data'] = df[[cell_type_col_name, microenvironments_col_name, lineage_col_name]].values.tolist()
         # If micro-environments, set colour domain to microenviroments; otherwise 'color_domain' is not set
         dict_cc['color_domain'] = sorted(list(set(df[microenvironments_col_name].values)))
         dict_sge['microenvironments'] = sorted(list(set(df[microenvironments_col_name].values)))

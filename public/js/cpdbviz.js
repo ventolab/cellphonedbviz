@@ -271,10 +271,11 @@ function generateCellCompositionPlot(data) {
 }
 
 function generateMicroenvironmentsPlot(data) {
-     var height = 450,
-        width = 550,
-        xMargin = 120,
-        yMargin = 70,
+     var height = 500,
+        width = 600,
+        xMargin = 180,
+        top_yMargin = 20,
+        bottom_yMargin = 70,
         yVals = data['y_vals'],
         yMin = -1,
         xMin = -1,
@@ -298,7 +299,7 @@ function generateMicroenvironmentsPlot(data) {
         .attr("width", width)
         .attr("height", height);
 
-      var yAxisLength = height - 2 * yMargin,
+      var yAxisLength = height - top_yMargin - bottom_yMargin,
         xAxisLength = width - 2 * xMargin;
 
       var xScale = d3
@@ -313,22 +314,22 @@ function generateMicroenvironmentsPlot(data) {
           .domain(colorDomain)
           .range(d3.schemeTableau10);
 
-      spmeRenderYAxis(svg, yVals, yScale, xMargin, yMargin, xAxisLength, colorscale);
-      spmeRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin);
+      spmeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
+      spmeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
       for (var i = 0; i <= mapping.length - 1; i++) {
         vals = mapping[i];
         yPos = yVals.indexOf(vals[0]);
         xPos = xVals.indexOf(vals[2]);
         colorPos = colorDomain.indexOf(vals[1]);
-        spmeRenderPoint(svg, xPos, yPos, colorPos, xMargin, yMargin, xScale, yScale, colorscale);
+        spmeRenderPoint(svg, xPos, yPos, colorPos, xMargin, top_yMargin, xScale, yScale, colorscale);
       }
 
       svg.selectAll("legend_dots")
         .data(colorDomain)
         .enter()
         .append("circle")
-          .attr("cx", width - 100)
-          .attr("cy", function(d,i){ return yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+          .attr("cx", width - 150)
+          .attr("cy", function(d,i){ return top_yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .attr("r", 7)
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
 
@@ -336,15 +337,15 @@ function generateMicroenvironmentsPlot(data) {
         .data(colorDomain)
         .enter()
         .append("text")
-          .attr("x", width - 80)
-          .attr("y", function(d,i){ return yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+          .attr("x", width - 130)
+          .attr("y", function(d,i){ return top_yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
           .text(function(d){ return d})
           .attr("text-anchor", "left")
           .style("alignment-baseline", "middle");
 }
 
-function spmeRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin) {
+function spmeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin) {
     var xAxis = d3
       .axisBottom()
       .ticks(xVals.length)
@@ -357,7 +358,7 @@ function spmeRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin) {
       .attr("class", "x-axis")
       .attr("id", "spme_x-axis")
       .attr("transform", function() {
-        return "translate(" + xMargin + "," + (height - yMargin) + ")";
+        return "translate(" + xMargin + "," + (height - bottom_yMargin) + ")";
       })
       .attr("opacity", 1)
       .call(xAxis)
@@ -373,10 +374,10 @@ function spmeRenderXAxis(svg, xVals, xScale, xMargin, height, yMargin) {
       .attr("x1", 0)
       .attr("y1", 0)
       .attr("x2", 0)
-      .attr("y2", -(height - 2 * yMargin));
+      .attr("y2", -(height - top_yMargin - bottom_yMargin));
 }
 
-function spmeRenderYAxis(svg, yVals, yScale, xMargin, yMargin, xAxisLength, colorscale) {
+function spmeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -389,7 +390,7 @@ function spmeRenderYAxis(svg, yVals, yScale, xMargin, yMargin, xAxisLength, colo
       .attr("class", "y-axis")
       .attr("id", "spme_y-axis")
       .attr("transform", function() {
-        return "translate(" + xMargin + "," + yMargin + ")";
+        return "translate(" + xMargin + "," + top_yMargin + ")";
       })
       .call(yAxis);
 
@@ -403,11 +404,11 @@ function spmeRenderYAxis(svg, yVals, yScale, xMargin, yMargin, xAxisLength, colo
       .attr("fill", colorscale(0));
 }
 
-function spmeRenderPoint(svg, x, y, colorPos, xMargin, yMargin, xScale, yScale, colorscale) {
+function spmeRenderPoint(svg, x, y, colorPos, xMargin, top_yMargin, xScale, yScale, colorscale) {
     svg
       .append("circle")
       .attr("transform", function() {
-        return "translate(" + xMargin + "," + yMargin + ")";
+        return "translate(" + xMargin + "," + top_yMargin + ")";
       })
       .attr("cx", xScale(x))
       .attr("cy", yScale(y))
