@@ -2,6 +2,7 @@ import os
 import math
 import pandas as pd
 import numpy as np
+from scipy import stats
 import yaml
 import random
 import re
@@ -211,14 +212,25 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
 
     # Retrieve means for genes in selected_genes and cell types in all_cell_types
     selected_genes_means_df = df[df['gene_name'].isin(selected_genes)][['gene_name', 'complex_name'] + selected_cell_types].drop_duplicates()
-    gene_complex_list = (selected_genes_means_df['gene_name'] + " in " + selected_genes_means_df['complex_name'].fillna('')).values
+    mean_expressions = selected_genes_means_df[['gene_name','complex_name'] + selected_cell_types]
+    mean_expressions.set_index(['gene_name','complex_name'], inplace=True)
+    # Calculate z-scores (so that cell types per gene complex are comparable)
+    mean_zscores = stats.zscore(mean_expressions, axis=1)
+    # Genes withe expression=0 across all selected_cell_types will get z-score = nan - remove
+    # them from the plot
+    mean_zscores.dropna(axis=0, inplace=True)
+    # Round zscores to 3 decimal places
+    mean_zscores = np.round(mean_zscores, 3)
+    mean_zscores.reset_index(drop=False, inplace=True)
+    # Assemble gene_complex_list with the genes remaining in mean_zscores
+    gene_complex_list = (mean_zscores['gene_name'] + " in " + mean_zscores['complex_name'].fillna('')).values
     gene_complex_list = [re.sub(r"\sin\s$", "", x) for x in gene_complex_list]
-    mean_expressions = selected_genes_means_df[selected_cell_types]
+    mean_zscores.drop(columns = ['gene_name','complex_name'], inplace=True)
     dict_sge['gene_complex'] = gene_complex_list
-    dict_sge['mean_expressions'] = mean_expressions.values.tolist()
-    if not mean_expressions.empty:
-        dict_sge['min_expression'] = mean_expressions.min(axis=None)
-        dict_sge['max_expression'] = mean_expressions.max(axis=None)
+    dict_sge['mean_zscores'] = mean_zscores.values.tolist()
+    if not mean_zscores.empty:
+        dict_sge['min_zscore'] = mean_zscores.min(axis=None)
+        dict_sge['max_zscore'] = mean_zscores.max(axis=None)
     # Data below is needed for autocomplete functionality
     dict_sge['all_genes'] = all_genes
     dict_sge['all_cell_types'] = all_cell_types

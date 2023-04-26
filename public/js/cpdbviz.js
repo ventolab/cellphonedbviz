@@ -480,7 +480,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
         }
     }
 
-    if (data['mean_expressions'].length == 0) {
+    if (data['mean_zscores'].length == 0) {
         d3.select("#sge")
         .style("color", "purple")
         .text('No expressions were found - please try another search.');
@@ -498,12 +498,9 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     yMax = yVals.length - 1,
     xVals = data['gene_complex'],
     xMax= xVals.length - 1,
-    mean_expressions = data['mean_expressions'],
-    // min_expr, max_expr needed for color scale
-    // N.B. We don't take data['min_expression'] as min_expr because the bar legend misbehaves when min_expr > 0
-    // and so far I've not been able to make it work with min_expr > 0
-    min_expr = 0,
-    max_expr=data['max_expression'],
+    mean_zscores = data['mean_zscores'],
+    min_zscore = data['min_zscore'],
+    max_zscore=data['max_zscore'],
     cellType2Degs = data['celltype2degs'],
     colorDomain = yVals,
     legend_offset = 160;
@@ -529,7 +526,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       .range([0, yAxisLength]),
     colorscale = d3
       .scaleSequential()
-      .domain([min_expr, max_expr])
+      .domain([min_zscore, max_zscore])
       // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
       .interpolator(d3.interpolateHsl("#D3D3D3", "red"));
 
@@ -542,7 +539,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
   for (var i = 0; i <= yVals.length - 1; i++) {
     // genes
     for (var j = 0; j <= xVals.length - 1; j++) {
-      var expression = mean_expressions[j][i];
+      var zscore = mean_zscores[j][i];
       var cellType = yVals[i];
       var gene = xVals[j]
       if (cellType2Degs) {
@@ -550,7 +547,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       } else {
           deg = false;
       }
-      sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos - 30, 10);
+      sgeRenderPoint(svg, j, i, zscore, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos - 30, 10);
     }
   }
 
@@ -559,7 +556,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
   // Band scale for x-axis
   const legend_width=50
   const legend_height=150
-  domain=[min_expr, max_expr]
+  domain=[min_zscore, max_zscore]
 
   const legend_xScale = d3
     .scaleBand()
@@ -579,8 +576,8 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
   const paddedDomain = fc.extentLinear()
     .pad([0.03, 0.03])
     .padUnit("percent")(domain);
-  [min_expr, max_expr] = paddedDomain;
-  const expandedDomain = d3.range(min_expr, max_expr, (max_expr - min_expr) / legend_height);
+  [min_zscore, max_zscore] = paddedDomain;
+  const expandedDomain = d3.range(min_zscore, max_zscore, (max_zscore - min_zscore) / legend_height);
 
   // Define the colour legend bar
   const svgBar = fc
@@ -698,21 +695,16 @@ function sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, c
       .attr("fill", colorscale(0));
   }
 
-function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos) {
+function sgeRenderPoint(svg, j, i, zscore, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos) {
     var innerRadius;
     // outerRadius is used for deg cell type-gene tuples only
     var outerRadius;
-    if (expression > 0) {
       if (deg) {
-        innerRadius = 5;
-        outerRadius = 8;
+        innerRadius = 4;
+        outerRadius = 7;
       } else {
-        innerRadius = 5;
+        innerRadius = 4;
       }
-    } else {
-      innerRadius = 2;
-      outerRadius = 2;
-    }
 
     if (deg) {
       svg
@@ -740,7 +732,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
     .style("box-shadow", "2px 2px 20px")
     .style("opacity", "0.9")
     .attr("id", "sge_tooltip")
-    .html("Cell type: " + cellType + "<br>Gene: " + gene+ "<br>Expression: " + expression);
+    .html("Cell type: " + cellType + "<br>Gene: " + gene+ "<br>Z-score: " + zscore);
 
     svg
       .append("circle")
@@ -749,7 +741,7 @@ function sgeRenderPoint(svg, j, i, expression, deg, xMargin, top_yMargin, xScale
         })
         .attr("cx", xScale(j))
         .attr("cy", yScale(i))
-        .attr("fill", colorscale(expression))
+        .attr("fill", colorscale(zscore))
         .attr("r", innerRadius)
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
         .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
