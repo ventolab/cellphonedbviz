@@ -138,6 +138,7 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
             if (selected_microenvironments_div == 'sge_selected_microenvironments') {
                $('.sge_selected_celltypes').hide();
                $('#sge_celltype_input').prop( "disabled", true );
+               $('#sge_select_all_celltypes').addClass('disabled');
             } else if (selected_microenvironments_div == 'cci_search_selected_microenvironments') {
               // Disable cell type and cell type pair inputs as the requirement is for
               // microenvironments, cell type and cell type pair inputs to be mutually exclusive
@@ -145,16 +146,20 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
               $('#cci_search_celltype_pair_input').prop( "disabled", true );
               $('.cci_search_selected_celltypes').hide();
               $('.cci_search_selected_celltype_pairs').empty();
+              $('#cci_search_select_all_celltypes').addClass('disabled');
             }
         } else {
             selected_cell_types = all_cell_types;
             if (selected_microenvironments_div == 'sge_selected_microenvironments') {
                $('.sge_selected_celltypes').show();
                $('#sge_celltype_input').prop( "disabled", false );
+               $('#sge_select_all_celltypes').removeClass('disabled');
             } else if (selected_microenvironments_div == 'cci_search_selected_microenvironments') {
               $('#cci_search_celltype_input').prop( "disabled", false );
               $('#cci_search_celltype_pair_input').prop( "disabled", false );
               $('.cci_search_selected_celltypes').show();
+              $('#sge_select_all_celltypes').prop( "disabled", false );
+              $('#cci_search_select_all_celltypes').removeClass('disabled');
             }
         }
         // Replace any previously select cell types in selected_celltypes_div with the ones in the selected microenvironments
@@ -164,6 +169,39 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
             storeToken(selected_cell_types[i], selected_celltypes_div, celltype_input_div);
         }
     });
+}
+
+function selectAllCellTypes(viz){
+    var projectId = $("#project_id").text();
+    var url = '/api/data/'+projectId+'/' + viz;
+    $.ajax({
+            url: url,
+            contentType: "application/json",
+            dataType: 'json',
+            success: function(res) {
+                var data;
+                var selected_celltypes_div;
+                var celltype_input_div;
+                if (viz == 'single_gene_expression') {
+                   data = res[viz];
+                   selected_celltypes_div = "sge_selected_celltypes";
+                   celltype_input_div = "sge_celltype_input";
+                } else if (viz == 'cell_cell_interaction_search') {
+                   data = res;
+                   selected_celltypes_div = "cci_search_selected_celltypes";
+                   celltype_input_div = "cci_search_celltype_input";
+                   $(".cci_search_selected_celltype_pairs").empty();
+                }
+
+                if (selected_celltypes_div) {
+                    $("." + selected_celltypes_div).empty();
+                    for (var i = 0; i < data['all_cell_types'].length; i++) {
+                        storeToken(data['all_cell_types'][i], selected_celltypes_div, celltype_input_div);
+                    }
+                }
+            }
+     });
+
 }
 
 function enable_autocomplete(input_field_id, target_div_class, vals) {
