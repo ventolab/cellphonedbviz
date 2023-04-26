@@ -250,7 +250,6 @@ function generateCellCompositionPlot(data) {
       }
       // Colours
       sankey.setColors(elem2colour);
-      sankey.y_space = 20;
       sankey.right_margin = 100;
       sankey.left_margin = -100 * numStacks + 400;
       sankey.box_width = 60;

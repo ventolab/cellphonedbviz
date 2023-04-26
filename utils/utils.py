@@ -94,7 +94,7 @@ def populate_celltype_composition_data(result_dict, df):
     for idx, items in enumerate(stacks):
         dict_cc['list{}'.format(idx)] = sorted(list(items))
         if items:
-            y_space = int(300 / len(items))
+            y_space = int(450 / len(items))
             y_box = int(150 / len(items))
         else:
             y_space, y_box = 0, 0
