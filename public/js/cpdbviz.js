@@ -46,8 +46,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Initialise 'Filter cell types by micro-environment in single gene expression plot' select dropdown
                 enable_me2ct_select(sge_data['microenvironment2cell_types'], sge_data['all_cell_types'],
                                         'sge_selected_microenvironments', 'sge_selected_celltypes', 'sge_celltype_input');
+                // Populate placeholder to show the user available microenvironments
+                $("#sge_microenvironment_input")
+                    .attr("placeholder",sge_data['microenvironments'].toString());
             } else {
-                // Hide microenviroment input
+                // Hide microenvironment input
                 $("#sge_microenvironment_sel").hide();
             }
         }
@@ -109,6 +112,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Initialise 'Filter cell types by micro-environment in 'cell-cell interaction search' plot select dropdown
                 enable_me2ct_select(res['microenvironment2cell_types'], res['all_cell_types'],
                                         'cci_search_selected_microenvironments','cci_search_selected_celltypes', 'cci_search_celltype_input');
+                // Populate placeholder to show the user available microenvironments
+                $("#cci_search_microenvironment_input")
+                    .attr("placeholder",res['microenvironments'].toString());
             }
         }
      });
