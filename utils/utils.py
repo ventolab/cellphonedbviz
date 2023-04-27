@@ -13,8 +13,8 @@ DATA_ROOT = f"{base_path}/../data"
 # Note that 'deconvoluted_result' has to come after 'significant_means' in CONFIG_KEYS. This is because of pre-filtering of interacting pairs
 # on first page load - from deconvoluted file we need to pre-select genes but we don't have interacting_pair information in that file, hence
 # we need to get the mapping: interacting pair->interaction_id from the means file and only then we can do interaction_id->genes in deconvoluted file.
-CONFIG_KEYS = ['title','cell_type_data','lineage_data','microenvironments_data','celltype_composition','significant_means','deconvoluted_result','degs','pvalues']
-VIZZES = ['celltype_composition','single_gene_expression','cell_cell_interaction_summary','cell_cell_interaction_search']
+CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','microenvironments','significant_means','deconvoluted_result','degs','pvalues']
+VIZZES = ['celltype_composition','microenvironments','single_gene_expression','cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SANKEY_EDGE_WEIGHT = 30
 NUMBER_OF_INTERACTING_PAIRS_TO_PRESELECT_ON_FIRST_LOAD = 15
@@ -37,9 +37,7 @@ def get_projects() -> dict:
                     dict['title'] = config['title']
                     dict['cell_type_data'] = config['cell_type_data']
                     dict['lineage_data'] = config['lineage_data']
-                    if 'microenvironments_data' in config:
-                        dict['microenvironments_data'] = config['microenvironments_data']
-                    for key in CONFIG_KEYS[4:]:
+                    for key in CONFIG_KEYS[3:]:
                         if key in config:
                             fpath = "{}/{}".format(root, config[key])
                             df = pd.read_csv(fpath, sep='\t')
@@ -54,6 +52,8 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
             result_dict[viz] = {}
     if config_key == 'celltype_composition':
         populate_celltype_composition_data(result_dict, df)
+    elif config_key == 'microenvironments':
+        populate_microenvironments_data(result_dict, df)
     elif config_key == 'significant_means':
         populate_significant_means_data(result_dict, df, separator)
     elif config_key == 'deconvoluted_result':
@@ -65,11 +65,36 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
     if config_key in ['deconvoluted_result', 'significant_means']:
         file_name2df[config_key] = df
 
-def populate_celltype_composition_data(result_dict, df):
-    dict_cc = result_dict['celltype_composition']
+def populate_microenvironments_data(result_dict, df):
+    me_col_name = 'microenvironment'
+    ct_col_name = 'cell_type'
+    dict_me = result_dict['microenvironments']
     dict_sge = result_dict['single_gene_expression']
     dict_cci_summary = result_dict['cell_cell_interaction_summary']
     dict_cci_search = result_dict['cell_cell_interaction_search']
+    # Data for filtering of cell types by micro-environment in single gene expression plot
+    if 'microenvironments' in result_dict:
+        # N.B. The following is for spme plot only - to connect micro-environment legend to cell types
+        dict_me['raw_data'] = df.values.tolist()
+        # If micro-environments, set colour domain to microenviroments; otherwise 'color_domain' is not set
+        dict_me['color_domain'] = sorted(list(set(df[me_col_name].values)))
+        dict_sge['microenvironments'] = sorted(list(set(df[me_col_name].values)))
+        dict_cci_search['microenvironments'] = dict_sge['microenvironments']
+        dict_sge['microenvironment2cell_types'] = {}
+        dict_cci_search['cell_type2microenvironments'] = {}
+        for i, j in zip(df[me_col_name].values.tolist(), df[ct_col_name].values.tolist()):
+            dict_sge['microenvironment2cell_types'].setdefault(i, []).append(j)
+        for i, j in zip(df[ct_col_name].values.tolist(), df[me_col_name].values.tolist()):
+            dict_cci_search['cell_type2microenvironments'].setdefault(i, []).append(j)
+        dict_cci_summary['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
+        dict_cci_search['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
+
+    # Data for Spatial micro-environments plot
+    dict_me['y_vals'] = sorted(list(set(df[ct_col_name].values)))
+    dict_me['x_vals'] = sorted(list(set(df[me_col_name].values)))
+
+def populate_celltype_composition_data(result_dict, df):
+    dict_cc = result_dict['celltype_composition']
     dict_cc['title'] = ' - '.join(df.columns.values)
     edges = set([])
     stacks = []
@@ -101,23 +126,6 @@ def populate_celltype_composition_data(result_dict, df):
             y_space, y_box = 0, 0
         dict_cc['y_space{}'.format(idx)] = y_space
         dict_cc['y_box{}'.format(idx)] = y_box
-        # Data for Spatial micro-environments plot
-        dict_cc['y_vals'] = sorted(list(set(df[cell_type_col_name].values)))
-        dict_cc['x_vals'] = sorted(list(set(df[lineage_col_name].values)))
-    # Data for filtering of cell types by micro-environment in single gene expression plot
-    if 'microenvironments_data' in result_dict:
-        microenvironments_col_name = result_dict['microenvironments_data']
-        # N.B. The following is for spme plot only - to connect micro-environment legend to cell types
-        dict_cc['raw_data'] = df[[cell_type_col_name, microenvironments_col_name, lineage_col_name]].values.tolist()
-        # If micro-environments, set colour domain to microenviroments; otherwise 'color_domain' is not set
-        dict_cc['color_domain'] = sorted(list(set(df[microenvironments_col_name].values)))
-        dict_sge['microenvironments'] = sorted(list(set(df[microenvironments_col_name].values)))
-        dict_cci_search['microenvironments'] = dict_sge['microenvironments']
-        dict_sge['microenvironment2cell_types'] = {}
-        for i, j in zip(df[microenvironments_col_name].values.tolist(), df[cell_type_col_name].values.tolist()):
-            dict_sge['microenvironment2cell_types'].setdefault(i, []).append(j)
-        dict_cci_summary['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
-        dict_cci_search['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
 
 def populate_significant_means_data(dict_dd, df, separator):
     dict_cci_summary = dict_dd['cell_cell_interaction_summary']
@@ -268,42 +276,34 @@ def populate_degs_data(result_dict, df):
     dict_degs['celltype2degs'] = cell_type2degs
 
 def sort_cell_type_pairs(cell_type_pairs, result_dict, separator) -> (list, dict):
-    if 'microenvironment2cell_types' not in result_dict:
+    if 'cell_type2microenvironments' not in result_dict:
         selected_cell_type_pairs = sorted(cell_type_pairs)
         ctp2me = {ctp: 'all' for ctp in selected_cell_type_pairs}
         return selected_cell_type_pairs, ctp2me
     else:
-        microenvironment2cell_types = result_dict['microenvironment2cell_types']
-        selected_cell_type_pairs = cell_type_pairs.copy()
+        ct2mes = result_dict['cell_type2microenvironments']
         # Microenvironments are used - sort selected_cell_type_pairs by microenvironment
-        ct_pair2mes = {}
-        for me in microenvironment2cell_types:
-            cts = microenvironment2cell_types[me]
-            for ct_pair in selected_cell_type_pairs:
-                ct_pair2mes[ct_pair] = set([])
-                ct1 = ct_pair.split(separator)[0]
-                ct2 = ct_pair.split(separator)[1]
-                if ct1 in cts and ct2 in cts:
-                    ct_pair2mes[ct_pair].add(me)
+        ct_pair2me = {}
         me2ct_pairs = {}
-        for ct_pair in ct_pair2mes:
-            if len(ct_pair2mes[ct_pair]) == 1:
-                (me,) = ct_pair2mes[ct_pair]
+        for ct_pair in cell_type_pairs:
+            ct1 = ct_pair.split(separator)[0]
+            ct2 = ct_pair.split(separator)[1]
+            mes1 = ct2mes[ct1]
+            mes2 = ct2mes[ct2]
+            if len(mes1) == 1 and len(mes2) == 1 and mes1[0] == mes2[0]:
+                me = mes1[0]
             else:
-                me = "Multiple"
+                me = 'multiple'
+            ct_pair2me[ct_pair] = me
             if me not in me2ct_pairs:
-                me2ct_pairs[me] = []
-            me2ct_pairs[me].append(ct_pair)
-        # Collate me2ct_pairs.values into a single list (sorted_selected_cell_type_pairs)
-        # sorting cell type pairs within each environment alphabetically
+                me2ct_pairs[me] = set([])
+            me2ct_pairs[me].add(ct_pair)
+        # Collate ct_pair2me.keys into a single list (sorted_selected_cell_type_pairs)
+        # sorting cell type pairs within each micro-environment alphabetically
         sorted_selected_cell_type_pairs = []
-        ctp2me = {}
-        for me in OrderedDict(sorted(me2ct_pairs.items(), reverse = True)):
-            sorted_selected_cell_type_pairs += sorted(me2ct_pairs[me])
-            for ctp in sorted_selected_cell_type_pairs:
-                if ctp not in ctp2me:
-                    ctp2me[ctp] = me
-        return sorted_selected_cell_type_pairs, ctp2me
+        for me in OrderedDict(sorted(me2ct_pairs.items())):
+            sorted_selected_cell_type_pairs += sorted(list(me2ct_pairs[me]))
+        return sorted_selected_cell_type_pairs, ct_pair2me
 
 def filter_interactions(result_dict,
                         file_name2df,

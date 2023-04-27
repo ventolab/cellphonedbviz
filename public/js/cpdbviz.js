@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Generate spatial micro-environments plot
     $.ajax({
-            url: '/api/data/'+projectId+'/celltype_composition',
+            url: '/api/data/'+projectId+'/microenvironments',
             contentType: "application/json",
             dataType: 'json',
             success: function(res) {
@@ -316,9 +316,9 @@ function generateCellCompositionPlot(data) {
 function generateMicroenvironmentsPlot(data) {
      var height = 500,
         width = 600,
-        xMargin = 180,
+        xMargin = 200,
         top_yMargin = 20,
-        bottom_yMargin = 70,
+        bottom_yMargin = 90,
         yVals = data['y_vals'],
         yMin = -1,
         xMin = -1,
@@ -328,12 +328,12 @@ function generateMicroenvironmentsPlot(data) {
         mapping = data['raw_data'];
 
     if (!data.hasOwnProperty('color_domain')) {
-        // N.B. 'color_domain' is set only if microenvironments_data is provided in config
+        // N.B. 'color_domain' is set only if microenvironments is provided in config
         $("#me_title").hide();
         return;
     }
     colorDomain = data['color_domain'];
-    $("#spme_header").text(data['title']);
+//    $("#spme_header").text(data['title']);
 
     var svg = d3
         .select("#spme")
@@ -362,7 +362,7 @@ function generateMicroenvironmentsPlot(data) {
       for (var i = 0; i <= mapping.length - 1; i++) {
         vals = mapping[i];
         yPos = yVals.indexOf(vals[0]);
-        xPos = xVals.indexOf(vals[2]);
+        xPos = xVals.indexOf(vals[1]);
         colorPos = colorDomain.indexOf(vals[1]);
         spmeRenderPoint(svg, xPos, yPos, colorPos, xMargin, top_yMargin, xScale, yScale, colorscale);
       }
@@ -371,7 +371,7 @@ function generateMicroenvironmentsPlot(data) {
         .data(colorDomain)
         .enter()
         .append("circle")
-          .attr("cx", width - 150)
+          .attr("cx", width - 180)
           .attr("cy", function(d,i){ return top_yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .attr("r", 7)
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
@@ -380,7 +380,7 @@ function generateMicroenvironmentsPlot(data) {
         .data(colorDomain)
         .enter()
         .append("text")
-          .attr("x", width - 130)
+          .attr("x", width - 160)
           .attr("y", function(d,i){ return top_yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
           .text(function(d){ return d})
