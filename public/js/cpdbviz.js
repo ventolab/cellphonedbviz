@@ -526,9 +526,9 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       .range([0, yAxisLength]),
     colorscale = d3
       .scaleSequential()
-      .domain([min_zscore, max_zscore])
+      .domain([min_zscore, 0, max_zscore])
       // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
-      .interpolator(d3.interpolateHsl("#D3D3D3", "red"));
+      .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#D3D3D3", "red"]));
 
 
   sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
@@ -1104,7 +1104,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
   const barLegend_xPos=width-300
-  const barLegend_yPos=top_yMargin+50
+  const barLegend_yPos=top_yMargin+30
   // interacting pairs
   for (var i = 0; i <= yVals.length - 1; i++) {
     // cell type pairs
@@ -1163,7 +1163,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     // Add the colour legend header
     svg
     .append("text").attr("x", barLegend_xPos-12).attr("y", top_yMargin+10).text("Mean expression").style("font-size", "15px")
-    .append('tspan').attr("x", barLegend_xPos-12).attr("y", top_yMargin+30).text("z-score")
+//    .append('tspan').attr("x", barLegend_xPos-12).attr("y", top_yMargin+30).text("z-score")
     .attr("alignment-baseline","middle");
 
   // Draw the legend bar
@@ -1212,19 +1212,19 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
 
       // Dot size legend header
       dotSizeLegend
-        .append("text").attr("x", 5).attr("y", 100).text("-log").style("font-size", "15px")
+        .append("text").attr("x", 5).attr("y", 80).text("-log").style("font-size", "15px")
         .append('tspan').text('10').style('font-size', '.7rem').attr('dx', '.1em').attr('dy', '.9em')
         .append('tspan').text("P").style("font-size", "15px").attr('dx', '-.1em').attr('dy', '-.9em')
         .attr("alignment-baseline","middle")
       // dot size legend content
-      dotSizeLegend.append("circle").attr("cx",15).attr("cy",130).attr("r", 2).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",15).attr("cy",160).attr("r", 4).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",15).attr("cy",190).attr("r", 6).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",15).attr("cy",220).attr("r", 8).style("fill", "#404080")
-      dotSizeLegend.append("text").attr("x", 35).attr("y", 130).text("0").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", 35).attr("y", 160).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", 35).attr("y", 190).text("2").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", 35).attr("y", 220).text(">=3").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("circle").attr("cx",15).attr("cy",110).attr("r", 2).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",15).attr("cy",140).attr("r", 4).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",15).attr("cy",170).attr("r", 6).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",15).attr("cy",200).attr("r", 8).style("fill", "#404080")
+      dotSizeLegend.append("text").attr("x", 35).attr("y", 110).text("0").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", 35).attr("y", 140).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", 35).attr("y", 170).text("2").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", 35).attr("y", 200).text(">=3").style("font-size", "15px").attr("alignment-baseline","middle")
   }
   
   if (microenvironments) {
@@ -1248,12 +1248,12 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
 
       // Microenvironments legend header
       meLegend
-        .append("text").attr("x", 5).attr("y", 100).text("Microenvironments").style("font-size", "15px")
+        .append("text").attr("x", 5).attr("y", 80).text("Microenvironments").style("font-size", "15px")
         .attr("alignment-baseline","middle")
 
       // Microenvironments legend content
       const size = 12;
-      const meLegendStartYPos = 120;
+      const meLegendStartYPos = 100;
       var meLegendYPos = meLegendStartYPos;
       for (var i = 0; i <= mes4Legend.length - 1; i++) {
           var me = mes4Legend[i];

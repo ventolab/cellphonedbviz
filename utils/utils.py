@@ -276,21 +276,24 @@ def sort_cell_type_pairs(cell_type_pairs, result_dict, separator) -> (list, dict
         microenvironment2cell_types = result_dict['microenvironment2cell_types']
         selected_cell_type_pairs = cell_type_pairs.copy()
         # Microenvironments are used - sort selected_cell_type_pairs by microenvironment
-        me2ct_pairs = {}
+        ct_pair2mes = {}
         for me in microenvironment2cell_types:
             cts = microenvironment2cell_types[me]
-            me2ct_pairs[me] = []
             for ct_pair in selected_cell_type_pairs:
+                ct_pair2mes[ct_pair] = set([])
                 ct1 = ct_pair.split(separator)[0]
                 ct2 = ct_pair.split(separator)[1]
                 if ct1 in cts and ct2 in cts:
-                    me2ct_pairs[me].append(ct_pair)
-                    selected_cell_type_pairs.remove(ct_pair)
-        # Anything that remains in selected_cell_type_pairs has not been assigned to
-        # any microenvironment or contains cell types from different microenvironments
-        # (I'm not sure if the latter is in fact possible in CellphoneDB data)
-        # In any case, put these values into me2ct_pairs under 'Mixed' key
-        me2ct_pairs['Mixed'] = selected_cell_type_pairs
+                    ct_pair2mes[ct_pair].add(me)
+        me2ct_pairs = {}
+        for ct_pair in ct_pair2mes:
+            if len(ct_pair2mes[ct_pair]) == 1:
+                (me,) = ct_pair2mes[ct_pair]
+            else:
+                me = "Multiple"
+            if me not in me2ct_pairs:
+                me2ct_pairs[me] = []
+            me2ct_pairs[me].append(ct_pair)
         # Collate me2ct_pairs.values into a single list (sorted_selected_cell_type_pairs)
         # sorting cell type pairs within each environment alphabetically
         sorted_selected_cell_type_pairs = []
@@ -314,7 +317,6 @@ def filter_interactions(result_dict,
     separator = result_dict['separator']
 
     # Collect all combinations of cell types (disregarding the order) from cell_types and cell_type_pairs combined
-
     if cell_types:
         selected_cell_types = cell_types
         # Derive selected_cell_type_pairs from
@@ -324,18 +326,17 @@ def filter_interactions(result_dict,
         for ct in selected_cell_types:
             for ct1 in selected_cell_types:
                 selected_cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
-        means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
     elif not cell_type_pairs:
         selected_cell_types = []
         if not refresh_plot:
             # Pre-select cell type pairs
             selected_cell_type_pairs = preselect_cell_type_pairs(result_dict)
-            means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
         else:
             selected_cell_type_pairs = []
-            means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
     else:
         selected_cell_types = []
+        selected_cell_type_pairs = cell_type_pairs
+    means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
     result_dict['selected_cell_types'] = sorted(selected_cell_types)
     selected_cell_type_pairs, ctp2me = \
         sort_cell_type_pairs(selected_cell_type_pairs, result_dict, separator)
