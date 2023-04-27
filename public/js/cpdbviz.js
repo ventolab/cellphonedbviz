@@ -314,6 +314,14 @@ function generateCellCompositionPlot(data) {
 }
 
 function generateMicroenvironmentsPlot(data) {
+
+    if (!data.hasOwnProperty('color_domain')) {
+        // N.B. 'color_domain' is set only if microenvironments is provided in config
+        $("#me_title").hide();
+        $("#spme_header").hide();
+        return;
+    }
+
      var height = 500,
         width = 600,
         xMargin = 200,
@@ -327,11 +335,6 @@ function generateMicroenvironmentsPlot(data) {
         xMax= xVals.length - 1,
         mapping = data['raw_data'];
 
-    if (!data.hasOwnProperty('color_domain')) {
-        // N.B. 'color_domain' is set only if microenvironments is provided in config
-        $("#me_title").hide();
-        return;
-    }
     colorDomain = data['color_domain'];
 //    $("#spme_header").text(data['title']);
 
