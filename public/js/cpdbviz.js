@@ -76,12 +76,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 } else {
-                    generateCellCellInteractionPlot(res, res['all_cell_types'], "", 1);
+                    generateCellCellInteractionPlot(res, res['all_cell_types'], "All cell types", 1);
                     // Hide microenviroment input
                     $("#cci_search_microenvironment_sel").hide();
                 }
             } else {
-                generateCellCellInteractionPlot(res, res['all_cell_types'], "", 1);
+                generateCellCellInteractionPlot(res, res['all_cell_types'], "All cell types", 1);
                 // Hide microenviroment input
                 $("#cci_search_microenvironment_sel").hide();
             }
