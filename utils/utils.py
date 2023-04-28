@@ -264,9 +264,9 @@ def pval4plot(pvalue) -> int:
 
 def populate_degs_data(result_dict, df):
     dict_degs = result_dict['single_gene_expression']
-    deg2cell_type = dict(zip(df['gene'], df['cluster']))
+    degs_cell_types = list(zip(df['gene'], df['cluster']))
     cell_type2degs = {}
-    for (deg, cell_type) in deg2cell_type.items():
+    for (deg, cell_type) in degs_cell_types:
         if cell_type not in cell_type2degs:
             cell_type2degs[cell_type] = set([])
         cell_type2degs[cell_type].add(deg)
