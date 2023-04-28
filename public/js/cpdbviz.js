@@ -273,6 +273,15 @@ function storeToken(val, target_div_class, input_field_id) {
 }
 
 function generateCellCompositionPlot(data) {
+
+    if (!data.hasOwnProperty('all_elems')) {
+        // N.B. 'all_elems' is set only if celltype_composition is set in config
+        $("#ctcomp_title").hide();
+        $("#ctcomp_headers").hide();
+        $("#ctcomp").hide();
+        return;
+    }
+
      var edges = data['edges'];
      var numStacks = data['num_stacks'];
       $("#ctcomp_header").text(data['title']);
@@ -317,8 +326,9 @@ function generateMicroenvironmentsPlot(data) {
 
     if (!data.hasOwnProperty('color_domain')) {
         // N.B. 'color_domain' is set only if microenvironments is provided in config
-        $("#me_title").hide();
+        $("#spme_title").hide();
         $("#spme_header").hide();
+        $("#spme").hide();
         return;
     }
 
