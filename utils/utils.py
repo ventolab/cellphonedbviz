@@ -35,8 +35,6 @@ def get_projects() -> dict:
                 with open('{}/config.yml'.format(root), 'r') as file:
                     config = yaml.safe_load(file)
                     dict['title'] = config['title']
-                    dict['cell_type_data'] = config['cell_type_data']
-                    dict['lineage_data'] = config['lineage_data']
                     for key in CONFIG_KEYS[3:]:
                         if key in config:
                             fpath = "{}/{}".format(root, config[key])
@@ -115,8 +113,6 @@ def populate_celltype_composition_data(result_dict, df):
     dict_cc['num_stacks'] = stack_idx
     dict_cc['edges'] = [list(x) for x in edges]
     dict_cc['all_elems'] = list(sorted(all_elems))
-    cell_type_col_name = result_dict['cell_type_data']
-    lineage_col_name = result_dict['lineage_data']
     for idx, items in enumerate(stacks):
         dict_cc['list{}'.format(idx)] = sorted(list(items))
         if items:
