@@ -133,25 +133,57 @@
               <div class="card-content col s12">
                 <span class="card card-title center">Cell-cell Communication - Summary</span>
               </div>
+
+              <div id="cci_summary_show_all_celltypes_div" style="padding-left: 30px;" hidden>
+                  <label>
+                      <input id="cci_summary_show_all_celltypes" type="checkbox" class="filled-in"/>
+                      <span id="cci_summary_show_all_celltypes_label">Show all cell types</span>
+                  </label>
+              </div>
+
               <div class="row">
-                <!-- Cell cell interaction plot - Microenvironment 1 -->
-                <div id="cci1_div" hidden>
+                <!-- Cell cell interaction plot - All cell types-->
+                <div id="cci0_div" hidden>
                   <div class="col s12 m6 l6">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <span id="cci0_header" class="card-title center" style="font-size: 16px;"></span>
+                          <div id="cci0" style="width:800px"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <!-- Cell cell interaction plot - Microenvironment 1 -->
+                <div id="cci1_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
                         <span id="cci1_header" class="card-title center" style="font-size: 16px;"></span>
-                          <div id="cci1" style="width:800px"></div>
+                          <div id="cci1" style="width:400px"></div>
                       </div>
                     </div>
                   </div>
                 </div>
                 <!-- Cell cell interaction plot - Microenvironment 2 -->
                 <div id="cci2_div" hidden>
-                  <div class="col s12 m6 l6">
+                  <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
                         <span id="cci2_header" class="card-title center" style="font-size: 16px;"></span>
-                          <div id="cci2" style="width:800px"></div>
+                          <div id="cci2" style="width:400px"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cell cell interaction plot - Microenvironment 3 -->
+                <div id="cci3_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <span id="cci3_header" class="card-title center" style="font-size: 16px;"></span>
+                          <div id="cci3" style="width:400px"></div>
                       </div>
                     </div>
                   </div>
@@ -159,24 +191,70 @@
               </div> <!-- <div class="row"> -->
 
               <div class="row">
-                <!-- Cell cell interaction plot - Microenvironment 3 -->
-                <div id="cci3_div" hidden>
-                  <div class="col s12 m6 l6">
+                <!-- Cell cell interaction plot - Microenvironment 4 -->
+                <div id="cci4_div" hidden>
+                  <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
-                        <span id="cci3_header" class="card-title center" style="font-size: 16px;"></span>
-                          <div id="cci3" style="width:800px"></div>
+                        <span id="cci4_header" class="card-title center" style="font-size: 16px;"></span>
+                          <div id="cci4" style="width:400px"></div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <!-- Cell cell interaction plot - Microenvironment 4 -->
-                <div id="cci4_div" hidden>
-                  <div class="col s12 m6 l6">
+                <!-- Cell cell interaction plot - Microenvironment 5 -->
+                <div id="cci5_div" hidden>
+                  <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
-                        <span id="cci4_header" class="card-title center" style="font-size: 16px;"></span>
-                          <div id="cci4" style="width:800px"></div>
+                        <span id="cci5_header" class="card-title center" style="font-size: 16px;"></span>
+                          <div id="cci5" style="width:400px"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cell cell interaction plot - Microenvironment 6 -->
+                <div id="cci6_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <span id="cci6_header" class="card-title center" style="font-size: 16px;"></span>
+                          <div id="cci6" style="width:400px"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- <div class="row"> -->
+             <div class="row">
+                <!-- Cell cell interaction plot - Microenvironment 7 -->
+                <div id="cci7_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <span id="cci7_header" class="card-title center" style="font-size: 16px;"></span>
+                          <div id="cci7" style="width:400px"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cell cell interaction plot - Microenvironment 8 -->
+                <div id="cci8_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <span id="cci8_header" class="card-title center" style="font-size: 16px;"></span>
+                          <div id="cci8" style="width:400px"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cell cell interaction plot - Microenvironment 9 -->
+                <div id="cci9_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <span id="cci9_header" class="card-title center" style="font-size: 16px;"></span>
+                          <div id="cci9" style="width:400px"></div>
                       </div>
                     </div>
                   </div>

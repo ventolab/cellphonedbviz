@@ -70,19 +70,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     for (let [microenvironment, cellTypes] of map.entries()) {
                         generateCellCellInteractionPlot(res, cellTypes.sort(), microenvironment, cnt);
                         cnt++;
-                        if (cnt > 4) {
-                            // TODO: We currently only have up to four slots for cci plots per environment - to be reviewed
+                        if (cnt > 9) {
+                            // TODO: We currently only have up to nine slots for cci plots per environment - to be reviewed
                             break;
                         }
                     }
+                    // Generate plot across cell types also - in case the user wishes to see it
+                     generateCellCellInteractionPlot(res, res['all_cell_types'], "All cell types", 0);
+                     $("#cci0_div").hide();
+
                 } else {
-                    generateCellCellInteractionPlot(res, res['all_cell_types'], "All cell types", 1);
-                    // Hide microenviroment input
+                    generateCellCellInteractionPlot(res, res['all_cell_types'], "All cell types", 0);
+                    // Hide microenvironment input
                     $("#cci_search_microenvironment_sel").hide();
                 }
             } else {
-                generateCellCellInteractionPlot(res, res['all_cell_types'], "All cell types", 1);
-                // Hide microenviroment input
+                generateCellCellInteractionPlot(res, res['all_cell_types'], "All cell types", 0);
+                // Hide microenvironment input
                 $("#cci_search_microenvironment_sel").hide();
             }
         }
@@ -119,6 +123,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
      });
 });
+
+function enable_cci_summary_show_all_celltypes() {
+    $('#cci_summary_show_all_celltypes').on('change', function() {
+        if ($(this).is(':checked')) {
+          $('#cci0_div').show();
+        } else {
+           $('#cci0_div').hide();
+        }
+      });
+}
 
 function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
                              selected_microenvironments_div, selected_celltypes_div, celltype_input_div) {
@@ -780,7 +794,35 @@ function sgeRenderPoint(svg, j, i, zscore, deg, xMargin, top_yMargin, xScale, yS
         min_ints=0,
         max_ints=parseInt(data['max_num_ints']),
         ct2indx = data['ct2indx'],
-        colorDomain = yVals;
+        colorDomain = yVals,
+        boxWidth = Math.round(380/yVals.length),
+        legend_width=50
+        legend_height=150,
+        legend_xPos=width-240
+        legend_yPos=top_yMargin+50,
+        xAxisYOffset = -0.048*xVals.length + 2.8,
+        yAxisYOffset = -0.054*yVals.length + 2.59,
+        tooltipXPos = legend_xPos;
+        tooltipYPos = legend_yPos+280;
+
+      if (plotCnt > 0) {
+        $("#cci_summary_show_all_celltypes_div").show();
+        enable_cci_summary_show_all_celltypes();
+
+        // We're dealing with multiple plots - one per microenviroment
+        height = 300,
+        width = 400,
+        boxWidth = Math.round(95/yVals.length),
+        legend_width=30,
+        legend_height=100,
+        legend_xPos=width-180,
+        legend_yPos=top_yMargin+50;
+        xMargin = 100,
+        xAxisYOffset = -0.4*xVals.length + 3.3
+        yAxisYOffset = -0.5*yVals.length + 3.6;
+        tooltipXPos = legend_xPos+70;
+        tooltipYPos = legend_yPos+100;
+      }
 
       // Filter rows and columns of numInteractions by cellTypes
       // N.B. we don't recalculate min_ints, max_ints for filteredNumInteractions because
@@ -820,10 +862,8 @@ function sgeRenderPoint(svg, j, i, zscore, deg, xMargin, top_yMargin, xScale, yS
           // See: https://observablehq.com/@d3/sequential-scales
           .interpolator(d3.interpolateRdYlBu)
 
-      cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale);
-      cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin);
-      const legend_xPos=width-240
-      const legend_yPos=top_yMargin+50
+      cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale, yAxisYOffset);
+      cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin, xAxisYOffset);
       // cellType1
       for (var i = 0; i <= yVals.length - 1; i++) {
         // cellType2
@@ -831,17 +871,14 @@ function sgeRenderPoint(svg, j, i, zscore, deg, xMargin, top_yMargin, xScale, yS
           var num_ints = filteredNumInteractions[j][i];
           var cellType1 = yVals[i];
           var cellType2 = xVals[j];
-          cciRenderRectangle(svg, j, i, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt, legend_xPos, legend_yPos+280);
+          cciRenderRectangle(svg, j, i, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt, tooltipXPos, tooltipYPos, boxWidth);
         }
       }
 
       // Colour legend:
       // See: https://blog.scottlogic.com/2019/03/13/how-to-create-a-continuous-colour-range-legend-using-d3-and-d3fc.html
       // Band scale for x-axis
-      const legend_width=50
-      const legend_height=150
       domain=[min_ints, max_ints]
-
       const legend_xScale = d3
         .scaleBand()
         .domain([0, 1])
@@ -912,8 +949,7 @@ function sgeRenderPoint(svg, j, i, zscore, deg, xMargin, top_yMargin, xScale, yS
         .attr("visibility", "hidden");
  }
 
-function cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin) {
-  var yOffset = -0.048*xVals.length + 3.136;
+function cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin, xAxisYOffset) {
   var xAxis = d3
   .axisBottom()
   .ticks(xVals.length)
@@ -932,12 +968,11 @@ function cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin) {
   .selectAll("text")
   .style("text-anchor", "end")
   .attr("dx", "-0.8em")
-  .attr("dy", "-" + yOffset + "em")
+  .attr("dy", "-" + xAxisYOffset + "em")
   .attr("transform", "rotate(-90)");
 }
 
-function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale) {
-  var yOffset = -0.054*yVals.length + 2.99;
+function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale, yAxisYOffset) {
   var yAxis = d3
   .axisLeft()
   .ticks(yVals.length)
@@ -955,11 +990,10 @@ function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale) {
   .selectAll("text")
   .style("text-anchor", "end")
   .attr("dx", "-0.15em")
-  .attr("dy", yOffset + "em");
+  .attr("dy", yAxisYOffset + "em");
 }
 
-function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt, tooltip_xPos, tooltip_yPos) {
-    var boxWidth = Math.round(380/yVals.length);
+function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt, tooltip_xPos, tooltip_yPos, boxWidth) {
     // Assumption: yVals.length == xVals.length
     var boxHeight = boxWidth;
     var cellType1 = yVals[y];
