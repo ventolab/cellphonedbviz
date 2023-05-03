@@ -228,6 +228,8 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
         key = 'percents'
         min_key = 'min_percent'
         max_key = 'max_percent'
+        # Drop all rows/genes with all zeros in them - to match deconvoluted_df.dropna for z-scores below
+        deconvoluted_df = deconvoluted_df.loc[~(df == 0).all(axis=1)]
     else:
         # Calculate z-scores (so that cell types per gene complex are comparable)
         deconvoluted_df.set_index(['gene_name', 'complex_name'], inplace=True)
