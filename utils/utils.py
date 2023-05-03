@@ -339,6 +339,8 @@ def filter_interactions(result_dict,
         for ct in selected_cell_types:
             for ct1 in selected_cell_types:
                 selected_cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
+        # Restrict all combinations of cell types to just those in means_df
+        selected_cell_type_pairs = [ct_pair for ct_pair in selected_cell_type_pairs if ct_pair in means_df.columns.values]
     elif not cell_type_pairs:
         selected_cell_types = []
         if not refresh_plot:
