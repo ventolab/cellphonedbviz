@@ -554,7 +554,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       .range([0, yAxisLength]),
     colorscale = d3
       .scaleSequential()
-      .domain([min_zscore, 0, max_zscore])
+      .domain([min_zscore, max_zscore])
       // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
       .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#D3D3D3", "red"]));
 
@@ -764,7 +764,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
     var outerRadius;
     var percent;
     if (percents) {
-        percent = percents[j][i];
+       percent = percents[j][i];
        innerRadius = Math.max(percent*10,2);
     } else {
        // Just a place holder to give each point a visible size
