@@ -528,7 +528,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     mean_zscores = data['mean_zscores'],
     percents = data['percents'],
     min_zscore = data['min_zscore'],
-    max_zscore=data['max_zscore'],
+    max_zscore = data['max_zscore'],
     cellType2Degs = data['celltype2degs'],
     colorDomain = yVals,
     legend_offset = 160;
