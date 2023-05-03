@@ -526,6 +526,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     xVals = data['gene_complex'],
     xMax= xVals.length - 1,
     mean_zscores = data['mean_zscores'],
+    percents = data['percents'],
     min_zscore = data['min_zscore'],
     max_zscore=data['max_zscore'],
     cellType2Degs = data['celltype2degs'],
@@ -574,7 +575,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       } else {
           deg = false;
       }
-      sgeRenderPoint(svg, j, i, zscore, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos - 30, 10);
+      sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos - 30, 10);
     }
   }
 
@@ -661,6 +662,41 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       svg.append("circle").attr("cx",legend_xPos).attr("cy",deg_legend_yPos).attr("r", 5).style("fill", "#FFFFFF")
       svg.append("text").attr("x", legend_xPos+20).attr("y", deg_legend_yPos).text("Is DEG").style("font-size", "15px").attr("alignment-baseline","middle")
   }
+
+  var dotLegendHeight = 0;
+  if (percents) {
+      // Percents legend - dot size
+      const dotlegend_xPos=width-315
+      const dotlegend_yPos=top_yMargin+legend_height+10
+      const dotLegendWidth = 450;
+      dotLegendHeight = 300;
+      const dotSizeLegend = svg
+            .append("svg")
+            .attr("width", dotLegendWidth)
+            .attr("height", dotLegendHeight)
+            .attr("x", dotlegend_xPos)
+            .attr("y", dotlegend_yPos);
+
+      // Dot size legend header
+      const dotLegendXPos = legend_offset + 25;
+      dotSizeLegend
+       .append("text").attr("x", dotLegendXPos).attr("y", 110).text("Percent of cells").style("font-size", "15px")
+        .attr("alignment-baseline","middle")
+      dotSizeLegend
+        .append("text").attr("x", dotLegendXPos).attr("y", 130).text("in cell type").style("font-size", "15px")
+        .attr("alignment-baseline","middle")
+      // dot size legend content
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",160).attr("r", 2).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",190).attr("r", 4).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",220).attr("r", 6).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",250).attr("r", 8).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",280).attr("r", 10).style("fill", "#404080")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 160).text("<=0.2").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 190).text("0.4").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 220).text("0.6").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 250).text("0.8").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 280).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
+  }
 }
 
 function sgeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin) {
@@ -722,16 +758,22 @@ function sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, c
       .attr("fill", colorscale(0));
   }
 
-function sgeRenderPoint(svg, j, i, zscore, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos) {
+function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos) {
     var innerRadius;
     // outerRadius is used for deg cell type-gene tuples only
     var outerRadius;
-      if (deg) {
-        innerRadius = 4;
-        outerRadius = 7;
-      } else {
-        innerRadius = 4;
-      }
+    var percent;
+    if (percents) {
+        percent = percents[j][i];
+       innerRadius = Math.max(percent*10,2);
+    } else {
+       // Just a place holder to give each point a visible size
+       innerRadius = 3;
+    }
+
+    if (deg) {
+      outerRadius = innerRadius + 3;
+    }
 
     if (deg) {
       svg
@@ -744,9 +786,13 @@ function sgeRenderPoint(svg, j, i, zscore, deg, xMargin, top_yMargin, xScale, yS
         .attr("fill", "#3DE397")
         .attr("r", outerRadius);
     }
-
     var cellType = yVals[i];
     var gene = xVals[j];
+    var tooltipText = "Cell type: " + cellType + "<br>Gene: " + gene+ "<br>Z-score: " + zscore;
+    if (percents) {
+        tooltipText += "<br>Percent of cells: " + percent;
+    }
+
     var tooltip = d3.select("#sge")
     .append("div")
     .style("position", "absolute")
@@ -759,7 +805,7 @@ function sgeRenderPoint(svg, j, i, zscore, deg, xMargin, top_yMargin, xScale, yS
     .style("box-shadow", "2px 2px 20px")
     .style("opacity", "0.9")
     .attr("id", "sge_tooltip")
-    .html("Cell type: " + cellType + "<br>Gene: " + gene+ "<br>Z-score: " + zscore);
+    .html(tooltipText);
 
     svg
       .append("circle")

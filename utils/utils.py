@@ -13,8 +13,10 @@ DATA_ROOT = f"{base_path}/../data"
 # Note that 'deconvoluted_result' has to come after 'significant_means' in CONFIG_KEYS. This is because of pre-filtering of interacting pairs
 # on first page load - from deconvoluted file we need to pre-select genes but we don't have interacting_pair information in that file, hence
 # we need to get the mapping: interacting pair->interaction_id from the means file and only then we can do interaction_id->genes in deconvoluted file.
-CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','microenvironments','significant_means','deconvoluted_result','degs','pvalues']
-VIZZES = ['celltype_composition','microenvironments','single_gene_expression','cell_cell_interaction_summary','cell_cell_interaction_search']
+CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','microenvironments', \
+               'significant_means', 'deconvoluted_result','deconvoluted_percents','degs','pvalues']
+VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
+          'cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SANKEY_EDGE_WEIGHT = 30
 NUMBER_OF_INTERACTING_PAIRS_TO_PRESELECT_ON_FIRST_LOAD = 15
@@ -55,7 +57,9 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
     elif config_key == 'significant_means':
         populate_significant_means_data(result_dict, df, separator)
     elif config_key == 'deconvoluted_result':
-        populate_deconvoluted_data(result_dict, df, separator)
+        populate_deconvoluted_data(result_dict, df, separator, percents=False)
+    elif config_key == 'deconvoluted_percents':
+        populate_deconvoluted_data(result_dict, df, separator, percents=True)
     elif config_key == 'degs':
         populate_degs_data(result_dict, df)
     elif config_key == 'pvalues':
@@ -166,7 +170,7 @@ def preselect_cell_type_pairs(dict_cci_search: dict):
     return random.sample(list(dict_cci_search['all_cell_type_pairs']), NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD)
     # return dict_cci_search['all_cell_type_pairs'][0:NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
 
-def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False):
+def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False, percents = False):
     dict_sge = dict_dd['single_gene_expression']
     dict_cci_search = dict_dd['cell_cell_interaction_search']
     if not separator:
@@ -216,25 +220,36 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
 
     # Retrieve means for genes in selected_genes and cell types in all_cell_types
     selected_genes_means_df = df[df['gene_name'].isin(selected_genes)][['gene_name', 'complex_name'] + selected_cell_types].drop_duplicates()
-    mean_expressions = selected_genes_means_df[['gene_name','complex_name'] + selected_cell_types]
-    mean_expressions.set_index(['gene_name','complex_name'], inplace=True)
-    # Calculate z-scores (so that cell types per gene complex are comparable)
-    mean_zscores = stats.zscore(mean_expressions, axis=1)
-    # Genes withe expression=0 across all selected_cell_types will get z-score = nan - remove
-    # them from the plot
-    mean_zscores.dropna(axis=0, inplace=True)
-    # Round zscores to 3 decimal places
-    mean_zscores = np.round(mean_zscores, 3)
-    mean_zscores.reset_index(drop=False, inplace=True)
-    # Assemble gene_complex_list with the genes remaining in mean_zscores
-    gene_complex_list = (mean_zscores['gene_name'] + " in " + mean_zscores['complex_name'].fillna('')).values
-    gene_complex_list = [re.sub(r"\sin\s$", "", x) for x in gene_complex_list]
-    mean_zscores.drop(columns = ['gene_name','complex_name'], inplace=True)
+    deconvoluted_df = selected_genes_means_df[['gene_name','complex_name'] + selected_cell_types]
+    if percents:
+        # Assemble gene_complex_list with the genes remaining in mean_zscores
+        gene_complex_list = (deconvoluted_df['gene_name'] + " in " + deconvoluted_df['complex_name'].fillna('')).values
+        gene_complex_list = [re.sub(r"\sin\s$", "", x) for x in gene_complex_list]
+        key = 'percents'
+        min_key = 'min_percent'
+        max_key = 'max_percent'
+    else:
+        # Calculate z-scores (so that cell types per gene complex are comparable)
+        deconvoluted_df.set_index(['gene_name', 'complex_name'], inplace=True)
+        deconvoluted_df = stats.zscore(deconvoluted_df, axis=1)
+        # Genes with expression=0 across all selected_cell_types will get z-score = nan - remove
+        # them from the plot
+        deconvoluted_df.dropna(axis=0, inplace=True)
+        # Round zscores to 3 decimal places
+        deconvoluted_df = np.round(deconvoluted_df, 3)
+        deconvoluted_df.reset_index(drop=False, inplace=True)
+        # Assemble gene_complex_list with the genes remaining in mean_zscores
+        gene_complex_list = (deconvoluted_df['gene_name'] + " in " + deconvoluted_df['complex_name'].fillna('')).values
+        gene_complex_list = [re.sub(r"\sin\s$", "", x) for x in gene_complex_list]
+        key = 'mean_zscores'
+        min_key = 'min_zscore'
+        max_key = 'max_zscore'
+    deconvoluted_df.drop(columns=['gene_name', 'complex_name'], inplace=True)
+    dict_sge[key] = deconvoluted_df.values.tolist()
     dict_sge['gene_complex'] = gene_complex_list
-    dict_sge['mean_zscores'] = mean_zscores.values.tolist()
-    if not mean_zscores.empty:
-        dict_sge['min_zscore'] = mean_zscores.min(axis=None)
-        dict_sge['max_zscore'] = mean_zscores.max(axis=None)
+    if not deconvoluted_df.empty:
+        dict_sge[min_key] = deconvoluted_df.min(axis=None)
+        dict_sge[max_key] = deconvoluted_df.max(axis=None)
     # Data below is needed for autocomplete functionality
     dict_sge['all_genes'] = all_genes
     dict_sge['all_cell_types'] = all_cell_types
