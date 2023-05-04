@@ -14,7 +14,7 @@ DATA_ROOT = f"{base_path}/../data"
 # on first page load - from deconvoluted file we need to pre-select genes but we don't have interacting_pair information in that file, hence
 # we need to get the mapping: interacting pair->interaction_id from the means file and only then we can do interaction_id->genes in deconvoluted file.
 CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','microenvironments', \
-               'significant_means', 'deconvoluted_result','deconvoluted_percents','degs','pvalues']
+               'significant_means', 'relevant_interactions', 'deconvoluted_result','deconvoluted_percents','degs','pvalues']
 VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
           'cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
@@ -64,6 +64,8 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
         populate_degs_data(result_dict, df)
     elif config_key == 'pvalues':
         populate_pvalues_data(result_dict, df)
+    elif config_key == 'relevant_interactions':
+        populate_relevant_interactions_data(result_dict, df)
     if config_key in ['deconvoluted_result', 'significant_means']:
         file_name2df[config_key] = df
 
@@ -268,6 +270,17 @@ def populate_pvalues_data(result_dict, df):
         dict_pvals[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair].apply(pval4plot)))
     dict_cci_search['pvalues'] = dict_pvals
 
+
+def populate_relevant_interactions_data(result_dict, df):
+    dict_cci_search = result_dict['cell_cell_interaction_search']
+    dict_pvals = {}
+    all_cell_types_combinations = list(df.columns[12:])
+    for ct_pair in all_cell_types_combinations:
+        # Filter out values of 0 (= irrelevant interactions) - no point bloating the API call result
+        df_filtered = df[df[ct_pair] > 0]
+        dict_pvals[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
+    dict_cci_search['relevant_interactions'] = dict_pvals
+
 def pval4plot(pvalue) -> int:
     if pvalue > 0:
         val = min(round(abs(math.log10(pvalue))), 3)
@@ -397,6 +410,19 @@ def filter_interactions(result_dict,
             # Some significant interactions were found
             result_dict['min_expression'] = means_np_arr.min(axis=None)
             result_dict['max_expression'] = means_np_arr.max(axis=None)
+
+        if 'relevant_interactions' in result_dict:
+            result_dict['filtered_relevant_interactions'] = means_np_arr.copy().tolist()
+            for i, row in enumerate(result_dict['filtered_relevant_interactions']):
+                for j, _ in enumerate(row):
+                    cell_type = selected_cell_type_pairs[j]
+                    interacting_pair = result_dict['interacting_pairs_means'][i]
+                    if cell_type in result_dict['relevant_interactions'] and interacting_pair in result_dict['relevant_interactions'][cell_type]:
+                        result_dict['filtered_relevant_interactions'][i][j] = result_dict['relevant_interactions'][cell_type][interacting_pair]
+                    else:
+                        # relevant interactions values = 0 have been filtered out to reduce API output
+                        result_dict['filtered_relevant_interactions'][i][j] = 0
+
         if 'pvalues' in result_dict:
             result_dict['filtered_pvalues'] = means_np_arr.copy().tolist()
             for i, row in enumerate(result_dict['filtered_pvalues']):

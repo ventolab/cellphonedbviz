@@ -1167,6 +1167,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     min_expr = 0,
     max_expr=data['max_expression'],
     pvalues=data['filtered_pvalues'],
+    relevant_interactions=data['filtered_relevant_interactions'],
     colorDomain = yVals;
 
   var svg = d3
@@ -1207,9 +1208,13 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       if (pvalues) {
          minusLog10PVal = pvalues[i][j];
       }
+      var relIntFlag;
+      if (relevant_interactions) {
+         relIntFlag = relevant_interactions[i][j];
+      }
       var cellTypePair = data['cell_type_pairs_means'][j];
       var interaction = data['interacting_pairs_means'][i];
-      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, -50, pvalues);
+      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, -50, pvalues);
     }
   }
 
@@ -1318,13 +1323,30 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       dotSizeLegend.append("text").attr("x", 35).attr("y", 140).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
       dotSizeLegend.append("text").attr("x", 35).attr("y", 170).text("2").style("font-size", "15px").attr("alignment-baseline","middle")
       dotSizeLegend.append("text").attr("x", 35).attr("y", 200).text(">=3").style("font-size", "15px").attr("alignment-baseline","middle")
+  } else if (relevant_interactions) {
+      // Relevant interactions legend - (static larger) dot size
+      const dotlegend_xPos=width-315
+      const dotlegend_yPos=top_yMargin+barLegendHeight+10
+      const dotLegendWidth = 450;
+      dotLegendHeight = 150;
+      const dotSizeLegend = svg
+            .append("svg")
+            .attr("width", dotLegendWidth)
+            .attr("height", dotLegendHeight)
+            .attr("x", dotlegend_xPos)
+            .attr("y", dotlegend_yPos);
+
+      // dot size legend content
+      dotSizeLegend.append("circle").attr("cx",15).attr("cy",60).attr("r", 8).style("fill", "#404080");
+      dotSizeLegend.append("text").attr("x", 35).attr("y", 60).text("Is relevant interaction").style("font-size", "15px").attr("alignment-baseline","middle")
   }
   
   if (microenvironments) {
       // Legend for cell type pair colours - by micro-environment
       const meLegend_xPos=width-315;
       var meLegend_yPos;
-      if (pvalues) {
+
+      if (pvalues || relevant_interactions) {
         meLegend_yPos=top_yMargin+barLegendHeight+dotLegendHeight-110;
       } else {
         meLegend_yPos=top_yMargin+barLegendHeight+10;
@@ -1425,7 +1447,7 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
       .attr("fill", colorscale(0));
 }
 
-function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues) {
+function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues) {
     var radius;
     if (pvalues) {
         if (minusLog10PVal) {
@@ -1433,6 +1455,8 @@ function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePai
         } else {
             radius = 2;
         }
+    } else if (relIntFlag) {
+        radius = 8;
     } else {
         radius = 5;
     }
@@ -1440,6 +1464,8 @@ function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, cellTypePai
     var tooltipContent = "Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>Expression: " + expression;
     if (pvalues) {
         tooltipContent += "<br>Rounded -log10pvalue: " + minusLog10PVal;
+    } else if (relIntFlag) {
+        tooltipContent = "<b>Relevant</b> " + tooltipContent;
     }
     var cellType = yVals[i];
     var gene = xVals[j];
