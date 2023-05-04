@@ -332,9 +332,10 @@ def filter_interactions(result_dict,
     # Collect all combinations of cell types (disregarding the order) from cell_types and cell_type_pairs combined
     if cell_types:
         selected_cell_types = cell_types
-        # Derive selected_cell_type_pairs from
+        # Derive selected_cell_type_pairs from selected_cell_types
         selected_cell_type_pairs = []
         if cell_type_pairs:
+            # Note: the search for cell types and cell type pairs is additive (inclusive OR)
             selected_cell_type_pairs += cell_type_pairs
         for ct in selected_cell_types:
             for ct1 in selected_cell_types:
