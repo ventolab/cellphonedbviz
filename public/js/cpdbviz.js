@@ -1193,7 +1193,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       .scaleSequential()
       .domain([min_expr, max_expr])
       // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
-      .interpolator(d3.interpolateHsl("#D3D3D3", "red"));
+      .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["black", "blue", "yellow", "red"]))
 
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
@@ -1458,7 +1458,7 @@ function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, relIntFlag,
     } else if (relIntFlag) {
         radius = 8;
     } else {
-        radius = 5;
+        radius = 2;
     }
 
     var tooltipContent = "Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>Expression: " + expression;
