@@ -266,8 +266,8 @@ def populate_pvalues_data(result_dict, df):
     all_cell_types_combinations = list(df.columns[12:])
     for ct_pair in all_cell_types_combinations:
         # Filter out pvals = 1.0 - no point bloating the API call result
-        df_filtered = df[df[ct_pair].apply(pval4plot) > 0]
-        dict_pvals[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair].apply(pval4plot)))
+        df_filtered = df[df[ct_pair] < 1]
+        dict_pvals[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
     dict_cci_search['pvalues'] = dict_pvals
 
 
@@ -280,13 +280,6 @@ def populate_relevant_interactions_data(result_dict, df):
         df_filtered = df[df[ct_pair] > 0]
         dict_pvals[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
     dict_cci_search['relevant_interactions'] = dict_pvals
-
-def pval4plot(pvalue) -> int:
-    if pvalue > 0:
-        val = min(round(abs(math.log10(pvalue))), 3)
-    else:
-        val = 3
-    return val
 
 def populate_degs_data(result_dict, df):
     dict_degs = result_dict['single_gene_expression']

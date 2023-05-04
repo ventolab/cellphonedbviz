@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+
     var projectId = $("#project_id").text();
    // Populate page title
    $.ajax({
@@ -1085,6 +1086,19 @@ function clearCCISearchFilters() {
     $('.cci_search_selected_celltype_pairs').empty();
 }
 
+function getPValBucket(pVal) {
+    var ret;
+    if (!pVal) {
+        pVal = 1;
+    }
+    if (pVal > 0) {
+        ret = Math.min(Math.round(Math.abs(Math.log10(pVal))), 3)
+    } else {
+        ret = 3
+    }
+    return ret;
+}
+
 function generateCellCellInteractionSearchPlot(data, storeTokens) {
     // DEBUG console.log(data);
     $("#cci_search").empty();
@@ -1204,9 +1218,9 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     // cell type pairs
     for (var j = 0; j <= xVals.length - 1; j++) {
       var expression = mean_expressions[i][j];
-      var minusLog10PVal;
+      var pValue;
       if (pvalues) {
-         minusLog10PVal = pvalues[i][j];
+         pValue = pvalues[i][j];
       }
       var relIntFlag;
       if (relevant_interactions) {
@@ -1214,7 +1228,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       }
       var cellTypePair = data['cell_type_pairs_means'][j];
       var interaction = data['interacting_pairs_means'][i];
-      cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, -50, pvalues);
+      cciSearchRenderPoint(svg, j, i, expression, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, -50, pvalues);
     }
   }
 
@@ -1447,14 +1461,12 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
       .attr("fill", colorscale(0));
 }
 
-function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues) {
+function cciSearchRenderPoint(svg, j, i, expression, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues) {
     var radius;
+    var pvalBucket;
     if (pvalues) {
-        if (minusLog10PVal) {
-            radius = minusLog10PVal * 2 + 2;
-        } else {
-            radius = 2;
-        }
+        pvalBucket = getPValBucket(pValue);
+        radius = pvalBucket * 2 + 2;
     } else if (relIntFlag) {
         radius = 8;
     } else {
@@ -1463,7 +1475,12 @@ function cciSearchRenderPoint(svg, j, i, expression, minusLog10PVal, relIntFlag,
 
     var tooltipContent = "Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>Expression: " + expression;
     if (pvalues) {
-        tooltipContent += "<br>Rounded -log10pvalue: " + minusLog10PVal;
+        tooltipContent += "<br>Nominal P-value: " + pValue;
+        tooltipContent += "<br>-log10pvalue bucket: ";
+        if (pvalBucket == 3) {
+            tooltipContent += ">=";
+        }
+        tooltipContent += pvalBucket;
     } else if (relIntFlag) {
         tooltipContent = "<b>Relevant</b> " + tooltipContent;
     }
