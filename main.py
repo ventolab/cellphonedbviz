@@ -24,7 +24,8 @@ def get_viz_data(project: str,
                  interacting_pairs: str = None,
                  cell_types: str = None,
                  cell_type_pairs: str = None,
-                 refresh_plot: bool = False
+                 refresh_plot: bool = False,
+                 show_zscores: bool = False
                  ):
     if viz == 'single_gene_expression':
         selected_genes = get_jsonable(genes)
@@ -49,7 +50,7 @@ def get_viz_data(project: str,
         selected_cell_type_pairs = get_jsonable(cell_type_pairs)
         ret = copy.deepcopy(dir_name2project_data[project][viz])
         utils.filter_interactions(ret, dir_name2file_name2df[project],
-                                  selected_genes, selected_interacting_pairs, selected_cell_types, selected_cell_type_pairs, refresh_plot)
+                                  selected_genes, selected_interacting_pairs, selected_cell_types, selected_cell_type_pairs, refresh_plot, show_zscores)
     else:
         ret = dir_name2project_data[project][viz]
     return ret

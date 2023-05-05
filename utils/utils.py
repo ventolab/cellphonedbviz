@@ -329,7 +329,8 @@ def filter_interactions(result_dict,
                         interacting_pairs,
                         cell_types,
                         cell_type_pairs,
-                        refresh_plot):
+                        refresh_plot,
+                        show_zscores):
     means_df = file_name2df['significant_means']
     deconvoluted_df = file_name2df['deconvoluted_result']
     separator = result_dict['separator']
@@ -397,11 +398,22 @@ def filter_interactions(result_dict,
         result_dict['cell_type_pairs_means'] = result_means_df.columns.tolist()
         # Replace nan with 0's in result_means_df.values
         means_np_arr = np.nan_to_num(result_means_df.values, copy=False, nan=0.0)
-        result_dict['means'] = means_np_arr.tolist()
-        if means_np_arr.size > 0:
-            # Some significant interactions were found
-            result_dict['min_expression'] = means_np_arr.min(axis=None)
-            result_dict['max_expression'] = means_np_arr.max(axis=None)
+        # Calculate z-scores
+        zscores_df = stats.zscore(result_means_df, axis=1)
+        zscores_arr = np.nan_to_num(zscores_df.values, copy=False, nan=0.0)
+        zscores_arr = np.round(zscores_arr, 3)
+        if show_zscores:
+            result_dict['values'] = zscores_arr.tolist()
+            if zscores_arr.size > 0:
+                # Some significant interactions were found
+                result_dict['min_value'] = zscores_arr.min(axis=None)
+                result_dict['max_value'] = zscores_arr.max(axis=None)
+        else:
+            result_dict['values'] = means_np_arr.tolist()
+            if means_np_arr.size > 0:
+                # Some significant interactions were found
+                result_dict['min_value'] = means_np_arr.min(axis=None)
+                result_dict['max_value'] = means_np_arr.max(axis=None)
 
         if 'relevant_interactions' in result_dict:
             result_dict['filtered_relevant_interactions'] = means_np_arr.copy().tolist()

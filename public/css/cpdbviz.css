@@ -47,3 +47,11 @@ nav ul li a, h5 {
     shape-rendering: crispEdges;
     stroke-opacity: .3;
   }
+
+ /* The following two settings ensure there is no colour change between on and off state */
+ .switch label .lever {
+    background-color: #84c7c1 !important;
+  }
+ .switch label .lever:after {
+    background-color: #F1F1F1 !important;
+ }

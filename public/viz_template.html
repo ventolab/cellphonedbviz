@@ -382,6 +382,14 @@
                       <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci_search','cci_search_title','cci_search_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                       </button>
+                      <div class="switch" style="padding-top: 20px;">
+                        <label>
+                          <span class="black-text text-lighten-10">Show mean expressions</span>
+                          <input id="cci_search_switch" type="checkbox">
+                          <span class="lever"></span>
+                          <span class="black-text text-lighten-10">Show z-scores</span
+                        </label>
+                      </div>
                       <span id="cci_search_header" class="card-title center" style="font-size: 16px;">Significant interactions per cell type pair</span>
                         <div id="cci_search" style="width:1400px"></div>
                     </div>

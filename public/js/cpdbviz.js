@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
-            generateCellCellInteractionSearchPlot(res, storeTokens=true);
+            generateCellCellInteractionSearchPlot(res, storeTokens=true, showZScores=false);
             // Enable gene and cell type input autocompletes for gene expression plot
             enable_autocomplete('cci_search_celltype_input', 'cci_search_selected_celltypes', res['all_cell_types']);
             enable_autocomplete('cci_search_celltype_pair_input', 'cci_search_selected_celltype_pairs', res['all_cell_type_pairs']);
@@ -127,8 +127,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 $("#cci_search_microenvironment_input")
                     .attr("placeholder",res['microenvironments'].toString());
             }
+            // Allow the user to switch between mean expressions and z-scores being shown in the plot
+            enable_cci_search_switch();
         }
      });
+
 });
 
 function downloadAsImage(divId, titleId, headerId) {
@@ -148,6 +151,16 @@ function enable_cci_summary_show_all_celltypes() {
         } else {
            $('#cci0_div').hide();
         }
+      });
+}
+
+function enable_cci_search_switch() {
+    $('#cci_search_switch').on('change', function() {
+        var showZScores = false;
+        if ($(this).is(':checked')) {
+            showZScores = true;
+        }
+        refreshCCISearchPlot(showZScores);
       });
 }
 
@@ -1115,7 +1128,7 @@ function getPValBucket(pVal) {
     return ret;
 }
 
-function generateCellCellInteractionSearchPlot(data, storeTokens) {
+function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
     // DEBUG console.log(data);
     $("#cci_search").empty();
     const selectedGenes = data['selected_genes'];
@@ -1190,15 +1203,20 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     yMax = yVals.length - 1,
     xVals = data['cell_type_pairs_means'],
     xMax= xVals.length - 1,
-    mean_expressions = data['means'],
-    // min_expr, max_expr needed for color scale
-    // N.B. We don't take data['min_expression'] as min_expr because the bar legend misbehaves when min_expr > 0
-    // and so far I've not been able to make it work with min_expr > 0
-    min_expr = 0,
-    max_expr=data['max_expression'],
+    mean_values = data['values'],
     pvalues=data['filtered_pvalues'],
     relevant_interactions=data['filtered_relevant_interactions'],
     colorDomain = yVals;
+
+  // min_value, max_value needed for color scale
+  max_val=data['max_value'];
+  if (showZScores) {
+      min_val = data['min_value'];
+  } else {
+      // N.B. We don't take data['min_value'] as min_value because the bar legend misbehaves when min_expr > 0
+      // and so far I've not been able to make it work with min_expr > 0
+      min_val = 0;
+  }
 
   var svg = d3
     .select("#cci_search")
@@ -1221,7 +1239,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       .range([0, yAxisLength]),
     colorscale = d3
       .scaleSequential()
-      .domain([min_expr, max_expr])
+      .domain([min_val, max_val])
       // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
       .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["black", "blue", "yellow", "red"]))
 
@@ -1233,7 +1251,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
   for (var i = 0; i <= yVals.length - 1; i++) {
     // cell type pairs
     for (var j = 0; j <= xVals.length - 1; j++) {
-      var expression = mean_expressions[i][j];
+
+      var value = mean_values[i][j];
       var pValue;
       if (pvalues) {
          pValue = pvalues[i][j];
@@ -1244,16 +1263,16 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
       }
       var cellTypePair = data['cell_type_pairs_means'][j];
       var interaction = data['interacting_pairs_means'][i];
-      cciSearchRenderPoint(svg, j, i, expression, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, -50, pvalues);
+      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, -50, pvalues, showZScores);
     }
   }
 
-  // Mean expression heatmap colour legend:
+  // value (=mean expression or z-score) heatmap colour legend:
   // See: https://blog.scottlogic.com/2019/03/13/how-to-create-a-continuous-colour-range-legend-using-d3-and-d3fc.html
   // Band scale for x-axis
   const barLegendWidth=50
   const barLegendHeight=150
-  domain=[min_expr, max_expr]
+  domain=[min_val, max_val]
 
   const legend_xScale = d3
     .scaleBand()
@@ -1273,8 +1292,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
   const paddedDomain = fc.extentLinear()
     .pad([0.03, 0.03])
     .padUnit("percent")(domain);
-  [min_expr, max_expr] = paddedDomain;
-  const expandedDomain = d3.range(min_expr, max_expr, (max_expr - min_expr) / barLegendHeight);
+  [min_val, max_val] = paddedDomain;
+  const expandedDomain = d3.range(min_val, max_val, (max_val - min_val) / barLegendHeight);
 
   // Define the colour legend bar
   const svgBar = fc
@@ -1289,8 +1308,12 @@ function generateCellCellInteractionSearchPlot(data, storeTokens) {
     });
 
     // Add the colour legend header
+    var legendLabel = "Mean expression";
+    if (showZScores) {
+        legendLabel += " z-score";
+    }
     svg
-    .append("text").attr("x", barLegend_xPos-12).attr("y", top_yMargin+10).text("Mean expression").style("font-size", "15px")
+    .append("text").attr("x", barLegend_xPos-12).attr("y", top_yMargin+10).text(legendLabel).style("font-size", "15px")
 //    .append('tspan').attr("x", barLegend_xPos-12).attr("y", top_yMargin+30).text("z-score")
     .attr("alignment-baseline","middle");
 
@@ -1477,7 +1500,7 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
       .attr("fill", colorscale(0));
 }
 
-function cciSearchRenderPoint(svg, j, i, expression, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues) {
+function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues, showZScores) {
     var radius;
     var pvalBucket;
     if (pvalues) {
@@ -1488,8 +1511,11 @@ function cciSearchRenderPoint(svg, j, i, expression, pValue, relIntFlag, cellTyp
     } else {
         radius = 2;
     }
-
-    var tooltipContent = "Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>Expression: " + expression;
+    var valLabel = "Expression";
+    if (showZScores) {
+       valLabel = "Z-score";
+    }
+    var tooltipContent = "Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>" + valLabel + ": " + value;
     if (pvalues) {
         tooltipContent += "<br>Nominal P-value: " + pValue;
         tooltipContent += "<br>-log10pvalue bucket: ";
@@ -1523,14 +1549,14 @@ function cciSearchRenderPoint(svg, j, i, expression, pValue, relIntFlag, cellTyp
         })
         .attr("cx", xScale(j))
         .attr("cy", yScale(i))
-        .attr("fill", colorscale(expression))
+        .attr("fill", colorscale(value))
         .attr("r", radius)
         .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
         .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
-function refreshCCISearchPlot() {
+function refreshCCISearchPlot(showZScores) {
     var projectId = $("#project_id").text();
     var ret = getSelectedTokens([
         "cci_search_selected_genes", "cci_search_selected_celltypes",
@@ -1560,12 +1586,15 @@ function refreshCCISearchPlot() {
     }
     // In refresh mode, we don't pre-select interactions/cell type pairs - if the user did not enter any selections
     url += "refresh_plot=True";
+    if (showZScores) {
+        url += "&show_zscores=True";
+    }
     $.ajax({
             url: url,
             contentType: "application/json",
             dataType: 'json',
             success: function(res) {
-                generateCellCellInteractionSearchPlot(res, storeTokens=false);
+                generateCellCellInteractionSearchPlot(res, storeTokens=false, showZScores=showZScores);
             }
      });
 }
