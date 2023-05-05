@@ -373,6 +373,7 @@ function generateMicroenvironmentsPlot(data) {
         $("#spme_title").hide();
         $("#spme_header").hide();
         $("#spme").hide();
+        $("#spme_save_button").hide();
         return;
     }
 
