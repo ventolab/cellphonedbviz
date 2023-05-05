@@ -1,6 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    var projectId = $("#project_id").text();
+  var projectId = $("#project_id").text();
+
+  // Enable tooltips
+  var elems = document.querySelectorAll('.tooltipped');
+  const options = {};
+  var instances = M.Tooltip.init(elems, options);
+
    // Populate page title
    $.ajax({
             url: '/api/list',
@@ -124,6 +130,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
      });
 });
+
+function downloadAsImage(divId, titleId, headerId) {
+    // Get the svg and save it as png image via saveSvgAsPng.js
+    const div = document.getElementById(divId);
+    const svg = div.getElementsByTagName("svg")[0];
+    const title = document.getElementById(titleId).innerHTML;
+    const header = document.getElementById(headerId).innerHTML;
+    const fileName = title + "_" + header;
+    saveSvgAsPng(svg, fileName, {scale: 2, backgroundColor: "#FFFFFF"});
+}
 
 function enable_cci_summary_show_all_celltypes() {
     $('#cci_summary_show_all_celltypes').on('change', function() {

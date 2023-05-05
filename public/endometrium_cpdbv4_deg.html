@@ -6,21 +6,20 @@
 <!--        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
 <!--        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">-->
 <!--        <link rel="stylesheet" href="css/cpdbviz.css">-->
-
 <!--        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>-->
 <!--        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
 <!--        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>-->
 <!--        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.4/d3.min.js"></script>-->
 <!--        <script type="text/javascript" src="https://unpkg.com/d3fc@15.2.6/build/d3fc.js"></script>-->
-
 <!--        <script type="text/javascript" src="https://d3js.org/d3-scale-chromatic.v3.min.js"></script>-->
 <!--        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>-->
+<!--        <script type="text/javascript" src="./external/js/saveSvgAsPng.js"></script>-->
 <!--        <script src="./js/sankey.js" type="text/javascript"></script>-->
 <!--        <script src="./js/cpdbviz.js" type="text/javascript"></script>-->
 
         <link rel="stylesheet" href="./external/css/material_icons.css" >
-        <link rel="stylesheet" href="css/cpdbviz.css">
         <link rel="stylesheet" href="./external/css/materialize.min.css">
+        <link rel="stylesheet" href="css/cpdbviz.css">
         <script type="text/javascript" src="./external/js/materialize.min.js"></script>
         <script type="text/javascript" src="./external/js/jquery-3.2.1.min.js"></script>
         <script type="text/javascript" src="./external/js/jquery-ui.min.js"></script>
@@ -28,6 +27,7 @@
         <script type="text/javascript" src="./external/js/d3fc.js"></script>
         <script type="text/javascript" src="./external/js/d3-scale-chromatic.v3.min.js"></script>
         <script type="text/javascript" src="./external/js/raphael.min.js"></script>
+        <script type="text/javascript" src="./external/js/saveSvgAsPng.js"></script>
         <script src="./js/sankey.js" type="text/javascript"></script>
         <script src="./js/cpdbviz.js" type="text/javascript"></script>
 
@@ -43,7 +43,10 @@
                 <div class="card">
                   <div class="card-content black-text col s12">
                     <span id="ctcomp_title" class="card card-title center">Cell composition</span>
-                    <span id="ctcomp_header" class="card-title center" style="font-size: 16px;"></span>
+                    <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('ctcomp','ctcomp_title','ctcomp_header')">
+                        <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                    </button>
+                     <span id="ctcomp_header" class="card-title center" style="font-size: 16px;"></span>
                       <div id="ctcomp" style="width:1200px;height:500px"></div>
                   </div>
                 </div>
@@ -55,6 +58,9 @@
                 <div class="card">
                   <div class="card-content black-text col s12">
                     <span id="spme_title" class="card card-title center">Spatial microenvironments</span>
+                    <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('spme','spme_title','spme_header')">
+                        <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                    </button>
                     <span id="spme_header" class="card-title center" style="font-size: 16px;">Cell Type - Microenvironment</span>
                       <div id="spme" style="width:800px"></div>
                   </div>
@@ -68,7 +74,7 @@
         <div class="col s12">
           <div class="card">
              <div class="card-content col s12">
-                <span class="card card-title center">Single gene expression</span>
+                <span id="sge_title" class="card card-title center">Single gene expression</span>
               </div>
               <div class="row">
                  <div id="search_results" hidden>
@@ -131,6 +137,9 @@
                   <div class="col s12 m9 l9 push-s1">
                     <div class="card">
                         <div class="card-content black-text col s12">
+                          <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('sge','sge_title','sge_header')">
+                             <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                          </button>
                           <span id="sge_header" class="card-title center" style="font-size: 16px;">Mean expressions of genes per cell type</span>
                             <div id="sge" style="width:1000px"></div>
                         </div>
@@ -143,7 +152,7 @@
         <div class="col s12">
           <div class="card">
               <div class="card-content col s12">
-                <span class="card card-title center">Cell-cell Communication - Summary</span>
+                <span id="cci_summary_title" class="card card-title center">Cell-cell Communication - Summary</span>
               </div>
 
               <div id="cci_summary_show_all_celltypes_div" style="padding-left: 30px;" hidden>
@@ -159,6 +168,9 @@
                   <div class="col s12 m6 l6">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci0','cci_summary_title','cci0_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                        </button>
                         <span id="cci0_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci0" style="width:800px"></div>
                       </div>
@@ -172,6 +184,9 @@
                   <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci1','cci_summary_title','cci1_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                        </button>
                         <span id="cci1_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci1" style="width:400px"></div>
                       </div>
@@ -183,6 +198,9 @@
                   <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci2','cci_summary_title','cci2_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                        </button>
                         <span id="cci2_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci2" style="width:400px"></div>
                       </div>
@@ -194,6 +212,9 @@
                   <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci3','cci_summary_title','cci3_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                        </button>
                         <span id="cci3_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci3" style="width:400px"></div>
                       </div>
@@ -208,6 +229,9 @@
                   <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci4','cci_summary_title','cci4_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                        </button>
                         <span id="cci4_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci4" style="width:400px"></div>
                       </div>
@@ -219,6 +243,9 @@
                   <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci5','cci_summary_title','cci5_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                        </button>
                         <span id="cci5_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci5" style="width:400px"></div>
                       </div>
@@ -230,6 +257,9 @@
                   <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci6','cci_summary_title','cci6_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                        </button>
                         <span id="cci6_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci6" style="width:400px"></div>
                       </div>
@@ -243,6 +273,9 @@
                   <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci7','cci_summary_title','cci7_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                        </button>
                         <span id="cci7_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci7" style="width:400px"></div>
                       </div>
@@ -254,6 +287,9 @@
                   <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci8','cci_summary_title','cci8_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                        </button>
                         <span id="cci8_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci8" style="width:400px"></div>
                       </div>
@@ -265,6 +301,9 @@
                   <div class="col s12 m4 l4">
                     <div class="card">
                       <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci9','cci_summary_title','cci9_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                        </button>
                         <span id="cci9_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci9" style="width:400px"></div>
                       </div>
@@ -278,7 +317,7 @@
         <div class="col s12">
            <div class="card">
                 <div class="card-content col s12">
-                  <span class="card card-title center">Cell-cell Communication - Search</span>
+                  <span id="cci_search_title" class="card card-title center">Cell-cell Communication - Search</span>
 <!--                      <span id="ccis_input_header" class="card-title center" style="font-size: 16px;">Placeholder/span>-->
                 </div>
                 <div class="row">
@@ -340,6 +379,9 @@
                 <div class="col s12">
                   <div class="card">
                     <div class="card-content black-text col s12">
+                      <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsImage('cci_search','cci_search_title','cci_search_header')">
+                           <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
+                      </button>
                       <span id="cci_search_header" class="card-title center" style="font-size: 16px;">Significant interactions per cell type pair</span>
                         <div id="cci_search" style="width:1400px"></div>
                     </div>
