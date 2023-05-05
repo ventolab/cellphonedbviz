@@ -66,7 +66,7 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
         populate_pvalues_data(result_dict, df)
     elif config_key == 'relevant_interactions':
         populate_relevant_interactions_data(result_dict, df)
-    if config_key in ['deconvoluted_result', 'significant_means']:
+    if config_key in ['deconvoluted_result', 'significant_means','deconvoluted_percents']:
         file_name2df[config_key] = df
 
 def populate_microenvironments_data(result_dict, df):
@@ -198,6 +198,7 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
             selected_genes = sorted(list(selected_genes))
         else:
             selected_genes = []
+        dict_sge['genes'] = selected_genes
 
     if not selected_cell_types:
         if not refresh_plot:
@@ -222,17 +223,15 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
 
     # Retrieve means for genes in selected_genes and cell types in all_cell_types
     selected_genes_means_df = df[df['gene_name'].isin(selected_genes)][['gene_name', 'complex_name'] + selected_cell_types].drop_duplicates()
-    deconvoluted_df = selected_genes_means_df[['gene_name','complex_name'] + selected_cell_types]
     if percents:
-        # Assemble gene_complex_list with the genes remaining in mean_zscores
-        gene_complex_list = (deconvoluted_df['gene_name'] + " in " + deconvoluted_df['complex_name'].fillna('')).values
-        gene_complex_list = [re.sub(r"\sin\s$", "", x) for x in gene_complex_list]
+        deconvoluted_df = selected_genes_means_df[selected_cell_types]
         key = 'percents'
         min_key = 'min_percent'
         max_key = 'max_percent'
         # Drop all rows/genes with all zeros in them - to match deconvoluted_df.dropna for z-scores below
-        deconvoluted_df = deconvoluted_df.loc[~(df == 0).all(axis=1)]
+        deconvoluted_df = deconvoluted_df.loc[~(deconvoluted_df == 0).all(axis=1)]
     else:
+        deconvoluted_df = selected_genes_means_df
         # Calculate z-scores (so that cell types per gene complex are comparable)
         deconvoluted_df.set_index(['gene_name', 'complex_name'], inplace=True)
         deconvoluted_df = stats.zscore(deconvoluted_df, axis=1)
@@ -245,12 +244,12 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
         # Assemble gene_complex_list with the genes remaining in mean_zscores
         gene_complex_list = (deconvoluted_df['gene_name'] + " in " + deconvoluted_df['complex_name'].fillna('')).values
         gene_complex_list = [re.sub(r"\sin\s$", "", x) for x in gene_complex_list]
+        dict_sge['gene_complex'] = gene_complex_list
+        deconvoluted_df.drop(columns=['gene_name', 'complex_name'], inplace=True)
         key = 'mean_zscores'
         min_key = 'min_zscore'
         max_key = 'max_zscore'
-    deconvoluted_df.drop(columns=['gene_name', 'complex_name'], inplace=True)
     dict_sge[key] = deconvoluted_df.values.tolist()
-    dict_sge['gene_complex'] = gene_complex_list
     if not deconvoluted_df.empty:
         dict_sge[min_key] = deconvoluted_df.min(axis=None)
         dict_sge[max_key] = deconvoluted_df.max(axis=None)

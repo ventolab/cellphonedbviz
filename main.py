@@ -34,8 +34,12 @@ def get_viz_data(project: str,
                                          selected_genes = selected_genes, selected_cell_types = selected_cell_types,
                                          refresh_plot = refresh_plot, percents = False)
         if 'deconvoluted_percents' in dir_name2file_name2df[project]:
+            dict_sge = ret['single_gene_expression']
             utils.populate_deconvoluted_data(ret, dir_name2file_name2df[project]['deconvoluted_percents'], \
-                                             selected_genes=selected_genes, selected_cell_types=selected_cell_types,
+                                             # The following ensures that the same genes and cell types are used to
+                                             # filter deconvoluted_percents as were used to filter deconvoluted_result
+                                             selected_genes=dict_sge['genes'], \
+                                             selected_cell_types=dict_sge['cell_types'], \
                                              refresh_plot=refresh_plot, percents = True)
 
     elif viz == 'cell_cell_interaction_search':
