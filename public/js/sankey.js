@@ -34,6 +34,8 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
       this.bubbleLabelColor = '#fff';
       this.opacity = '0.5';
       this.opacity_highlight = '0.1';
+      this.default_font_size = '10px';
+      this.highlighted_font_size = '13px';
     }
 
     Sankey.prototype.find_or_create_transformation_box = function(name) {
@@ -759,7 +761,11 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
       if (this.box == null) {
         return false;
       }
+      // Set the default font size
+      this.label.attr({ 'font-size': this.sankey.default_font_size });
       if (this.highlighed === true) {
+        // Enlarge the font on highlighting
+        this.label.attr({ 'font-size': this.sankey.highlighted_font_size });
         return false;
       }
       this.box.attr({
@@ -784,6 +790,8 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
       if (this.box == null) {
         return false;
       }
+      // Set the default font size
+      this.label.attr({ 'font-size': this.sankey.default_font_size });
       if (this.highlighed === true) {
         return false;
       }
