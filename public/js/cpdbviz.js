@@ -311,13 +311,22 @@ function refreshSGEPlot() {
      });
 }
 
-function storeToken(val, target_div_class, input_field_id) {
-    $("."+target_div_class).append($('<div class="chip">' + val + '<i class="tiny close material-icons">close</i></div>'));
+function storeToken(newVal, target_div_class, input_field_id) {
+    let found = false;
+    $("."+target_div_class + " .chip").each(function(index, element) {
+        const chipVal = $(this).text().replace("close","");
+        console.log(newVal, $(this).text());
+        if (newVal == chipVal) {
+            found = true;
+        }
+    });
+    if (!found) {
+        $("."+target_div_class).append($('<div class="chip">' + newVal + '<i class="tiny close material-icons">close</i></div>'));
+    }
     $('#' + input_field_id).val("");
 }
 
 function generateCellCompositionPlot(data) {
-
     if (!data.hasOwnProperty('all_elems')) {
         // N.B. 'all_elems' is set only if celltype_composition is set in config
         $("#ctcomp_title").hide();
