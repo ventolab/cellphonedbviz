@@ -1,5 +1,4 @@
 import os
-import math
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -216,9 +215,6 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
 
     # Note: all_genes is needed for autocomplete - for the user to include genes in the plot
     all_genes = set(df['gene_name'].values)
-    gene2complexes = {}
-    for i, j in zip(df['gene_name'], df['complex_name']):
-        gene2complexes.setdefault(i, set([])).add(j)
     all_cell_types = list(df.columns[6:])
 
     # Retrieve means for genes in selected_genes and cell types in all_cell_types
