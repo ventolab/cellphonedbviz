@@ -43,19 +43,18 @@ document.addEventListener('DOMContentLoaded', function() {
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
-            sge_data = res['single_gene_expression'];
-            generateSingleGeneExpressionPlot(sge_data, storeTokens=true);
+            generateSingleGeneExpressionPlot(res, storeTokens=true);
             // Enable gene and cell type input autocompletes for gene expression plot
-            enable_autocomplete('sge_gene_input', 'sge_selected_genes', sge_data['all_genes']);
-            enable_autocomplete('sge_celltype_input', 'sge_selected_celltypes', sge_data['all_cell_types']);
-            if (sge_data.hasOwnProperty('microenvironments')) {
-                enable_autocomplete('sge_microenvironment_input', 'sge_selected_microenvironments', sge_data['microenvironments']);
+            enable_autocomplete('sge_gene_input', 'sge_selected_genes', res['all_genes']);
+            enable_autocomplete('sge_celltype_input', 'sge_selected_celltypes', res['all_cell_types']);
+            if (res.hasOwnProperty('microenvironments')) {
+                enable_autocomplete('sge_microenvironment_input', 'sge_selected_microenvironments', res['microenvironments']);
                 // Initialise 'Filter cell types by micro-environment in single gene expression plot' select dropdown
-                enable_me2ct_select(sge_data['microenvironment2cell_types'], sge_data['all_cell_types'],
+                enable_me2ct_select(res['microenvironment2cell_types'], res['all_cell_types'],
                                         'sge_selected_microenvironments', 'sge_selected_celltypes', 'sge_celltype_input');
                 // Populate placeholder to show the user available microenvironments
                 $("#sge_microenvironment_input")
-                    .attr("placeholder",sge_data['microenvironments'].toString());
+                    .attr("placeholder",res['microenvironments'].toString());
             } else {
                 // Hide microenvironment input
                 $("#sge_microenvironment_sel").hide();
@@ -305,8 +304,7 @@ function refreshSGEPlot() {
             contentType: "application/json",
             dataType: 'json',
             success: function(res) {
-                sge_data = res['single_gene_expression'];
-                generateSingleGeneExpressionPlot(sge_data, storeTokens=false);
+                generateSingleGeneExpressionPlot(res, storeTokens=false);
             }
      });
 }
@@ -315,7 +313,6 @@ function storeToken(newVal, target_div_class, input_field_id) {
     let found = false;
     $("."+target_div_class + " .chip").each(function(index, element) {
         const chipVal = $(this).text().replace("close","");
-        console.log(newVal, $(this).text());
         if (newVal == chipVal) {
             found = true;
         }
