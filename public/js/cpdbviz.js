@@ -226,7 +226,7 @@ function selectAllCellTypes(viz){
                 var selected_celltypes_div;
                 var celltype_input_div;
                 if (viz == 'single_gene_expression') {
-                   data = res[viz];
+                   data = res;
                    selected_celltypes_div = "sge_selected_celltypes";
                    celltype_input_div = "sge_celltype_input";
                 } else if (viz == 'cell_cell_interaction_search') {
