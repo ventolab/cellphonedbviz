@@ -74,27 +74,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (map.size > 0) {
                     var cnt = 1;
                     for (let [microenvironment, cellTypes] of map.entries()) {
-                        generateCellCellInteractionPlot(res, cellTypes.sort(), microenvironment, cnt);
+                        generateCellCellInteractionSummaryPlot(res, cellTypes.sort(), microenvironment, cnt);
                         cnt++;
                         if (cnt > 9) {
-                            // TODO: We currently only have up to nine slots for cci plots per environment - to be reviewed
+                            // TODO: We currently only have up to nine slots for microenvironment-specific cci plots - to be reviewed
                             break;
                         }
                     }
                     // Generate plot across cell types also - in case the user wishes to see it
-                     generateCellCellInteractionPlot(res, res['all_cell_types'], "All cell types", 0);
-                     $("#cci0_div").hide();
+                   generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
+                   $("#cci0_div").hide();
 
                 } else {
-                    generateCellCellInteractionPlot(res, res['all_cell_types'], "All cell types", 0);
+                    generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
                     // Hide microenvironment input
                     $("#cci_search_microenvironment_sel").hide();
                 }
             } else {
-                generateCellCellInteractionPlot(res, res['all_cell_types'], "All cell types", 0);
+                generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
                 // Hide microenvironment input
                 $("#cci_search_microenvironment_sel").hide();
             }
+            // Allow the user to switch between cci_summary heatmaps and chord plots
+            enable_cci_summary_switch();
         }
      });
 
@@ -135,12 +137,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function downloadAsImage(divId, titleId, headerId) {
     // Get the svg and save it as png image via saveSvgAsPng.js
-    const div = document.getElementById(divId);
-    const svg = div.getElementsByTagName("svg")[0];
+    // See: https://github.com/exupero/saveSvgAsPng
+    var options = {scale: 2, backgroundColor: "#FFFFFF"};
+    var div = $("#" + divId);
+    const is_cci = divId.search(/cci\d/ != -1);
+    if (is_cci) {
+        if (div.is(":hidden")) {
+            // Download the chord plot instead if the heatmap plot is hidden
+            if (divId.search(/0$/) != -1) {
+                options['left'] = -200;
+                options['top'] = -200;
+            } else {
+                options['left'] = -100;
+                options['top'] = -100;
+            }
+            div = $("#" + divId + "_chord");
+        }
+    }
+    const svg = div.find("svg")[0];
     const title = document.getElementById(titleId).innerHTML;
     const header = document.getElementById(headerId).innerHTML;
     const fileName = title + "_" + header;
-    saveSvgAsPng(svg, fileName, {scale: 2, backgroundColor: "#FFFFFF"});
+    saveSvgAsPng(svg, fileName, options);
 }
 
 function enable_cci_summary_show_all_celltypes() {
@@ -160,6 +178,35 @@ function enable_cci_search_switch() {
             showZScores = true;
         }
         refreshCCISearchPlot(showZScores);
+      });
+}
+
+function enable_cci_summary_switch() {
+    $('#cci_summary_switch').on('change', function() {
+        var max_cci_summary_plot_number= 9;
+        var i = 0;
+        if ($(this).is(':checked')) {
+            // Hide all heatmaps and show chords
+
+            while (i <= max_cci_summary_plot_number) {
+                const divId = "#cci" + i
+                if ($(divId).is(':visible') || i == 0) {
+                    $(divId).hide();
+                    $(divId + "_chord").show();
+                }
+                i++;
+            }
+        } else {
+            // Hide all chords and show heatmaps
+            while (i <= max_cci_summary_plot_number) {
+                const divId = "#cci" + i
+                if ($(divId+ "_chord").is(':visible') || i == 0) {
+                    $(divId+ "_chord").hide();
+                    $(divId).show();
+                }
+                i++;
+            }
+        }
       });
 }
 
@@ -858,7 +905,40 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
     }
 
- function generateCellCellInteractionPlot(data, cellTypes, title, plotCnt) {
+ // Filter data['num_ints'] based on the selected cell types
+ function filterNumInteractions(data, cellTypes, isHeatmap) {
+    numInteractions = data['num_ints'],
+    ct2indx = data['ct2indx'];
+    // Filter rows and columns of numInteractions by cellTypes
+    // N.B. we don't recalculate min_ints, max_ints for filteredNumInteractions because
+    // if we show one heatmap per microenvironment, we need colours comparable across all heatmaps
+    var ctIndexes = cellTypes.map(ct => ct2indx[ct]);
+    var filteredNumInteractions = [];
+    for (let i = 0; i < numInteractions.length; i++) {
+        if (ctIndexes.includes(i)) {
+          var filteredRow = ctIndexes.map(idx => numInteractions[i][idx]);
+          filteredNumInteractions.push(filteredRow);
+        }
+    }
+    // Generate filtered data for chord plot
+    var filteredNumInteractionsForChord = "source,target,value\n";
+    for (let i = 0; i < filteredNumInteractions.length; i++) {
+        const row = filteredNumInteractions[i];
+        for (let j = 0; j < row.length; j++) {
+              if (row[j] > 0) {
+                  filteredNumInteractionsForChord +=
+                      cellTypes[i] + "," + cellTypes[j] + "," + row[j] + "\n";
+              }
+        }
+    }
+    if (isHeatmap == true) {
+        return filteredNumInteractions;
+    } else {
+        return filteredNumInteractionsForChord;
+    }
+ }
+
+ function generateCellCellInteractionSummaryPlot(data, cellTypes, title, plotCnt) {
       var height = 600,
         width = 800,
         bottom_yMargin = 180,
@@ -870,13 +950,11 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         yMax = yVals.length - 1,
         xVals = cellTypes,
         xMax= xVals.length - 1,
-        numInteractions = data['num_ints'],
         // total_min_ints, total_max_ints needed for color scale
         // N.B. We don't take parseInt(data['min_num_ints']) as min_ints because the bar legend misbehaves when min_ints > 0
         // and so far I've not been able to make it work with min_ints > 0
         min_ints=0,
         max_ints=parseInt(data['max_num_ints']),
-        ct2indx = data['ct2indx'],
         colorDomain = yVals,
         boxWidth = Math.round(380/yVals.length),
         legend_width=50
@@ -892,7 +970,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         $("#cci_summary_show_all_celltypes_div").show();
         enable_cci_summary_show_all_celltypes();
 
-        // We're dealing with multiple plots - one per microenviroment
+        // We're dealing with multiple plots - one per microenvironment
         height = 300,
         width = 400,
         boxWidth = Math.round(95/yVals.length),
@@ -906,18 +984,8 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         tooltipXPos = legend_xPos+70;
         tooltipYPos = legend_yPos+100;
       }
+      filteredNumInteractions = filterNumInteractions(data, cellTypes, true);
 
-      // Filter rows and columns of numInteractions by cellTypes
-      // N.B. we don't recalculate min_ints, max_ints for filteredNumInteractions because
-      // if we show one heatmap per microenvironment, we need colours comparable across all heatmaps
-      var ctIndexes = cellTypes.map(ct => ct2indx[ct])
-      var filteredNumInteractions = [];
-      for (let i = 0; i < numInteractions.length; i++) {
-          if (ctIndexes.includes(i)) {
-            var filteredRow = ctIndexes.map(idx => numInteractions[i][idx]);
-            filteredNumInteractions.push(filteredRow);
-          }
-      }
       $("#cci"+plotCnt + "_div").show();
       $("#cci"+plotCnt + "_header").text(title);
 

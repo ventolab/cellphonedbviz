@@ -3,35 +3,70 @@
   <head>
         <title></title>
         <meta content='text/html; charset=utf-8' http-equiv='Content-Type' />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-        <link rel="stylesheet" href="css/cpdbviz.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.4/d3.min.js"></script>
-        <script type="text/javascript" src="https://unpkg.com/d3fc@15.2.6/build/d3fc.js"></script>
-        <script type="text/javascript" src="https://d3js.org/d3-scale-chromatic.v3.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
-        <script type="text/javascript" src="./external/js/saveSvgAsPng.js"></script>
-        <script src="./js/sankey.js" type="text/javascript"></script>
-        <script src="./js/cpdbviz.js" type="text/javascript"></script>
-
-<!--        <link rel="stylesheet" href="./external/css/material_icons.css" >-->
-<!--        <link rel="stylesheet" href="./external/css/materialize.min.css">-->
+<!--        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
+<!--        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">-->
 <!--        <link rel="stylesheet" href="css/cpdbviz.css">-->
-<!--        <script type="text/javascript" src="./external/js/materialize.min.js"></script>-->
-<!--        <script type="text/javascript" src="./external/js/jquery-3.2.1.min.js"></script>-->
-<!--        <script type="text/javascript" src="./external/js/jquery-ui.min.js"></script>-->
-<!--        <script type="text/javascript" src="./external/js/d3.min.js"></script>-->
-<!--        <script type="text/javascript" src="./external/js/d3fc.js"></script>-->
-<!--        <script type="text/javascript" src="./external/js/d3-scale-chromatic.v3.min.js"></script>-->
-<!--        <script type="text/javascript" src="./external/js/raphael.min.js"></script>-->
+<!--        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>-->
+<!--        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
+<!--        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>-->
+<!--        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.4/d3.min.js"></script>-->
+<!--        <script type="text/javascript" src="https://unpkg.com/d3fc@15.2.6/build/d3fc.js"></script>-->
+<!--        <script type="text/javascript" src="https://d3js.org/d3-scale-chromatic.v3.min.js"></script>-->
+<!--        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>-->
 <!--        <script type="text/javascript" src="./external/js/saveSvgAsPng.js"></script>-->
 <!--        <script src="./js/sankey.js" type="text/javascript"></script>-->
 <!--        <script src="./js/cpdbviz.js" type="text/javascript"></script>-->
 
+        <link rel="stylesheet" href="./external/css/material_icons.css" >
+        <link rel="stylesheet" href="./external/css/materialize.min.css">
+        <link rel="stylesheet" href="css/cpdbviz.css">
+        <script type="text/javascript" src="./external/js/materialize.min.js"></script>
+        <script type="text/javascript" src="./external/js/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="./external/js/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="./external/js/d3.min.js"></script>
+        <script type="text/javascript" src="./external/js/d3fc.js"></script>
+        <script type="text/javascript" src="./external/js/d3-scale-chromatic.v3.min.js"></script>
+        <script type="text/javascript" src="./external/js/raphael.min.js"></script>
+        <script type="text/javascript" src="./external/js/saveSvgAsPng.js"></script>
+        <script src="./js/sankey.js" type="text/javascript"></script>
+        <script src="./js/cpdbviz.js" type="text/javascript"></script>
+
   </head>
+  <script type="module">
+import generateCellCellInteractionSummaryChordPlot from "./js/chord.js";
+const projectId = $("#project_id").text();
+$.ajax({
+    url: '/api/data/'+projectId+'/cell_cell_interaction_summary',
+    contentType: "application/json",
+    dataType: 'json',
+    success: function(res) {
+       if (res.hasOwnProperty('microenvironment2cell_types')) {
+            const microenvironment2cell_types = res['microenvironment2cell_types'];
+            const map = new Map(Object.entries(microenvironment2cell_types));
+            if (map.size > 0) {
+                var cnt = 1;
+                for (let [microenvironment, cellTypes] of map.entries()) {
+                    generateCellCellInteractionSummaryChordPlot(res, cellTypes.sort(), cnt);
+                    cnt++;
+                    if (cnt > 9) {
+                        // TODO: We currently only have up to nine slots for microenvironment-specific cci plots - to be reviewed
+                        break;
+                    }
+                }
+                // Generate plot across cell types also - in case the user wishes to see it
+                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], 0);
+            } else {
+                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], 0);
+            }
+        } else {
+            generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], 0);
+        }
+    }
+ });
+
+
+</script>
+
   <body>
         <h4 class="center" id="page_header"></h4>
         <div id="project_id" hidden>@PROJECT_ID@</div>
@@ -154,14 +189,20 @@
               <div class="card-content col s12">
                 <span id="cci_summary_title" class="card card-title center">Cell-cell Communication - Summary</span>
               </div>
-
-              <div id="cci_summary_show_all_celltypes_div" style="padding-left: 30px;" hidden>
+              <div class="switch" style="padding-left: 30px;">
+                <label>
+                  <span class="black-text text-lighten-10">Show heatmaps</span>
+                  <input id="cci_summary_switch" type="checkbox">
+                  <span class="lever"></span>
+                  <span class="black-text text-lighten-10">Show chord plots</span>
+                </label>
+              </div>
+              <div id="cci_summary_show_all_celltypes_div" style="padding-top: 20px; padding-left: 30px;" hidden>
                   <label>
                       <input id="cci_summary_show_all_celltypes" type="checkbox" class="filled-in"/>
                       <span id="cci_summary_show_all_celltypes_label">Show all cell types</span>
                   </label>
               </div>
-
               <div class="row">
                 <!-- Cell cell interaction plot - All cell types-->
                 <div id="cci0_div" hidden>
@@ -173,6 +214,7 @@
                         </button>
                         <span id="cci0_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci0" style="width:800px"></div>
+                          <div id="cci0_chord" style="width:800px" hidden></div>
                       </div>
                     </div>
                   </div>
@@ -189,6 +231,7 @@
                         </button>
                         <span id="cci1_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci1" style="width:400px"></div>
+                          <div id="cci1_chord" style="width:400px" hidden></div>
                       </div>
                     </div>
                   </div>
@@ -203,6 +246,7 @@
                         </button>
                         <span id="cci2_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci2" style="width:400px"></div>
+                          <div id="cci2_chord" style="width:400px" hidden></div>
                       </div>
                     </div>
                   </div>
@@ -217,6 +261,7 @@
                         </button>
                         <span id="cci3_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci3" style="width:400px"></div>
+                          <div id="cci3_chord" style="width:400px" hidden></div>
                       </div>
                     </div>
                   </div>
@@ -234,6 +279,7 @@
                         </button>
                         <span id="cci4_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci4" style="width:400px"></div>
+                          <div id="cci4_chord" style="width:400px" hidden></div>
                       </div>
                     </div>
                   </div>
@@ -248,6 +294,7 @@
                         </button>
                         <span id="cci5_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci5" style="width:400px"></div>
+                          <div id="cci5_chord" style="width:400px" hidden></div>
                       </div>
                     </div>
                   </div>
@@ -262,6 +309,7 @@
                         </button>
                         <span id="cci6_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci6" style="width:400px"></div>
+                          <div id="cci6_chord" style="width:400px" hidden></div>
                       </div>
                     </div>
                   </div>
@@ -278,6 +326,7 @@
                         </button>
                         <span id="cci7_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci7" style="width:400px"></div>
+                          <div id="cci7_chord" style="width:400px" hidden></div>
                       </div>
                     </div>
                   </div>
@@ -292,6 +341,7 @@
                         </button>
                         <span id="cci8_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci8" style="width:400px"></div>
+                          <div id="cci8_chord" style="width:400px" hidden></div>
                       </div>
                     </div>
                   </div>
@@ -306,6 +356,7 @@
                         </button>
                         <span id="cci9_header" class="card-title center" style="font-size: 16px;"></span>
                           <div id="cci9" style="width:400px"></div>
+                          <div id="cci9_chord" style="width:400px" hidden></div>
                       </div>
                     </div>
                   </div>
