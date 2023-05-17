@@ -376,6 +376,7 @@ function generateCellCompositionPlot(data) {
         $("#ctcomp_title").hide();
         $("#ctcomp_headers").hide();
         $("#ctcomp").hide();
+        $("#ctcomp_save_button").hide();
         return;
     }
 
