@@ -31,7 +31,7 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
     .append("title")
         .text(d => `${names[d.source.index]} -> ${names[d.target.index]} : ${formatValue(d.source.value)} interactions`);
 
-    const label_spread_factor = Math.round(names.length/10);
+    const label_spread_factor = Math.round(names.length/10)
     const no_spread_threshold = Math.pow(names.length,0.06*names.length+0.66)
     svg.append("g")
         .attr("font-family", "sans-serif")
@@ -48,16 +48,18 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
         .attr("dy", function(d) {
             let ret;
             let totalConnections = d3.sum(matrix[d.index]) + d3.sum(matrix, row => row[d.index]);
-            if (totalConnections/names[d.index].length > no_spread_threshold) {
+            if (totalConnections/names[d.index].length > no_spread_threshold || label_spread_factor == 0) {
                 // If the proportion of label length is sufficiently small compared to the arch length,
                 // no need to alternate labels
                 ret = -3;
-            } else if (totalConnections/names[d.index].length < 10) {
+            } else if (totalConnections/names[d.index].length < 5) {
                 ret = -3 - (15 * (d.index % label_spread_factor + 1));
+            } else if (totalConnections/names[d.index].length < 15) {
+                ret = -3 - (22 * (d.index % label_spread_factor + 1));
             } else {
                 ret = -3 - (8 * (d.index % label_spread_factor + 1));
             }
-            // console.log(names[d.index], totalConnections, totalConnections/names[d.index].length, ret);
+            // console.log(names.length, names[d.index], totalConnections, totalConnections/names[d.index].length, ret);
             return ret;
         })
         .append("textPath")
