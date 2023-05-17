@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             dataType: 'json',
             success: function(res) {
                 $("#page_header").text(res[projectId]);
-                $("title").text(res[projectId]);
+                $("#page_title").text(res[projectId]);
             }
     });
     // Generate cell type composition plot

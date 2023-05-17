@@ -31,12 +31,11 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
     .append("title")
         .text(d => `${names[d.source.index]} -> ${names[d.target.index]} : ${formatValue(d.source.value)} interactions`);
 
+    const label_spread_factor = Math.round(names.length/10);
+    const no_spread_threshold = Math.pow(names.length,0.06*names.length+0.66)
     svg.append("g")
         .attr("font-family", "sans-serif")
-    // All cell types
         .attr("font-size", 8)
-    //   Microenvironments
-    //   .attr("font-size", 5)
     .selectAll("g")
     .data(chords.groups)
     .join("g")
@@ -45,18 +44,18 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
         .attr("fill", d => color(names[d.index]))
         .attr("stroke", "#fff"))
         .call(g => g.append("text")
-        // Alternate label distances from outerRadius - an attempt to avoid labels overlapping eachother
+        // Alternate label distances from outerRadius - an attempt to avoid labels overlapping each other
         .attr("dy", function(d) {
             let ret;
             let totalConnections = d3.sum(matrix[d.index]) + d3.sum(matrix, row => row[d.index]);
-            if (totalConnections/names[d.index].length > 30) {
-            // If the proportion of label length is sufficiently small compared to the arch length, no need to alternate labels
-            // N.B. 30 above may need to be adjusted for small microenvironments plots
-            ret = -3;
+            if (totalConnections/names[d.index].length > no_spread_threshold) {
+                // If the proportion of label length is sufficiently small compared to the arch length,
+                // no need to alternate labels
+                ret = -3;
             } else if (totalConnections/names[d.index].length < 10) {
-            ret = -3 - (15 * (d.index % 2));
+                ret = -3 - (15 * (d.index % label_spread_factor + 1));
             } else {
-            ret = -3 - (8 * (d.index % 2));
+                ret = -3 - (8 * (d.index % label_spread_factor + 1));
             }
             // console.log(names[d.index], totalConnections, totalConnections/names[d.index].length, ret);
             return ret;
@@ -66,7 +65,7 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
         // otherwise chord arch labels don't show up when svg is saved via saveSvgAsPng
         // See: https://talk.observablehq.com/t/svg-textpath-not-working-in-local-image-viewers/2303
         .attr("xlink:href", "#" + textId.href.split("#")[1])
-        .attr("startOffset", d => d.startAngle * outerRadius)
+        .attr("startOffset", d => d.startAngle * outerRadius )
         .text(d => names[d.index]))
         // The following acts as a tooltip over a an outer ring corresponding to a cell type
         .call(g => g.append("title")
@@ -158,7 +157,7 @@ require("d3@6")
 )}
 
 function define(main, observer, data, plotCnt) {
-     // datasome: Removed title: main.variable(observer()).define(["md"], _1);
+     // datasome: Removed plot title: main.variable(observer()).define(["md"], _1);
      main.variable(observer("chart")).define("chart", ["d3","width","height","chord","matrix","DOM","outerRadius","ribbon","color","names","formatValue","arc"], _chart);
      main.variable(observer("data")).define("data", [], data);
      main.variable(observer("names")).define("names", ["data"], _names);
