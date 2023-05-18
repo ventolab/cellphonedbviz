@@ -31,8 +31,15 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
     .append("title")
         .text(d => `${names[d.source.index]} -> ${names[d.target.index]} : ${formatValue(d.source.value)} interactions`);
 
-    const label_spread_factor = Math.round(names.length/10)
-    const no_spread_threshold = Math.pow(names.length,0.06*names.length+0.66)
+    // Work our parameters for placement of labels
+    // NB. Maximum 4 levels of spread for labels
+    const label_spread_factor = Math.min(4, Math.round(names.length/10) + 1);
+    var total_connections_per_ct = [];
+    for (var i = 0; i < matrix.length; i++) {
+       total_connections_per_ct.push(d3.sum(matrix[i]) + d3.deviation(matrix, row => row[i]));
+    }
+    const no_spread_cutoff = d3.mean(total_connections_per_ct) + 2 * d3.deviation(total_connections_per_ct);
+
     svg.append("g")
         .attr("font-family", "sans-serif")
         .attr("font-size", 8)
@@ -48,18 +55,18 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
         .attr("dy", function(d) {
             let ret;
             let totalConnections = d3.sum(matrix[d.index]) + d3.sum(matrix, row => row[d.index]);
-            if (totalConnections/names[d.index].length > no_spread_threshold || label_spread_factor == 0) {
+            if (totalConnections > no_spread_cutoff || label_spread_factor == 1) {
                 // If the proportion of label length is sufficiently small compared to the arch length,
-                // no need to alternate labels
-                ret = -3;
-            } else if (totalConnections/names[d.index].length < 5) {
-                ret = -3 - (15 * (d.index % label_spread_factor + 1));
+                // no need to spreading labels away from the plot
+                ret = -2;
             } else if (totalConnections/names[d.index].length < 15) {
-                ret = -3 - (22 * (d.index % label_spread_factor + 1));
+                ret = -2 - (15 * (d.index % label_spread_factor + 0.9));
+            } else if (totalConnections/names[d.index].length < 5) {
+                ret = -2 - (22 * (d.index % label_spread_factor + 0.9));
             } else {
-                ret = -3 - (8 * (d.index % label_spread_factor + 1));
+                ret = -2 - (8 * (d.index % label_spread_factor + 0.9));
             }
-            // console.log(names.length, names[d.index], totalConnections, totalConnections/names[d.index].length, ret);
+            //  console.log(d.index, label_spread_factor, names.length, no_spread_cutoff, names[d.index], totalConnections, totalConnections/names[d.index].length, ret);
             return ret;
         })
         .append("textPath")
