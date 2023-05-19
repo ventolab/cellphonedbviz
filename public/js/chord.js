@@ -8,7 +8,7 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
     const svg = d3.create("svg")
         .attr("width", width*1.5)
         .attr("height", height*1.5)
-        .attr("viewBox", [-width / 2, -height / 2, width, height]);
+        .attr("viewBox", [-width / 2, -height / 2, width + 50, height + 50]);
 
     const chords = chord(matrix);
 
@@ -50,32 +50,19 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
         .attr("d", arc)
         .attr("fill", d => color(names[d.index]))
         .attr("stroke", "#fff"))
-        .call(g => g.append("text")
-        // Alternate label distances from outerRadius - an attempt to avoid labels overlapping each other
-        .attr("dy", function(d) {
-            let ret;
-            let totalConnections = d3.sum(matrix[d.index]) + d3.sum(matrix, row => row[d.index]);
-            if (totalConnections > no_spread_cutoff || label_spread_factor == 1) {
-                // If the proportion of label length is sufficiently small compared to the arch length,
-                // no need to spreading labels away from the plot
-                ret = -2;
-            } else if (totalConnections/names[d.index].length < 15) {
-                ret = -2 - (15 * (d.index % label_spread_factor + 0.9));
-            } else if (totalConnections/names[d.index].length < 5) {
-                ret = -2 - (22 * (d.index % label_spread_factor + 0.9));
-            } else {
-                ret = -2 - (8 * (d.index % label_spread_factor + 0.9));
-            }
-            //  console.log(d.index, label_spread_factor, names.length, no_spread_cutoff, names[d.index], totalConnections, totalConnections/names[d.index].length, ret);
-            return ret;
-        })
-        .append("textPath")
-        // Make xlink:href local to the page (i.e. #O-text-7 instead of http://localhost:8001/cpdbviz_chord.html#O-text-7)
-        // otherwise chord arch labels don't show up when svg is saved via saveSvgAsPng
-        // See: https://talk.observablehq.com/t/svg-textpath-not-working-in-local-image-viewers/2303
-        .attr("xlink:href", "#" + textId.href.split("#")[1])
-        .attr("startOffset", d => d.startAngle * outerRadius )
-        .text(d => names[d.index]))
+        .call(
+    g => g.append("text")
+      .each(d => (d.angle = (d.startAngle + d.endAngle) / 2))
+      .attr("dy", "0.35em")
+      .attr("transform", d => `
+        rotate(${(d.angle * 180 / Math.PI - 90)})
+        translate(${outerRadius + 5})
+        ${d.angle > Math.PI ? "rotate(180)" : ""}
+      `)
+      .attr("text-anchor", d => d.angle > Math.PI ? "end" : null)
+      .text(d => names[d.index])
+      )
+
         // The following acts as a tooltip over a an outer ring corresponding to a cell type
         .call(g => g.append("title")
         .text(d => `${names[d.index]}
@@ -137,7 +124,9 @@ function d3_rgbString (value) {
 
 function _color(d3,names){return(
     // d3.scaleOrdinal(names, d3.schemeCategory10)
+    // d3.scaleOrdinal(names, d3.quantize(d3.interpolateRainbow, names.length))
     d3.scaleOrdinal(names, d3_category20)
+
 )}
 
 function _formatValue(){return(
@@ -179,12 +168,12 @@ function define(main, observer, data, plotCnt) {
      // all cell types default
      var innerRadius = 150;
      var outerRadius = 156;
-     var size = 400;
+     var size = 500;
      if (plotCnt > 0) {
         // microenvironments
         innerRadius = 70;
         outerRadius = 76;
-        size = 200;
+        size = 300;
      }
      main.variable(observer("outerRadius")).define("outerRadius", ["innerRadius"], outerRadius);
      main.variable(observer("innerRadius")).define("innerRadius", ["width","height"], innerRadius);
