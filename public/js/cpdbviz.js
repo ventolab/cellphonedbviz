@@ -641,7 +641,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       .scaleSequential()
       .domain([min_zscore, max_zscore])
       // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
-      .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#D3D3D3", "red"]));
+      .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#D3D3D3", "#FF5C5C", "red"]));
 
 
   sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
@@ -728,7 +728,8 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
   // Defining our label
   const axisLabel = fc
     .axisRight(legendLabel_yScale)
-    .tickValues([...domain, (domain[1] + domain[0]) / 2])
+//    .tickValues([...domain, 0, (domain[1] + domain[0]) / 2])
+    .tickValues([...domain, 0])
     .tickSizeOuter(0);
 
   // Drawing and translating the label
