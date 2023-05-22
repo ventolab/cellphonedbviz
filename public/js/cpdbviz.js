@@ -792,16 +792,18 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
         .append("text").attr("x", dotLegendXPos).attr("y", 130).text("in cell type").style("font-size", "15px")
         .attr("alignment-baseline","middle")
       // dot size legend content
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",160).attr("r", 2).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",190).attr("r", 4).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",220).attr("r", 6).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",250).attr("r", 8).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",280).attr("r", 10).style("fill", "#404080")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 160).text("<=0.2").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 190).text("0.4").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 220).text("0.6").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 250).text("0.8").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 280).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",160).attr("r", 1).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",190).attr("r", 2).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",220).attr("r", 4).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",250).attr("r", 6).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",280).attr("r", 8).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",310).attr("r", 10).style("fill", "#404080")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 160).text("(0, 0.2)").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 190).text("0.2").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 220).text("0.4").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 250).text("0.6").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 280).text("0.8").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 310).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
   }
 }
 
@@ -871,7 +873,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
     var percent;
     if (percents) {
        percent = percents[j][i];
-       innerRadius = Math.max(percent*10,2);
+       innerRadius = percent*10;
     } else {
        // Just a place holder to give each point a visible size
        innerRadius = 3;
