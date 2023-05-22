@@ -775,7 +775,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       const dotlegend_xPos=width-315
       const dotlegend_yPos=top_yMargin+legend_height+10
       const dotLegendWidth = 450;
-      dotLegendHeight = 300;
+      dotLegendHeight = 330;
       const dotSizeLegend = svg
             .append("svg")
             .attr("width", dotLegendWidth)
