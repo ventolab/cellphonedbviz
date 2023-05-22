@@ -197,7 +197,7 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
             selected_genes = sorted(list(selected_genes))
         else:
             selected_genes = []
-        dict_sge['genes'] = selected_genes
+    dict_sge['genes'] = selected_genes
 
     if not selected_cell_types:
         if not refresh_plot:
@@ -218,19 +218,21 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
     all_cell_types = list(df.columns[6:])
 
     # Retrieve means for genes in selected_genes and cell types in all_cell_types
-    selected_genes_means_df = df[df['gene_name'].isin(selected_genes)][['gene_name', 'complex_name'] + selected_cell_types].drop_duplicates()
+    selected_genes_means_or_pcts_df = df[df['gene_name'].isin(selected_genes)][['gene_name', 'complex_name'] + selected_cell_types].drop_duplicates()
     if percents:
-        deconvoluted_df = selected_genes_means_df[selected_cell_types]
+        deconvoluted_df = selected_genes_means_or_pcts_df[selected_cell_types]
         key = 'percents'
         min_key = 'min_percent'
         max_key = 'max_percent'
         # Drop all rows/genes with all zeros in them - to match deconvoluted_df.dropna for z-scores below
         deconvoluted_df = deconvoluted_df.loc[~(deconvoluted_df == 0).all(axis=1)]
     else:
-        deconvoluted_df = selected_genes_means_df
+        deconvoluted_df = selected_genes_means_or_pcts_df
         # Calculate z-scores (so that cell types per gene complex are comparable)
         deconvoluted_df.set_index(['gene_name', 'complex_name'], inplace=True)
-        deconvoluted_df = stats.zscore(deconvoluted_df, axis=1)
+        if not deconvoluted_df.empty:
+            # If at least one cell type was selected
+            deconvoluted_df = stats.zscore(deconvoluted_df, axis=1)
         # Genes with expression=0 across all selected_cell_types will get z-score = nan - remove
         # them from the plot
         deconvoluted_df.dropna(axis=0, inplace=True)

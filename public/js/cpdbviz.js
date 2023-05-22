@@ -572,6 +572,24 @@ function spmeRenderPoint(svg, x, y, colorPos, xMargin, top_yMargin, xScale, ySca
       .attr("r", 7);
 }
 
+function validateInput(data) {
+    var errMsg;
+    if (data['cell_types'].length == 0) {
+        if (data['genes'].length == 0) {
+            errMsg = 'Please select at least one gene and at least two cell types.';
+        } else {
+            errMsg = 'Please select at least two cell types.';
+        }
+    } else if (data['cell_types'].length == 1) {
+        // Z-scores (calculated across all selected cell types) cannot be calculated when only
+        // one cell type has been selected - report an error
+        errMsg = 'The plot shows z-scores that cannot be calculated if only one cell type has been selected. Please select more than one cell type.';
+    } else if (data['mean_zscores'].length == 0) {
+        errMsg = 'No expressions were found - please try another search.'
+    }
+    return errMsg;
+}
+
 function generateSingleGeneExpressionPlot(data, storeTokens) {
     // Remove previous plot if there
     $("#sge").empty();
@@ -592,11 +610,13 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
         }
     }
 
-    if (data['mean_zscores'].length == 0) {
+    // Show error message and return if data input is invalid
+    errMsg = validateInput(data);
+    if (errMsg != undefined) {
         d3.select("#sge")
-        .style("color", "purple")
-        .text('No expressions were found - please try another search.');
-        return
+          .style("color", "purple")
+          .text(errMsg);
+        return;
     }
 
     var height = 700,
