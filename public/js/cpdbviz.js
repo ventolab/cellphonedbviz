@@ -135,30 +135,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-function downloadAsImage(divId, titleId, headerId) {
-    // Get the svg and save it as png image via saveSvgAsPng.js
-    // See: https://github.com/exupero/saveSvgAsPng
-    var options = {scale: 2, backgroundColor: "#FFFFFF"};
+function downloadAsPDF(divId, titleId, headerId) {
+    var options = {};
     var div = $("#" + divId);
     const is_cci = divId.search(/cci\d/ != -1);
-    if (is_cci) {
-        if (div.is(":hidden")) {
-            // Download the chord plot instead if the heatmap plot is hidden
-            if (divId.search(/0$/) != -1) {
-                options['left'] = -200;
-                options['top'] = -200;
-            } else {
-                options['left'] = -100;
-                options['top'] = -100;
-            }
-            div = $("#" + divId + "_chord");
-        }
+    // See: https://cdn.jsdelivr.net/npm/pdfkit@0.10.0/js/pdfkit.standalone.js
+    const svgWidth = parseInt(div.find('svg').attr('width'));
+    const svgHeight = parseInt(div.find('svg').attr('height'));
+    options['size'] = [svgWidth, svgHeight];
+    options['assumePt'] = true;
+    options['compress'] = false;
+    if (is_cci && div.is(":hidden")) {
+         div = $("#" + divId + "_chord");
     }
     const svg = div.find("svg")[0];
     const title = document.getElementById(titleId).innerHTML;
     const header = document.getElementById(headerId).innerHTML;
-    const fileName = title + "_" + header;
-    saveSvgAsPng(svg, fileName, options);
+    const fileName = (title + "-" + header).replace(/ /g, '_').toLowerCase();
+    downloadPDF(svg, fileName, options);
+}
+
+function downloadPDF(svg, outFileName, options) {
+    let doc = new PDFDocument(options);
+    SVGtoPDF(doc, svg, 0, 0, options);
+    let stream = doc.pipe(blobStream());
+    stream.on('finish', () => {
+      let blob = stream.toBlob('application/pdf');
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = outFileName + ".pdf";
+      link.click();
+    });
+    doc.end();
 }
 
 function enable_cci_summary_show_all_celltypes() {
@@ -1003,10 +1011,9 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         legend_xPos=width-180,
         legend_yPos=top_yMargin+50;
         xMargin = 100,
-        xAxisYOffset = -0.4*xVals.length + 3.3
-        yAxisYOffset = -0.5*yVals.length + 3.6;
+        xAxisYOffset = Math.max(-0.4*xVals.length + 3.3, -0.4*6 + 3.3),
+        yAxisYOffset = Math.max(-0.5*yVals.length + 3.6, -0.5*6 + 3.6),
         tooltipXPos = legend_xPos+70;
-        tooltipYPos = legend_yPos+100;
       }
       filteredNumInteractions = filterNumInteractions(data, cellTypes, true);
 
