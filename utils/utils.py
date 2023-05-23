@@ -131,7 +131,8 @@ def populate_celltype_composition_data(result_dict, df):
 def populate_significant_means_data(dict_dd, df, separator):
     dict_cci_summary = dict_dd['cell_cell_interaction_summary']
     dict_cci_search = dict_dd['cell_cell_interaction_search']
-    all_cell_types_combinations = list(df.columns[12:])
+    cell_type_pair_columns = df.columns[12:]
+    all_cell_types_combinations = list(cell_type_pair_columns)
     all_cell_types = set([])
     for ct_pair in all_cell_types_combinations:
         all_cell_types.update(ct_pair.split(separator))
@@ -152,7 +153,11 @@ def populate_significant_means_data(dict_dd, df, separator):
     dict_cci_summary['ct2indx'] = ct2indx
     # Data below is needed for autocomplete functionality
     dict_cci_search['all_cell_type_pairs'] = sorted(all_cell_types_combinations)
-    dict_cci_search['all_interacting_pairs'] = sorted(list(df['interacting_pair'].values))
+    df_ips = df[df.columns.intersection(['interacting_pair'] + all_cell_types_combinations)].copy()
+    df_ips.set_index('interacting_pair', inplace=True)
+    # Assign to 'all_interacting_pairs' key the list of interacting pairs sorted by the highest aggregated
+    # across all cell type pairs means
+    dict_cci_search['all_interacting_pairs'] = df_ips.sum(axis=1).sort_values(ascending=False).index.tolist()
     # On first page load, we pre-select N interacting pairs (from means file), but we can map each interacting
     # pair label to a pair of gene names using deconvoluted file (via interaction id - shared by deconvoluted and means files - hence the dict below
     dict_cci_search['interaction_id2interacting_pair'] = {}
