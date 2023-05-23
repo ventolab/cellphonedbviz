@@ -130,13 +130,13 @@ $.ajax({
                    </div>
                  </div>
 
-                  <div class="col s12 m3 l3">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
+                  <div style="padding-left: 35px" class="col s12 m3 l3">
+                    <div class="card blue-grey lighten-1">
+                      <div  class="card-panel black-text col s12">
                         <div class="row">
                           <div class="col s12">
                             <div class="row">
-                              <div style="padding-left: 20px; padding-top: 0px;">
+                              <div style="padding-left: 20px; padding-right: 20px">
                                   <div class="section">
                                     <button id="refresh_sge_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshSGEPlot()">Refresh plot
                                         <i class="material-icons right">refresh</i>
@@ -145,16 +145,16 @@ $.ajax({
                                     <button id="clear_sge_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearSGEFilters()">Clear filters&nbsp;
                                         <i class="material-icons right">clear_all</i>
                                     </button>
-                                    <div style="padding-top: 10px;"></div>
-                                    <button id="sge_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('single_gene_expression')">Select all cell types
-                                        <i class="material-icons right">done_all</i>
-                                    </button>
                                   </div>
                                   <div class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="sge_gene_input" placeholder="Gene name">
                                     <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10">Add genes to the plot</label>
                                   </div>
                                   <div class="sge_selected_genes"></div>
+                                  <div style="padding-top: 20px;"></div>
+                                  <button id="sge_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('single_gene_expression')">Select all cell types
+                                      <i class="material-icons right">done_all</i>
+                                  </button>
                                   <div class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="sge_celltype_input" placeholder="Cell type">
                                     <label style="padding-top: 30px;" for="sge_celltype_input" class="black-text text-lighten-10">Add cell types to the plot</label>
@@ -370,67 +370,70 @@ $.ajax({
         </div> <!-- <div class="col s12"> -->
 
         <div class="col s12">
-           <div class="card">
+           <div style="padding-left: 30px; padding-right: 30px;" class="card">
                 <div class="card-content col s12">
                   <span id="cci_search_title" class="card card-title center">Cell-cell Communication - Search</span>
 <!--                      <span id="ccis_input_header" class="card-title center" style="font-size: 16px;">Placeholder/span>-->
                 </div>
-                <div class="row">
-                <!-- Cell-cell Interaction Search - Microenvironment/Cell type Inputs -->
-                <div id="ccis_input1_div">
-                  <div class="col s12 m6 l6">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                              <div id="cci_search_microenvironment_sel" class="input-field">
-                                <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
-                                <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10">Filter by microenvironment</label>
+                <div class="card-panel">
+                    <div class="row">
+                        <!-- Cell-cell Interaction Search - Microenvironment/Cell type Inputs -->
+                        <div id="ccis_input1_div">
+                          <div class="col s12 m6 l6">
+                            <div class="card">
+                              <div class="card-content black-text col s12">
+                                      <div id="cci_search_microenvironment_sel" class="input-field">
+                                        <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
+                                        <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10">Filter by microenvironment</label>
+                                      </div>
+                                      <div class="cci_search_selected_microenvironments"></div>
+                                        <button id="cci_search_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('cell_cell_interaction_search')">Select all cell types
+                                           <i class="material-icons right">done_all</i>
+                                        </button>
+                                      <div class="input-field">
+                                        <input style="padding-top: 20px;" type="text" id="cci_search_celltype_input" placeholder="Cell type">
+                                        <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10">Filter by cell types</label>
+                                      </div>
+                                      <div class="cci_search_selected_celltypes"></div>
+                                      <div class="input-field">
+                                        <input style="padding-top: 20px;" type="text" id="cci_search_celltype_pair_input" placeholder="Cell type pair">
+                                        <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10">Filter by cell type pairs</label>
+                                      </div>
+                                      <div class="cci_search_selected_celltype_pairs"></div>
                               </div>
-                              <div class="cci_search_selected_microenvironments"></div>
-                              <div class="input-field">
-                                <input style="padding-top: 20px;" type="text" id="cci_search_celltype_input" placeholder="Cell type">
-                                <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10">Filter by cell types</label>
-                              </div>
-                              <div class="cci_search_selected_celltypes"></div>
-                              <div class="input-field">
-                                <input style="padding-top: 20px;" type="text" id="cci_search_celltype_pair_input" placeholder="Cell type pair">
-                                <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10">Filter by cell type pairs</label>
-                              </div>
-                              <div class="cci_search_selected_celltype_pairs"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                            </div>
+                          </div>
+                        </div>
 
-                <!-- Cell-cell Interaction Search - Gene/Interaction Inputs -->
-                <div id="ccis_input2_div" style="padding-left: 20px;">
-                  <div class="col s12 m6 l6">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                          <div class="input-field">
-                            <input style="padding-top: 30px;" type="text" id="cci_search_gene_input" placeholder="Gene">
-                            <label style="padding-top: 30px;" for="cci_search_gene_input" class="black-text text-lighten-10">Filter by genes</label>
+                        <!-- Cell-cell Interaction Search - Gene/Interaction Inputs -->
+                        <div id="ccis_input2_div" style="padding-left: 20px;">
+                          <div class="col s12 m6 l6">
+                            <div class="card">
+                              <div class="card-content black-text col s12">
+                                  <div class="input-field">
+                                    <input style="padding-top: 30px;" type="text" id="cci_search_gene_input" placeholder="Gene">
+                                    <label style="padding-top: 30px;" for="cci_search_gene_input" class="black-text text-lighten-10">Filter by genes</label>
+                                  </div>
+                                  <div class="cci_search_selected_genes"></div>
+                                  <div class="input-field">
+                                    <input style="padding-top: 20px;" type="text" id="cci_search_interaction_input" placeholder="Interaction">
+                                    <label style="padding-top: 20px;" for="cci_search_interaction_input" class="black-text text-lighten-10">Filter by interactions</label>
+                                  </div>
+                                  <div class="cci_search_selected_interactions"></div>
+                                  <div class="section">
+                                    <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
+                                        <i class="material-icons right">refresh</i>
+                                    </button>
+                                    <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchFilters()">Clear filters
+                                        <i class="material-icons right">clear_all</i>
+                                    </button>
+                                  </div>
+                              </div>
+                            </div>
                           </div>
-                          <div class="cci_search_selected_genes"></div>
-                          <div class="input-field">
-                            <input style="padding-top: 20px;" type="text" id="cci_search_interaction_input" placeholder="Interaction">
-                            <label style="padding-top: 20px;" for="cci_search_interaction_input" class="black-text text-lighten-10">Filter by interactions</label>
-                          </div>
-                          <div class="cci_search_selected_interactions"></div>
-                          <div class="section">
-                            <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
-                                <i class="material-icons right">refresh</i>
-                            </button>
-                            <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchFilters()">Clear filters
-                                <i class="material-icons right">clear_all</i>
-                            </button>
-                            <button id="cci_search_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('cell_cell_interaction_search')">Select all cell types
-                                <i class="material-icons right">done_all</i>
-                            </button>
-                          </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                        </div>
+                    </div> <!-- <div class="row"> -->
+                </div> <!-- <div class="card-panel">  -->
                 <div class="col s12">
                   <div class="card">
                     <div class="card-content black-text col s12">
@@ -450,7 +453,7 @@ $.ajax({
                     </div>
                   </div>
                 </div>
-              </div> <!-- <div class="row"> -->
+<!--              </div> &lt;!&ndash; <div class="row"> &ndash;&gt;-->
           </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
 
