@@ -50,7 +50,7 @@ $.ajax({
             if (map.size > 0) {
                 var cnt = 1;
                 for (let [microenvironment, cellTypes] of map.entries()) {
-                    generateCellCellInteractionSummaryChordPlot(res, cellTypes.sort(), cnt);
+                    generateCellCellInteractionSummaryChordPlot(res, cellTypes.sort(), microenvironment, cnt);
                     cnt++;
                     if (cnt > 9) {
                         // TODO: We currently only have up to nine slots for microenvironment-specific cci plots - to be reviewed
@@ -58,12 +58,12 @@ $.ajax({
                     }
                 }
                 // Generate plot across cell types also - in case the user wishes to see it
-                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], 0);
+                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0);
             } else {
-                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], 0);
+                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0);
             }
         } else {
-            generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], 0);
+            generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0);
         }
     }
  });
@@ -216,7 +216,7 @@ $.ajax({
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci0','cci_summary_title','cci0_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                         </button>
-                        <span id="cci0_header" class="card-title center" style="font-size: 16px;"></span>
+                        <div id="cci0_header" hidden></div>
                           <div id="cci0" style="width:800px"></div>
                           <div id="cci0_chord" style="width:800px" hidden></div>
                       </div>
@@ -233,7 +233,7 @@ $.ajax({
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci1','cci_summary_title','cci1_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                         </button>
-                        <span id="cci1_header" class="card-title center" style="font-size: 16px;"></span>
+                        <div id="cci1_header" hidden></div>
                           <div id="cci1" style="width:400px"></div>
                           <div id="cci1_chord" style="width:400px" hidden></div>
                       </div>
@@ -248,7 +248,7 @@ $.ajax({
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci2','cci_summary_title','cci2_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                         </button>
-                        <span id="cci2_header" class="card-title center" style="font-size: 16px;"></span>
+                        <div id="cci2_header" hidden></div>
                           <div id="cci2" style="width:400px"></div>
                           <div id="cci2_chord" style="width:400px" hidden></div>
                       </div>
@@ -263,7 +263,7 @@ $.ajax({
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci3','cci_summary_title','cci3_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                         </button>
-                        <span id="cci3_header" class="card-title center" style="font-size: 16px;"></span>
+                        <div id="cci3_header" hidden></div>
                           <div id="cci3" style="width:400px"></div>
                           <div id="cci3_chord" style="width:400px" hidden></div>
                       </div>
@@ -281,7 +281,7 @@ $.ajax({
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci4','cci_summary_title','cci4_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                         </button>
-                        <span id="cci4_header" class="card-title center" style="font-size: 16px;"></span>
+                        <div id="cci4_header" hidden></div>
                           <div id="cci4" style="width:400px"></div>
                           <div id="cci4_chord" style="width:400px" hidden></div>
                       </div>
@@ -296,7 +296,7 @@ $.ajax({
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci5','cci_summary_title','cci5_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                         </button>
-                        <span id="cci5_header" class="card-title center" style="font-size: 16px;"></span>
+                        <div id="cci5_header" hidden></div>
                           <div id="cci5" style="width:400px"></div>
                           <div id="cci5_chord" style="width:400px" hidden></div>
                       </div>
@@ -311,7 +311,7 @@ $.ajax({
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci6','cci_summary_title','cci6_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                         </button>
-                        <span id="cci6_header" class="card-title center" style="font-size: 16px;"></span>
+                        <div id="cci6_header" hidden></div>
                           <div id="cci6" style="width:400px"></div>
                           <div id="cci6_chord" style="width:400px" hidden></div>
                       </div>
@@ -328,7 +328,7 @@ $.ajax({
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci7','cci_summary_title','cci7_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                         </button>
-                        <span id="cci7_header" class="card-title center" style="font-size: 16px;"></span>
+                        <div id="cci7_header" hidden></div>
                           <div id="cci7" style="width:400px"></div>
                           <div id="cci7_chord" style="width:400px" hidden></div>
                       </div>
@@ -343,7 +343,7 @@ $.ajax({
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci8','cci_summary_title','cci8_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                         </button>
-                        <span id="cci8_header" class="card-title center" style="font-size: 16px;"></span>
+                        <div id="cci8_header" hidden></div>
                           <div id="cci8" style="width:400px"></div>
                           <div id="cci8_chord" style="width:400px" hidden></div>
                       </div>
@@ -358,7 +358,7 @@ $.ajax({
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci9','cci_summary_title','cci9_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Save plot as image">file_download</i>
                         </button>
-                        <span id="cci9_header" class="card-title center" style="font-size: 16px;"></span>
+                        <div id="cci9_header" hidden></div>
                           <div id="cci9" style="width:400px"></div>
                           <div id="cci9_chord" style="width:400px" hidden></div>
                       </div>

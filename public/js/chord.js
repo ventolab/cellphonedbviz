@@ -1,14 +1,19 @@
 import {Runtime, Library, Inspector} from "../external/js/runtime.unminified.noparamsdisplay.js";
-// function _1(md){return(
-//     md`# Directed Chord Diagram
-//     )}
 
-function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,formatValue,arc)
+function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,formatValue,arc,title)
 {
     const svg = d3.create("svg")
         .attr("width", width*1.5)
         .attr("height", height*1.5)
         .attr("viewBox", [-width / 2, -height / 2, width + 50, height + 50]);
+
+    // Insert title
+    svg.append("text")
+        .attr("x", -width / 2 + (width + 50)/2 - title.length*4)
+        .attr("y", -height * 0.45)
+        .style("font-size", "12px")
+        .attr("font-weight", 300)
+        .text(title)
 
     const chords = chord(matrix);
 
@@ -154,10 +159,10 @@ function _d3(require){return(
 require("d3@6")
 )}
 
-function define(main, observer, data, plotCnt) {
-     // datasome: Removed plot title: main.variable(observer()).define(["md"], _1);
-     main.variable(observer("chart")).define("chart", ["d3","width","height","chord","matrix","DOM","outerRadius","ribbon","color","names","formatValue","arc"], _chart);
+function define(main, observer, data, title, plotCnt) {
+     main.variable(observer("chart")).define("chart", ["d3","width","height","chord","matrix","DOM","outerRadius","ribbon","color","names","formatValue","arc","title"], _chart);
      main.variable(observer("data")).define("data", [], data);
+     main.variable(observer("title")).define("title", [], title);
      main.variable(observer("names")).define("names", ["data"], _names);
      main.variable(observer("matrix")).define("matrix", ["names","data"], _matrix);
      main.variable(observer("chord")).define("chord", ["d3","innerRadius"], _chord);
@@ -182,7 +187,7 @@ function define(main, observer, data, plotCnt) {
      main.variable(observer("d3")).define("d3", ["require"], _d3);
  }
 
- export default function generateCellCellInteractionSummaryChordPlot(data, cellTypes, plotCnt) {
+ export default function generateCellCellInteractionSummaryChordPlot(data, cellTypes, title, plotCnt) {
     const num_ints_csv = filterNumInteractions(data, cellTypes, false);
     // See: https://observablehq.com/@observablehq/advanced-embeds
     // See: https://observablehq.com/@observablehq/stdlib
@@ -192,5 +197,5 @@ function define(main, observer, data, plotCnt) {
     const module = runtime.module();
     const observer = Inspector.into(document.querySelector("#cci"+plotCnt + "_chord"));
     const chordData = d3.csvParse(num_ints_csv, d3.autoType);
-    define(module, observer, chordData, plotCnt);
+    define(module, observer, chordData, title, plotCnt);
  }

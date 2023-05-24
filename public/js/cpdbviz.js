@@ -975,8 +975,8 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
  function generateCellCellInteractionSummaryPlot(data, cellTypes, title, plotCnt) {
       var height = 600,
         width = 800,
-        bottom_yMargin = 180,
-        top_yMargin = 30,
+        bottom_yMargin = 160,
+        top_yMargin = 50,
         xMargin = 120,
         yVals = cellTypes,
         yMin = -1,
@@ -1020,6 +1020,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
       filteredNumInteractions = filterNumInteractions(data, cellTypes, true);
 
       $("#cci"+plotCnt + "_div").show();
+      // This (hidden) field is used for naming the PDF file when the plot is downloaded
       $("#cci"+plotCnt + "_header").text(title);
 
       var svg = d3
@@ -1028,6 +1029,14 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         .attr("class", "axis")
         .attr("width", width)
         .attr("height", height);
+
+      // Insert title
+      svg.append("text")
+        .attr("x", - xMargin + width / 2)
+        .attr("y", 20)
+        .style("font-size", "16px")
+        .attr("font-weight", 300)
+        .text(title)
 
       var yAxisLength = height - top_yMargin - bottom_yMargin,
           xAxisLength = yAxisLength;
