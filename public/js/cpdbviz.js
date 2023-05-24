@@ -384,7 +384,6 @@ function generateCellCompositionPlot(data) {
     if (!data.hasOwnProperty('all_elems')) {
         // N.B. 'all_elems' is set only if celltype_composition is set in config
         $("#ctcomp_title").hide();
-        $("#ctcomp_headers").hide();
         $("#ctcomp").hide();
         $("#ctcomp_save_button").hide();
         return;
@@ -423,10 +422,16 @@ function generateCellCompositionPlot(data) {
         return "";
       };
       sankey.convert_box_value_labels_callback = function(flow) {
-        // // Switched off edge labels: return (""+Math.round(flow))
+        // Switched off edge labels: return (""+Math.round(flow))
         return "";
       };
       sankey.setData(edges);
+
+      // Insert title
+      sankey.r.text(sankey.left_margin + 250, 10, data['title']).attr({
+        'font-size': '15px',
+        'font-weight': '100'
+      });
       sankey.draw();
 }
 
@@ -455,7 +460,8 @@ function generateMicroenvironmentsPlot(data) {
         mapping = data['raw_data'];
 
     colorDomain = data['color_domain'];
-//    $("#spme_header").text(data['title']);
+    // NB. spme_header is hard-coded in html
+    // $("#spme_header").text(data['title']);
 
     var svg = d3
         .select("#spme")
