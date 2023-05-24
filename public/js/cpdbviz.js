@@ -429,7 +429,7 @@ function generateCellCompositionPlot(data) {
 
       // Insert title
       sankey.r.text(sankey.left_margin + 250, 10, data['title']).attr({
-        'font-size': '15px',
+        'font-size': '16px',
         'font-weight': '100'
       });
       sankey.draw();
@@ -449,7 +449,7 @@ function generateMicroenvironmentsPlot(data) {
      var height = 500,
         width = 600,
         xMargin = 200,
-        top_yMargin = 20,
+        top_yMargin = 60,
         bottom_yMargin = 90,
         yVals = data['y_vals'],
         yMin = -1,
@@ -469,6 +469,16 @@ function generateMicroenvironmentsPlot(data) {
         .attr("class", "axis")
         .attr("width", width)
         .attr("height", height);
+
+    // Insert title
+    const title = "Cell Type - Microenvironment";
+    svg.append("text")
+        .attr("x", (- xMargin + width) / 2)
+        .attr("y", 12)
+        .style("font-size", "16px")
+        .attr("font-weight", 400)
+        .attr("font-family", "Arial")
+        .text(title)
 
       var yAxisLength = height - top_yMargin - bottom_yMargin,
         xAxisLength = width - 2 * xMargin;
@@ -1041,7 +1051,8 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         .attr("x", - xMargin + width / 2)
         .attr("y", 20)
         .style("font-size", "16px")
-        .attr("font-weight", 300)
+        .attr("font-weight", 400)
+        .attr("font-family", "Arial")
         .text(title)
 
       var yAxisLength = height - top_yMargin - bottom_yMargin,
