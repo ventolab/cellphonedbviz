@@ -12,7 +12,7 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
         .attr("x", -width / 2 + (width + 50)/2 - title.length*4)
         .attr("y", -height * 0.45)
         .style("font-size", "12px")
-        .attr("font-weight", 300)
+        .attr("font-weight", 400)
         .text(title)
 
     const chords = chord(matrix);
