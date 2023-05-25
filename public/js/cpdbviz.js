@@ -674,6 +674,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
 
     // Insert title
     var title = "Mean expressions of genes per cell type";
+    // The title in #sge_header div is used for naming of the PDF file when the plot is downloaded
     $("#sge_header").text(title);
     svg.append("text")
         .attr("x", - xMargin + width / 2)
@@ -1340,7 +1341,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
     var height = 700,
     width = 1400,
     bottom_yMargin = 180,
-    top_yMargin = 30,
+    top_yMargin = 60,
     xMargin = longest_ip_label.length * 7.3,
     yVals = data['interacting_pairs_means'],
     yMin = -1,
@@ -1370,6 +1371,18 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
     .attr("class", "axis")
     .attr("width", width)
     .attr("height", height);
+
+    // Insert title
+    var title = "Significant interactions per cell type pair";
+    // The title in #cci_search_header div is used for naming of the PDF file when the plot is downloaded
+    $("#cci_search_header").text(title);
+    svg.append("text")
+        .attr("x", - xMargin + width / 2)
+        .attr("y", 20)
+        .style("font-size", "16px")
+        .attr("font-weight", 400)
+        .attr("font-family", "Arial")
+        .text(title);
 
   var yAxisLength = height - top_yMargin - bottom_yMargin,
       xAxisLength = width - xMargin - 350;
