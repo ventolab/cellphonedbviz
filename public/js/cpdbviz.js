@@ -648,7 +648,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     var height = 700,
     width = 900,
     bottom_yMargin = 250,
-    top_yMargin = 30,
+    top_yMargin = 60,
     xMargin = 120,
     yVals = data['cell_types'],
     yMin = -1,
@@ -671,6 +671,17 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     .attr("class", "axis")
     .attr("width", width)
     .attr("height", height);
+
+    // Insert title
+    var title = "Mean expressions of genes per cell type";
+    $("#sge_header").text(title);
+    svg.append("text")
+        .attr("x", - xMargin + width / 2)
+        .attr("y", 20)
+        .style("font-size", "16px")
+        .attr("font-weight", 400)
+        .attr("font-family", "Arial")
+        .text(title);
 
   var yAxisLength = height - top_yMargin - bottom_yMargin,
       xAxisLength = width - xMargin - legend_offset;
