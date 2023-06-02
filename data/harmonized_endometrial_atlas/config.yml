@@ -1,0 +1,10 @@
+# CellphoneDB results visualisation config
+separator:                  '|'
+title:                      Harmonized Endometrial Atlas - CellphoneDB DEG analysis results
+microenvironments:          microenvironments.tsv
+deconvoluted_result:        degs_analysis_deconvoluted_result_05_22_2023_132830.txt
+significant_means:          degs_analysis_means_result_05_22_2023_132830.txt
+relevant_interactions:      degs_analysis_relevant_interactions_result_05_22_2023_132830.txt
+degs:                       DEGs_upregulated_genes.tsv
+deconvoluted_percents:      degs_analysis_deconvoluted_percents_05_22_2023_132830.txt
+

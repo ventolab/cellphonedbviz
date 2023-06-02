@@ -1,0 +1,6 @@
+# CellphoneDB results visualisation config
+separator:                  '|'
+title:                      ref_Calvanese_AGM - Analysis_SJK
+deconvoluted_result:        statistical_analysis_deconvoluted_05_01_2023_22:52:51.txt
+significant_means:          statistical_analysis_significant_means_05_01_2023_22:52:51.txt
+pvalues:                    statistical_analysis_pvalues_05_01_2023_22:52:51.txt
