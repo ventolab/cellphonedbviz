@@ -919,9 +919,6 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
 
     if (deg) {
       outerRadius = innerRadius + 3;
-    }
-
-    if (deg) {
       svg
       .append("circle")
         .attr("transform", function() {
@@ -1283,6 +1280,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
     const selectedCellTypePairs = data['selected_cell_type_pairs'];
     const selectedCTP2Me = data['selected_cell_type_pairs2microenvironment'];
     const microenvironments = data['microenvironments']
+    const cellsign_active_interactions = data['cellsign_active_interactions']
 
     // See: https://observablehq.com/@d3/color-schemes
     const colours = d3.schemeCategory10;
@@ -1403,8 +1401,9 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
 
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
-  const barLegend_xPos=width-300
-  const barLegend_yPos=top_yMargin+30
+  const barLegend_xPos=width-300;
+  const barLegend_yPos=top_yMargin+30;
+  var activeInteractionInfo;
   // interacting pairs
   for (var i = 0; i <= yVals.length - 1; i++) {
     // cell type pairs
@@ -1421,7 +1420,13 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
       }
       var cellTypePair = data['cell_type_pairs_means'][j];
       var interaction = data['interacting_pairs_means'][i];
-      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, -20, pvalues, showZScores);
+      activeInteractionInfo = undefined;
+      if (cellsign_active_interactions != undefined &&
+          cellsign_active_interactions[interaction] != undefined &&
+          cellsign_active_interactions[interaction].hasOwnProperty(cellTypePair)) {
+            activeInteractionInfo = cellsign_active_interactions[interaction][cellTypePair];
+      }
+      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, -20, pvalues, showZScores, activeInteractionInfo);
     }
   }
 
@@ -1505,11 +1510,21 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
     .select(".domain")
     .attr("visibility", "hidden");
 
+  var cellsign_active_interactions_legend_height = 0;
+  if (cellsign_active_interactions) {
+      cellsign_active_interactions_legend_height = 20;
+      const cellsign_ai_legend_yPos=top_yMargin+barLegendHeight+70;
+      const cellsign_ai_legend_xPos = width-300;
+      svg.append("circle").attr("cx",cellsign_ai_legend_xPos).attr("cy",cellsign_ai_legend_yPos).attr("r", 8).style("fill", "#3DE397")
+      svg.append("circle").attr("cx",cellsign_ai_legend_xPos).attr("cy",cellsign_ai_legend_yPos).attr("r", 5).style("fill", "#FFFFFF")
+      svg.append("text").attr("x", cellsign_ai_legend_xPos+20).attr("y", cellsign_ai_legend_yPos).text("Is active interaction").style("font-size", "15px").attr("alignment-baseline","middle")
+  }
+
   var dotLegendHeight = 0;
   if (pvalues) {
       // P-Value legend - dot size
       const dotlegend_xPos=width-315
-      const dotlegend_yPos=top_yMargin+barLegendHeight+10
+      const dotlegend_yPos=top_yMargin+barLegendHeight+cellsign_active_interactions_legend_height+20;
       const dotLegendWidth = 450;
       dotLegendHeight = 300;
       const dotSizeLegend = svg
@@ -1537,7 +1552,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
   } else if (relevant_interactions) {
       // Relevant interactions legend - (static larger) dot size
       const dotlegend_xPos=width-315
-      const dotlegend_yPos=top_yMargin+barLegendHeight+10
+      const dotlegend_yPos=top_yMargin+barLegendHeight+cellsign_active_interactions_legend_height+20
       const dotLegendWidth = 450;
       dotLegendHeight = 150;
       const dotSizeLegend = svg
@@ -1558,7 +1573,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
       var meLegend_yPos;
 
       if (pvalues || relevant_interactions) {
-        meLegend_yPos=top_yMargin+barLegendHeight+dotLegendHeight-110;
+        meLegend_yPos=top_yMargin+barLegendHeight+dotLegendHeight+cellsign_active_interactions_legend_height-110;
       } else {
         meLegend_yPos=top_yMargin+barLegendHeight+10;
       }
@@ -1658,7 +1673,7 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
       .attr("fill", colorscale(0));
 }
 
-function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues, showZScores) {
+function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues, showZScores, activeInteractionInfo) {
     var radius;
     var pvalBucket;
     if (pvalues) {
@@ -1684,6 +1699,19 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
     } else if (relIntFlag) {
         tooltipContent = "<b>Relevant</b> " + tooltipContent;
     }
+    // Assemble in activeTFsCellTypesStr and add to tooltipContent information about all active TFs/active cell types
+    if (activeInteractionInfo != undefined) {
+        var activeTFsCellTypesStr = "";
+        for (var k = 0; k < activeInteractionInfo.length; k++) {
+            if (activeTFsCellTypesStr.length > 0) {
+                activeTFsCellTypesStr += "; ";
+            }
+            activeTFsCellTypesStr += activeInteractionInfo[k].join(" - ");
+        }
+        if (activeTFsCellTypesStr.length > 0) {
+            tooltipContent += "<br>Active TFs/Cell Types: " + activeTFsCellTypesStr;
+        }
+    }
     var cellType = yVals[i];
     var gene = xVals[j];
     var tooltip = d3.select("#cci_search")
@@ -1699,6 +1727,19 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
     .style("opacity", "0.9")
     .attr("id", "cci_search_tooltip")
     .html(tooltipContent);
+
+    if (activeInteractionInfo != undefined) {
+      outerRadius = radius + 3;
+      svg
+      .append("circle")
+        .attr("transform", function() {
+          return "translate(" + xMargin + "," + top_yMargin + ")";
+        })
+        .attr("cx", xScale(j))
+        .attr("cy", yScale(i))
+        .attr("fill", "#3DE397")
+        .attr("r", outerRadius);
+    }
 
     svg
       .append("circle")

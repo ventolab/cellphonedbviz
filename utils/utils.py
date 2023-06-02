@@ -13,7 +13,8 @@ DATA_ROOT = f"{base_path}/../data"
 # on first page load - from deconvoluted file we need to pre-select genes but we don't have interacting_pair information in that file, hence
 # we need to get the mapping: interacting pair->interaction_id from the means file and only then we can do interaction_id->genes in deconvoluted file.
 CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','microenvironments', \
-               'significant_means', 'relevant_interactions', 'deconvoluted_result','deconvoluted_percents','degs','pvalues']
+               'significant_means', 'relevant_interactions', 'deconvoluted_result','deconvoluted_percents','degs','pvalues', \
+               'cellsign_active_interactions_deconvoluted']
 VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
           'cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
@@ -65,6 +66,8 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
         populate_pvalues_data(result_dict, df)
     elif config_key == 'relevant_interactions':
         populate_relevant_interactions_data(result_dict, df)
+    elif config_key == 'cellsign_active_interactions_deconvoluted':
+        populate_cellsign_active_interactions_deconvoluted(result_dict, df)
     if config_key in ['deconvoluted_result', 'significant_means','deconvoluted_percents']:
         file_name2df[config_key] = df
 
@@ -295,6 +298,22 @@ def populate_degs_data(result_dict, df):
     for (cell_type, degs) in cell_type2degs.items():
         cell_type2degs[cell_type] = list(degs)
     dict_degs['celltype2degs'] = cell_type2degs
+
+def populate_cellsign_active_interactions_deconvoluted(result_dict, df):
+    dict_cci_search = result_dict['cell_cell_interaction_search']
+    dict_active_interactions = {}
+    all_active_interactions = list(zip(df['interacting_pair'], df['celltype_pairs'], df['active_TF'], df['active_celltype']))
+    for t in all_active_interactions:
+        interacting_pair = t[0]
+        cell_type_pair = t[1]
+        active_TF = t[2]
+        active_celltype = t[3]
+        if interacting_pair not in dict_active_interactions:
+            dict_active_interactions[interacting_pair] = {}
+        if cell_type_pair not in dict_active_interactions[interacting_pair]:
+            dict_active_interactions[interacting_pair][cell_type_pair] = []
+        dict_active_interactions[interacting_pair][cell_type_pair].append((active_TF, active_celltype))
+    dict_cci_search['cellsign_active_interactions'] = dict_active_interactions
 
 def sort_cell_type_pairs(cell_type_pairs, result_dict, separator) -> (list, dict):
     if 'cell_type2microenvironments' not in result_dict:

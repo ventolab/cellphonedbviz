@@ -7,6 +7,5 @@ significant_means:                            degs_analysis_significant_means_06
 relevant_interactions:                        degs_analysis_relevant_interactions_06_01_2023_162918.txt
 degs:                                         DEGs.tsv
 deconvoluted_percents:                        degs_analysis_deconvoluted_percents_06_01_2023_162918.txt
-cellsign_active_interactions:                 degs_analysis_CellSign_active_interactions_06_01_2023_162918.txt
 cellsign_active_interactions_deconvoluted:    degs_analysis_CellSign_active_interactions_deconvoluted_06_01_2023_162918.txt
 
