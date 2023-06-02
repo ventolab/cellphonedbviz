@@ -1023,7 +1023,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         xAxisYOffset = -0.048*xVals.length + 2.8,
         yAxisYOffset = -0.054*yVals.length + 2.59,
         tooltipXPos = legend_xPos;
-        tooltipYPos = legend_yPos+280;
+        tooltipYPos = legend_yPos+240;
 
       if (plotCnt > 0) {
         $("#cci_summary_show_all_celltypes_div").show();
@@ -1040,7 +1040,8 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         xMargin = 100,
         xAxisYOffset = Math.max(-0.4*xVals.length + 3.3, -0.4*6 + 3.3),
         yAxisYOffset = Math.max(-0.5*yVals.length + 3.6, -0.5*6 + 3.6),
-        tooltipXPos = legend_xPos+70;
+        tooltipXPos = legend_xPos,
+        tooltipYPos = legend_yPos+180;
       }
       filteredNumInteractions = filterNumInteractions(data, cellTypes, true);
 
