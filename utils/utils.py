@@ -440,5 +440,5 @@ def filter_interactions(result_dict,
                         result_dict['filtered_pvalues'][i][j] = result_dict['pvalues'][cell_type][interacting_pair]
                     else:
                         # pvalues = 1.0 have been filtered out to reduce API output
-                        result_dict['filtered_pvalues'][i][j] = 0
+                        result_dict['filtered_pvalues'][i][j] = 1
 
