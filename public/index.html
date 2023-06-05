@@ -1,25 +1,43 @@
 <html>
   <head>
         <title></title>
-
         <meta content='text/html; charset=utf-8' http-equiv='Content-Type' />
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
         <link rel="stylesheet" href="css/cpdbviz.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script></head>
+        <script type="text/javascript" src="./external/js/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  </head>
   <body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+       // Populate table of contents automatically from the list of projects returned by the API
+       $.ajax({
+                url: '/api/list',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(res) {
+                    const tbl=$('#index_page_toc');
+                    if (tbl) {
+
+                        $('#toc_placeholder').remove();
+                        const map = new Map(Object.entries(res));
+                        for (let [projectId, title] of map) {
+                            var row = $('<tr></tr>').appendTo(tbl);
+                             $('<td></td>').prepend($('<a></a>').attr({ href: './' + projectId + '.html' }).text(title)).appendTo(row);
+                        }
+                    }
+                }
+        });
+    });
+  </script>
   <div class="container">
       <div class="card" >
           <div class="card-content black-text col s12">
-              <span  id="me_title" class="card-title center">CellphoneDB analysis results visualisation</span>
-              <table class="striped centered">
-                  <tr><td><a href="./harmonized_endometrial_atlas.html">Harmonized Endometrial Atlas - deg</a></td></tr>
-                  <tr><td><a href="./endometrium_cpdbv4_stat.html">Endometrial Atlas - stat</a></td></tr>
-                  <tr><td><a href="./endometrium_cpdbv4_deg.html">Endometrial Atlas - deg</a></td></tr>
-                  <tr><td><a href="./mfi_deg.html">Maternal-fetal interface - deg</a></td></tr>
-                  <tr><td><a href="./gonads_stat.html">Gonads - stat</a></td></tr>
-                  <tr><td><a href="./gonads_deg.html">Gonads - deg</a></td></tr>
+              <span id="index_page_title" class="card-title center">CellphoneDB analysis results visualisation</span>
+              <table id="index_page_toc" class="striped centered">
+                  <!-- NB. Without the placeholder tr, the materialize class for index_page_toc does not kick in when we have populated it dynamically -->
+                  <tr id="toc_placeholder"><td><a href="#">No projects are available currently</a></td></tr>
               </table>
           </div>
       </div>
