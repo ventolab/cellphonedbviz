@@ -704,7 +704,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       .scaleSequential()
       .domain([min_zscore, max_zscore])
       // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
-      .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#b5a7a7", "red"]));
+      .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#cfc4c4", "red"]));
 
 
   sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
@@ -1408,7 +1408,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
           .scaleSequential()
           .domain([min_val, max_val])
           // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
-          .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#b5a7a7", "red"]));
+          .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#cfc4c4", "red"]));
   } else {
        colorscale = d3
           .scaleSequential()
