@@ -17,6 +17,11 @@ def list_projects():
                                  [x['title'] for x in dir_name2project_data.values()]))
     return projectName2Title
 
+@api.get("/refresh_projects")
+def refresh_projects():
+    global dir_name2project_data, dir_name2file_name2df
+    (dir_name2project_data, dir_name2file_name2df) = utils.get_projects()
+
 @api.get("/data/{project}/{viz}")
 def get_viz_data(project: str,
                  viz: str,
