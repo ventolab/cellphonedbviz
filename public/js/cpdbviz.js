@@ -1393,12 +1393,21 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
       yScale = d3
       .scaleLinear()
       .domain([yMax, yMin])
-      .range([0, yAxisLength]),
-    colorscale = d3
-      .scaleSequential()
-      .domain([min_val, max_val])
-      // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
-      .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["black", "blue", "yellow", "red"]))
+      .range([0, yAxisLength]);
+  var  colorscale;
+  if (showZScores) {
+       colorscale = d3
+          .scaleSequential()
+          .domain([min_val, max_val])
+          // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
+          .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#D3D3D3", "#FF5C5C", "red"]));
+  } else {
+       colorscale = d3
+          .scaleSequential()
+          .domain([min_val, max_val])
+          // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
+          .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["black", "blue", "yellow", "red"]));
+  }
 
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
