@@ -694,12 +694,17 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       yScale = d3
       .scaleLinear()
       .domain([yMax, yMin])
-      .range([0, yAxisLength]),
-    colorscale = d3
+      .range([0, yAxisLength]);
+
+    // Make z-score colour legend symmetric
+    const max_abs_zscore = Math.max(Math.abs(min_zscore), max_zscore);
+    min_zscore = -1 * max_abs_zscore;
+    max_zscore = max_abs_zscore;
+    var colorscale = d3
       .scaleSequential()
       .domain([min_zscore, max_zscore])
       // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
-      .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#D3D3D3", "#FF5C5C", "red"]));
+      .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#b5a7a7", "red"]));
 
 
   sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
@@ -728,7 +733,6 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
   const legend_width=50
   const legend_height=150
   domain=[min_zscore, max_zscore]
-
   const legend_xScale = d3
     .scaleBand()
     .domain([0, 1])
@@ -1396,11 +1400,15 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
       .range([0, yAxisLength]);
   var  colorscale;
   if (showZScores) {
+       // Make z-score colour legend symmetric
+       const max_abs_zscore = Math.max(Math.abs(min_val), max_val);
+       min_val = -1 * max_abs_zscore;
+       max_val = max_abs_zscore;
        colorscale = d3
           .scaleSequential()
           .domain([min_val, max_val])
           // See: https://observablehq.com/@d3/working-with-color and https://github.com/d3/d3-interpolate
-          .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#D3D3D3", "#FF5C5C", "red"]));
+          .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["blue", "#b5a7a7", "red"]));
   } else {
        colorscale = d3
           .scaleSequential()
