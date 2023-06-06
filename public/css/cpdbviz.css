@@ -39,6 +39,12 @@ nav ul li a, h5 {
     font-size: 16px;
   }
 
+  .search-header {
+    padding: 10px;
+    font-family: "Helvetica";
+    font-size: 18px;
+  }
+
   .inline-icon {
     vertical-align: bottom;
     font-size: 24px !important;
