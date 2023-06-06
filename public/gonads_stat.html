@@ -163,15 +163,15 @@ $.ajax({
                           <div class="col s12">
                             <div class="row">
                               <div style="padding-left: 20px; padding-right: 20px">
-                                  <div class="section">
+                                  <div class="section center">
                                     <button id="refresh_sge_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshSGEPlot()">Refresh plot
                                         <i class="material-icons right">refresh</i>
                                     </button>
-                                    <div style="padding-top: 10px;"></div>
                                     <button id="clear_sge_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearSGEFilters()">Clear filters&nbsp;
                                         <i class="material-icons right">clear_all</i>
                                     </button>
                                   </div>
+                                  <li class="divider" tabindex="-1"></li>
                                   <div class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="sge_gene_input" placeholder="Gene name">
                                     <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10 search-input-label">Add genes to the plot</label>
@@ -451,19 +451,22 @@ $.ajax({
                                     <label style="padding-top: 20px;" for="cci_search_interaction_input" class="black-text text-lighten-10 search-input-label">Filter by interactions</label>
                                   </div>
                                   <div class="cci_search_selected_interactions"></div>
-                                  <div class="section">
-                                    <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
-                                        <i class="material-icons right">refresh</i>
-                                    </button>
-                                    <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchFilters()">Clear filters
-                                        <i class="material-icons right">clear_all</i>
-                                    </button>
-                                  </div>
                               </div>
                             </div>
                           </div>
                         </div>
                     </div> <!-- <div class="row"> -->
+                    <div class="row center">
+                      <li class="divider" tabindex="-1"></li>
+                      <div class="section">
+                        <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
+                            <i class="material-icons right">refresh</i>
+                        </button>
+                        <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchFilters()">Clear filters
+                            <i class="material-icons right">clear_all</i>
+                        </button>
+                      </div>
+                    </div>
                 </div> <!-- <div class="card-panel">  -->
                 <div class="col s12">
                   <div class="card">
