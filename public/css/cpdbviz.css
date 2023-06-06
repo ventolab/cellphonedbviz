@@ -33,6 +33,12 @@ nav ul li a, h5 {
     font-size: 12px;
   }
 
+  .toc-header {
+    padding: 10px;
+    font-family: "Helvetica";
+    font-size: 16px;
+  }
+
   .inline-icon {
     vertical-align: bottom;
     font-size: 24px !important;

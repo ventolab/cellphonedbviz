@@ -72,8 +72,33 @@ $.ajax({
 </script>
 
   <body>
+        <!-- base tag appears to be needed for page anchors to work correctly in ToC below-->
+        <base target=_blank>
         <h4 class="center" id="page_header"></h4>
+        <div class="col s12">
+          <div class="row">
+                <div class="card-content center">
+                   <a href="#" data-target="toc-dropdown" style="text-transform: none;" class="dropdown-trigger btn">
+                     Table of contents&nbsp;<i style="vertical-align: middle;" class="large material-icons center">format_list_bulleted</i>
+                  </a>
+                </div>
+          </div>
+        </div>
+
+        <!-- Dropdown ToC -->
+        <ul id='toc-dropdown' class='dropdown-content'>
+             <div class="toc-header left">Input dataset: overview</div>
+          <li id="toc_ctcomp"><a href="#ctcomp_title">Cell composition</a></li>
+          <li><a href="#spme_title">Spatial microenvironments</a></li>
+          <li><a href="#sge_title">Single gene expression</a></li>
+          <li class="divider" tabindex="-1"></li>
+             <div class="toc-header left">CellphoneDB predictions</div>
+          <li><a href="#cci_summary_title">Cell-cell Communication - Summary</a></li>
+          <li><a href="#cci_search_title">Cell-cell Communication - Search</a></li>
+        </ul>
+
         <div id="project_id" hidden>harmonized_endometrial_atlas</div>
+
         <div class="col s12">
           <div class="row">
             <!-- Celltype composition sankey plot -->

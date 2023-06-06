@@ -2,10 +2,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var projectId = $("#project_id").text();
 
+  // Enable dropdowns
+  var options = {constrainWidth: false};
+  var elems = document.querySelectorAll('.dropdown-trigger');
+  var instances = M.Dropdown.init(elems, options);
+
   // Enable tooltips
-  var elems = document.querySelectorAll('.tooltipped');
-  const options = {};
-  var instances = M.Tooltip.init(elems, options);
+  elems = document.querySelectorAll('.tooltipped');
+  options = {}
+  instances = M.Tooltip.init(elems, options);
 
    // Populate page title
    $.ajax({
@@ -386,6 +391,8 @@ function generateCellCompositionPlot(data) {
         $("#ctcomp_title").hide();
         $("#ctcomp").hide();
         $("#ctcomp_save_button").hide();
+        // Hide the options from ToC dropdown
+        $("#toc_ctcomp").hide();
         return;
     }
 
