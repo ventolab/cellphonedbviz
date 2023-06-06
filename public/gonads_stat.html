@@ -174,7 +174,7 @@ $.ajax({
                                   </div>
                                   <div class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="sge_gene_input" placeholder="Gene name">
-                                    <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10">Add genes to the plot</label>
+                                    <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10 search-input-label">Add genes to the plot</label>
                                   </div>
                                   <div class="sge_selected_genes"></div>
                                   <div style="padding-top: 20px;"></div>
@@ -183,12 +183,12 @@ $.ajax({
                                   </button>
                                   <div class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="sge_celltype_input" placeholder="Cell type">
-                                    <label style="padding-top: 30px;" for="sge_celltype_input" class="black-text text-lighten-10">Add cell types to the plot</label>
+                                    <label style="padding-top: 30px;" for="sge_celltype_input" class="black-text text-lighten-10 search-input-label">Add cell types to the plot</label>
                                   </div>
                                   <div class="sge_selected_celltypes"></div>
                                   <div id="sge_microenvironment_sel" class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
-                                    <label style="padding-top: 30px;" for="sge_microenvironment_input" class="black-text text-lighten-10">Filter by microenvironment</label>
+                                    <label style="padding-top: 30px;" for="sge_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
                                   </div>
                                   <div class="sge_selected_microenvironments"></div>
                               </div>
@@ -411,7 +411,7 @@ $.ajax({
                               <div class="card-content black-text col s12">
                                       <div id="cci_search_microenvironment_sel" class="input-field">
                                         <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
-                                        <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10">Filter by microenvironment</label>
+                                        <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
                                       </div>
                                       <div class="cci_search_selected_microenvironments"></div>
                                         <button id="cci_search_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('cell_cell_interaction_search')">Select all cell types
@@ -419,12 +419,12 @@ $.ajax({
                                         </button>
                                       <div class="input-field">
                                         <input style="padding-top: 20px;" type="text" id="cci_search_celltype_input" placeholder="Cell type">
-                                        <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10">Filter by cell types</label>
+                                        <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10 search-input-label">Filter by cell types</label>
                                       </div>
                                       <div class="cci_search_selected_celltypes"></div>
                                       <div class="input-field">
                                         <input style="padding-top: 20px;" type="text" id="cci_search_celltype_pair_input" placeholder="Cell type pair">
-                                        <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10">Filter by cell type pairs</label>
+                                        <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10 search-input-label">Filter by cell type pairs</label>
                                       </div>
                                       <div class="cci_search_selected_celltype_pairs"></div>
                               </div>
@@ -439,12 +439,12 @@ $.ajax({
                               <div class="card-content black-text col s12">
                                   <div class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="cci_search_gene_input" placeholder="Gene">
-                                    <label style="padding-top: 30px;" for="cci_search_gene_input" class="black-text text-lighten-10">Filter by genes</label>
+                                    <label style="padding-top: 30px;" for="cci_search_gene_input" class="black-text text-lighten-10 search-input-label">Filter by genes</label>
                                   </div>
                                   <div class="cci_search_selected_genes"></div>
                                   <div class="input-field">
                                     <input style="padding-top: 20px;" type="text" id="cci_search_interaction_input" placeholder="Interaction">
-                                    <label style="padding-top: 20px;" for="cci_search_interaction_input" class="black-text text-lighten-10">Filter by interactions</label>
+                                    <label style="padding-top: 20px;" for="cci_search_interaction_input" class="black-text text-lighten-10 search-input-label">Filter by interactions</label>
                                   </div>
                                   <div class="cci_search_selected_interactions"></div>
                                   <div class="section">

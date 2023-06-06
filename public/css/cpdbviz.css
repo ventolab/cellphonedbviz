@@ -45,6 +45,10 @@ nav ul li a, h5 {
     font-size: 18px;
   }
 
+  .search-input-label {
+    font-size: 20px !important;
+  }
+
   .inline-icon {
     vertical-align: bottom;
     font-size: 24px !important;
