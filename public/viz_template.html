@@ -178,14 +178,16 @@ $.ajax({
                                   </div>
                                   <div class="sge_selected_genes"></div>
                                   <div style="padding-top: 20px;"></div>
-                                  <button id="sge_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('single_gene_expression')">Select all cell types
-                                      <i class="material-icons right">done_all</i>
-                                  </button>
                                   <div class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="sge_celltype_input" placeholder="Cell type">
                                     <label style="padding-top: 30px;" for="sge_celltype_input" class="black-text text-lighten-10 search-input-label">Add cell types to the plot</label>
                                   </div>
                                   <div class="sge_selected_celltypes"></div>
+                                  <div style="padding-top: 10px;">
+                                      <button id="sge_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('single_gene_expression')">Select all cell types
+                                          <i class="material-icons right">done_all</i>
+                                      </button>
+                                  </div>
                                   <div id="sge_microenvironment_sel" class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
                                     <label style="padding-top: 30px;" for="sge_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
@@ -414,14 +416,16 @@ $.ajax({
                                         <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
                                       </div>
                                       <div class="cci_search_selected_microenvironments"></div>
-                                        <button id="cci_search_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('cell_cell_interaction_search')">Select all cell types
-                                           <i class="material-icons right">done_all</i>
-                                        </button>
                                       <div class="input-field">
                                         <input style="padding-top: 20px;" type="text" id="cci_search_celltype_input" placeholder="Cell type">
                                         <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10 search-input-label">Filter by cell types</label>
                                       </div>
                                       <div class="cci_search_selected_celltypes"></div>
+                                      <div style="padding-top: 10px;">
+                                          <button id="cci_search_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('cell_cell_interaction_search')">Select all cell types
+                                               <i class="material-icons right">done_all</i>
+                                          </button>
+                                      </div>
                                       <div class="input-field">
                                         <input style="padding-top: 20px;" type="text" id="cci_search_celltype_pair_input" placeholder="Cell type pair">
                                         <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10 search-input-label">Filter by cell type pairs</label>
