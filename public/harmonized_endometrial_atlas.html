@@ -449,6 +449,18 @@ $.ajax({
                                     <label style="padding-top: 20px;" for="cci_search_interaction_input" class="black-text text-lighten-10 search-input-label">Filter by interactions</label>
                                   </div>
                                   <div class="cci_search_selected_interactions"></div>
+                                  <div style="padding-top: 10px;">
+                                      <!-- Default: select top 10 interacting pairs corresponding to the selected cell type pairs-->
+                                      <div id="interacting_pairs_selection_logic" hidden>10</div>
+                                      <a class="btn waves-effect waves-light btn-small z-depth-2 dropdown-trigger" style="text-transform: none;" data-target="cci_search_select_relevant_interactions_dropdown">
+                                          Select significant/relevant interactions&nbsp;<i style="vertical-align: middle;" class="material-icons white-text">pageview</i></a>
+                                      <ul id="cci_search_select_relevant_interactions_dropdown" class="dropdown-content" tabindex="0" style="">
+                                          <li><a href="javascript:refreshCCISearchPlot(false, '10');">Top 10</a></li>
+                                          <li><a href="javascript:refreshCCISearchPlot(false, '20');">Top 20</a></li>
+                                          <li><a href="javascript:refreshCCISearchPlot(false, '40');">Top 40</a></li>
+                                          <li><a href="javascript:refreshCCISearchPlot(false, 'all');">All</a></li>
+                                      </ul>
+                                  </div>
                               </div>
                             </div>
                           </div>
@@ -457,7 +469,7 @@ $.ajax({
                     <div class="row center">
                       <li class="divider" tabindex="-1"></li>
                       <div class="section">
-                        <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
+                        <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot(false)">Refresh plot
                             <i class="material-icons right">refresh</i>
                         </button>
                         <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchFilters()">Clear filters

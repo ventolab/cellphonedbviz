@@ -1040,7 +1040,8 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         boxWidth = Math.round(380/yVals.length),
         legend_width=50
         legend_height=150,
-        legend_xPos=width-220
+        legend_xPos=width-220,
+        title_xPos = legend_xPos * 0.5,
         legend_yPos=top_yMargin+50,
         xAxisYOffset = -0.048*xVals.length + 2.8,
         yAxisYOffset = -0.054*yVals.length + 2.59,
@@ -1058,6 +1059,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         legend_width=30,
         legend_height=100,
         legend_xPos=width-140,
+        title_xPos = legend_xPos * 0.6,
         legend_yPos=top_yMargin+50;
         xMargin = 140,
         xAxisYOffset = Math.max(-0.4*xVals.length + 3.3, -0.4*6 + 3.3),
@@ -1080,7 +1082,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
 
       // Insert title
       svg.append("text")
-        .attr("x", - xMargin + width / 2)
+        .attr("x", title_xPos)
         .attr("y", 20)
         .style("font-size", "16px")
         .attr("font-weight", 400)
@@ -1294,9 +1296,8 @@ function getPValBucket(pVal) {
     return ret;
 }
 
-function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
+function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, interacting_pairs_selection_logic) {
     // DEBUG console.log(data);
-    $("#cci_search").empty();
     const selectedGenes = data['selected_genes'];
     const selectedInteractingPairs = data['selected_interacting_pairs'];
     const selectedCellTypes = data['selected_cell_types'];
@@ -1344,6 +1345,22 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
         for (var i = 0; i < selectedCellTypePairs.length; i++) {
             storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
         }
+    } else if (interacting_pairs_selection_logic != undefined) {
+        // The user selected a new interacting_pairs_selection_logic - clear previously selected interacting pairs and
+        // repopulate from selectedInteractingPairs
+        $('.cci_search_selected_interactions').empty();
+        for (var i = 0; i < selectedInteractingPairs.length; i++) {
+            storeToken(selectedInteractingPairs[i], "cci_search_selected_interactions", "cci_search_interaction_input");
+        }
+        // The value in this field will be used when the user clicks on 'Refresh plot' button later
+        $('#interacting_pairs_selection_logic').val(interacting_pairs_selection_logic);
+        // To keep the behaviour consistent across all input fields on the page - if the user selected a new interacting_pairs_selection_logic,
+        // we just re-populate the cci_search_selected_interactions field and stop short of refreshing the plot itself. The user still needs to click
+        // on 'Refresh plot' button to make that happen.
+        return;
+    } else {
+        // Remove the previous plot as it will be re-generated
+        $("#cci_search").empty();
     }
 
     if (!data.hasOwnProperty('interacting_pairs_means')) {
@@ -1394,11 +1411,26 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores) {
     .attr("height", height);
 
     // Insert title
-    var title = "Significant interactions per cell type pair";
+    var title = " significant interactions across the selected cell type pairs";
+    if (storeTokens) {
+        // First page load
+        interacting_pairs_selection_logic = "10";
+    }
+    if (interacting_pairs_selection_logic == undefined) {
+        // This covers the case when the user had selected interacting_pairs_selection_logic, and now he has clicked on 'Refresh plot' button -
+        // We need to recover interacting_pairs_selection_logic the user previously selected
+        interacting_pairs_selection_logic = $('#interacting_pairs_selection_logic').val();
+    }
+
+    if (interacting_pairs_selection_logic == "all") {
+        title = "All" + title;
+    } else {
+        title = "Top " + interacting_pairs_selection_logic + title;
+    }
     // The title in #cci_search_header div is used for naming of the PDF file when the plot is downloaded
     $("#cci_search_header").text(title);
     svg.append("text")
-        .attr("x", - xMargin + width / 2)
+        .attr("x", - xMargin + width * 0.46)
         .attr("y", 20)
         .style("font-size", "16px")
         .attr("font-weight", 400)
@@ -1791,8 +1823,9 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
-function refreshCCISearchPlot(showZScores) {
+function refreshCCISearchPlot(showZScores, interacting_pairs_selection_logic) {
     var projectId = $("#project_id").text();
+
     var ret = getSelectedTokens([
         "cci_search_selected_genes", "cci_search_selected_celltypes",
         "cci_search_selected_celltype_pairs", "cci_search_selected_interactions"]);
@@ -1819,17 +1852,21 @@ function refreshCCISearchPlot(showZScores) {
     } else {
         url += "?";
     }
-    // In refresh mode, we don't pre-select interactions/cell type pairs - if the user did not enter any selections
+    // In refresh mode, we don't pre-select cell type pairs - if the user did not enter any
     url += "refresh_plot=True";
     if (showZScores) {
         url += "&show_zscores=True";
     }
+    if (interacting_pairs_selection_logic != undefined) {
+        url += "&interacting_pairs_selection_logic=" + interacting_pairs_selection_logic;
+    }
+
     $.ajax({
             url: url,
             contentType: "application/json",
             dataType: 'json',
             success: function(res) {
-                generateCellCellInteractionSearchPlot(res, storeTokens=false, showZScores=showZScores);
+                generateCellCellInteractionSearchPlot(res, storeTokens=false, showZScores=showZScores, interacting_pairs_selection_logic);
             }
      });
 }

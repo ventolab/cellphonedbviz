@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 import yaml
-import random
 import re
 from collections import OrderedDict
 
@@ -19,8 +18,6 @@ VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
           'cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SANKEY_EDGE_WEIGHT = 30
-NUMBER_OF_INTERACTING_PAIRS_TO_PRESELECT_ON_FIRST_LOAD = 15
-NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD = 15
 
 def get_projects() -> dict:
     dir_name2project_data = {}
@@ -158,6 +155,8 @@ def populate_significant_means_data(dict_dd, df, separator):
     dict_cci_search['all_cell_type_pairs'] = sorted(all_cell_types_combinations)
     df_ips = df[df.columns.intersection(['interacting_pair'] + all_cell_types_combinations)].copy()
     df_ips.set_index('interacting_pair', inplace=True)
+    # We need df_ips to be able to select top N interacting pairs based on the selected cell type pairs
+    dict_cci_search['significant_means'] = df_ips
     # Assign to 'all_interacting_pairs' key the list of interacting pairs sorted by the highest aggregated
     # across all cell type pairs means
     dict_cci_search['all_interacting_pairs'] = df_ips.sum(axis=1).sort_values(ascending=False).index.tolist()
@@ -167,17 +166,18 @@ def populate_significant_means_data(dict_dd, df, separator):
     for i, j in zip(df['id_cp_interaction'].values.tolist(), df['interacting_pair'].values.tolist()):
         dict_cci_search['interaction_id2interacting_pair'][i] = j
 
-def preselect_interacting_pairs(dict_cci_search: dict):
-    # This logic will change once we have output interactions scores from CellphoneDB -
-    # then we will pre-select top (=with the highest score) N interactions
-    return dict_cci_search['all_interacting_pairs'][0:NUMBER_OF_INTERACTING_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
+def preselect_interacting_pairs(dict_cci_search: dict, selected_cell_type_pairs, interacting_pairs_selection_logic: str):
+    df_ips = dict_cci_search['significant_means'][selected_cell_type_pairs]
+    selected_interacting_pairs_sorted_by_aggregated_means_desc = \
+        df_ips[df_ips[selected_cell_type_pairs].apply(lambda row: row.sum() > 0, axis=1)].sum(axis=1).sort_values(ascending=False).index.tolist()
+    if interacting_pairs_selection_logic == "all":
+        return selected_interacting_pairs_sorted_by_aggregated_means_desc
+    else:
+        topN = int(interacting_pairs_selection_logic)
+        return selected_interacting_pairs_sorted_by_aggregated_means_desc[0:topN]
 
 def preselect_cell_type_pairs(dict_cci_search: dict):
-    # TESTING:
-    # random.seed(10)
-    # TESTING:
-    return random.sample(list(dict_cci_search['all_cell_type_pairs']), NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD)
-    # return dict_cci_search['all_cell_type_pairs'][0:NUMBER_OF_CELL_TYPE_PAIRS_TO_PRESELECT_ON_FIRST_LOAD]
+    return dict_cci_search['all_cell_type_pairs']
 
 def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False, percents = False):
     dict_sge = dict_dd['single_gene_expression']
@@ -194,19 +194,6 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
             interacting_pair = dict_cci_search['interaction_id2interacting_pair'][i]
             interacting_pair2genes_names.setdefault(interacting_pair, set([])).add(j)
 
-    if not selected_genes:
-        if not refresh_plot:
-            # Pre-select interacting_pairs
-            selected_interacting_pairs = preselect_interacting_pairs(dict_cci_search)
-            selected_genes = set([])
-            # Derive pre-selected genes from the pre-selected interacting_pairs
-            for ip in selected_interacting_pairs:
-                selected_genes.update(interacting_pair2genes_names[ip])
-            selected_genes = sorted(list(selected_genes))
-        else:
-            selected_genes = []
-    dict_sge['genes'] = selected_genes
-
     if not selected_cell_types:
         if not refresh_plot:
             # Pre-select cell type pairs
@@ -220,6 +207,20 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
             selected_cell_types = []
     selected_cell_types = sorted(list(set(selected_cell_types)))
     dict_sge['cell_types'] = selected_cell_types
+
+    if not selected_genes:
+        if not refresh_plot:
+            # Pre-select interacting_pairs - note that top 10 (by aggregated means across selected_cell_type_pairs in desc order) is the
+            # default interacting pairs selection strategy
+            selected_interacting_pairs = preselect_interacting_pairs(dict_cci_search, selected_cell_type_pairs, "10")
+            selected_genes = set([])
+            # Derive pre-selected genes from the pre-selected interacting_pairs
+            for ip in selected_interacting_pairs:
+                selected_genes.update(interacting_pair2genes_names[ip])
+            selected_genes = sorted(list(selected_genes))
+        else:
+            selected_genes = []
+    dict_sge['genes'] = selected_genes
 
     # Note: all_genes is needed for autocomplete - for the user to include genes in the plot
     all_genes = set(df['gene_name'].values)
@@ -352,7 +353,8 @@ def filter_interactions(result_dict,
                         cell_types,
                         cell_type_pairs,
                         refresh_plot,
-                        show_zscores):
+                        show_zscores,
+                        interacting_pairs_selection_logic):
     means_df = file_name2df['significant_means']
     deconvoluted_df = file_name2df['deconvoluted_result']
     separator = result_dict['separator']
@@ -390,10 +392,16 @@ def filter_interactions(result_dict,
     result_dict['selected_cell_type_pairs2microenvironment'] = ctp2me
     # Collect all interactions from query_genes and query_interactions
     interactions = set([])
+    if interacting_pairs_selection_logic is not None:
+        # If the user has selected a specific logic for retrieval of interacting_pairs based on selected_cell_type_pairs,
+        # then ignore the current selected interacting_pairs
+        interacting_pairs = []
     if not genes and not interacting_pairs:
         if not refresh_plot:
-            # If neither genes nor interactions are selected, pre-select interacting pairs
-            interacting_pairs = preselect_interacting_pairs(result_dict)
+            # If neither genes nor interactions are selected on first page load, pre-select top 10 interacting pairs
+            interacting_pairs = preselect_interacting_pairs(result_dict, selected_cell_type_pairs, "10")
+        elif interacting_pairs_selection_logic is not None:
+            interacting_pairs = preselect_interacting_pairs(result_dict, selected_cell_type_pairs, interacting_pairs_selection_logic)
         else:
             genes = []
             interacting_pairs = []

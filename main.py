@@ -30,7 +30,8 @@ def get_viz_data(project: str,
                  cell_types: str = None,
                  cell_type_pairs: str = None,
                  refresh_plot: bool = False,
-                 show_zscores: bool = False
+                 show_zscores: bool = False,
+                 interacting_pairs_selection_logic: str = None
                  ):
     if viz == 'single_gene_expression':
         selected_genes = get_jsonable(genes)
@@ -67,7 +68,11 @@ def get_viz_data(project: str,
             ret.pop('all_interacting_pairs')
         ret.pop('interaction_id2interacting_pair')
         utils.filter_interactions(ret, dir_name2file_name2df[project],
-                                  selected_genes, selected_interacting_pairs, selected_cell_types, selected_cell_type_pairs, refresh_plot, show_zscores)
+                                  selected_genes, selected_interacting_pairs, selected_cell_types,
+                                  selected_cell_type_pairs, refresh_plot, show_zscores,
+                                  interacting_pairs_selection_logic)
+        # 'significant_means' is used for pre-selecting interacting pairs - it is not needed by the front end
+        ret.pop('significant_means')
     else:
         ret = dir_name2project_data[project][viz]
     return ret
