@@ -2,6 +2,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var projectId = $("#project_id").text();
 
+    // Effect smooth transition to a local tag on page
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const attr = this.getAttribute('href');
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
   // Enable dropdowns
   var options = {constrainWidth: false};
   var elems = document.querySelectorAll('.dropdown-trigger');
