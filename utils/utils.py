@@ -168,13 +168,13 @@ def populate_significant_means_data(dict_dd, df, separator):
 
 def preselect_interacting_pairs(dict_cci_search: dict, selected_cell_type_pairs, interacting_pairs_selection_logic: str):
     df_ips = dict_cci_search['significant_means'][selected_cell_type_pairs]
-    selected_interacting_pairs_sorted_by_aggregated_means_desc = \
-        df_ips[df_ips[selected_cell_type_pairs].apply(lambda row: row.sum() > 0, axis=1)].sum(axis=1).sort_values(ascending=False).index.tolist()
+    selected_interacting_pairs_sorted = \
+        df_ips[df_ips[selected_cell_type_pairs].apply(lambda row: row.sum() > 0, axis=1)].max(axis=1).sort_values(ascending=False).index.tolist()
     if interacting_pairs_selection_logic == "all":
-        return selected_interacting_pairs_sorted_by_aggregated_means_desc
+        return selected_interacting_pairs_sorted
     else:
         topN = int(interacting_pairs_selection_logic)
-        return selected_interacting_pairs_sorted_by_aggregated_means_desc[0:topN]
+        return selected_interacting_pairs_sorted[0:topN]
 
 def preselect_cell_type_pairs(dict_cci_search: dict):
     return dict_cci_search['all_cell_type_pairs']
@@ -210,7 +210,7 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
 
     if not selected_genes:
         if not refresh_plot:
-            # Pre-select interacting_pairs - note that top 10 (by aggregated means across selected_cell_type_pairs in desc order) is the
+            # Pre-select interacting_pairs - note that top 10 (by max mean in any of selected_cell_type_pairs) is the
             # default interacting pairs selection strategy
             selected_interacting_pairs = preselect_interacting_pairs(dict_cci_search, selected_cell_type_pairs, "10")
             selected_genes = set([])
@@ -419,8 +419,11 @@ def filter_interactions(result_dict,
         # TODO: means_cols_filter = means_cols_filter[result_means_df[means_cols_filter].notna().any(axis=0)]
         # Filter out interactions which are not significant in any cell_type_pair/column in cols_filter
         # TODO: result_means_df = result_means_df[result_means_df[means_cols_filter].notna().any(axis=1)]
-        # Sort rows by interacting_pair
-        result_means_df = result_means_df.sort_values(by=['interacting_pair'])
+        # Sort rows by the order of interacting_pairs
+        result_means_df.set_index('interacting_pair', inplace=True)
+        # N.B. reversed() call below means that the first element of interacting_pairs is shown at the top of cci_search plot
+        result_means_df = result_means_df.reindex(reversed(interacting_pairs))
+        result_means_df.reset_index(drop=False, inplace=True)
         result_dict['interacting_pairs_means'] = result_means_df['interacting_pair'].values.tolist()
         result_means_df = result_means_df[means_cols_filter.tolist()]
         # Sort columns according to the order in selected_cell_type_pairs (see sort_cell_type_pairs() call above)

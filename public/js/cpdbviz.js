@@ -679,7 +679,6 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     min_zscore = data['min_zscore'],
     max_zscore = data['max_zscore'],
     cellType2Degs = data['celltype2degs'],
-    colorDomain = yVals,
     legend_offset = 160;
 
   var svg = d3
@@ -1036,7 +1035,6 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         // and so far I've not been able to make it work with min_ints > 0
         min_ints=0,
         max_ints=parseInt(data['max_num_ints']),
-        colorDomain = yVals,
         boxWidth = Math.round(380/yVals.length),
         legend_width=50
         legend_height=150,
@@ -1371,7 +1369,9 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
     }
 
     // Needed for calculating the left margin
-    var longest_ip_label = data['interacting_pairs_means'].sort(
+    // Note shallow copy of data['interacting_pairs_means'] below -
+    // we want to preserve the order of data['interacting_pairs_means']
+    var longest_ip_label = [...data['interacting_pairs_means']].sort(
         function (a, b) {
             return b.length - a.length;
         })[0];
@@ -1389,8 +1389,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
     xMax= xVals.length - 1,
     mean_values = data['values'],
     pvalues=data['filtered_pvalues'],
-    relevant_interactions=data['filtered_relevant_interactions'],
-    colorDomain = yVals;
+    relevant_interactions=data['filtered_relevant_interactions'];
 
   // min_value, max_value needed for color scale
   max_val=data['max_value'];
