@@ -1351,7 +1351,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
             storeToken(selectedInteractingPairs[i], "cci_search_selected_interactions", "cci_search_interaction_input");
         }
         // The value in this field will be used when the user clicks on 'Refresh plot' button later
-        $('#interacting_pairs_selection_logic').val(interacting_pairs_selection_logic);
+        $('#interacting_pairs_selection_logic').text(interacting_pairs_selection_logic);
         // To keep the behaviour consistent across all input fields on the page - if the user selected a new interacting_pairs_selection_logic,
         // we just re-populate the cci_search_selected_interactions field and stop short of refreshing the plot itself. The user still needs to click
         // on 'Refresh plot' button to make that happen.
@@ -1376,7 +1376,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
             return b.length - a.length;
         })[0];
 
-    var height = 700,
+    var num_ips = data['interacting_pairs_means'].length;
+    var height = Math.max(700, 40 * num_ips / Math.log10(num_ips));
     width = 1400,
     bottom_yMargin = 180,
     top_yMargin = 60,
@@ -1411,14 +1412,10 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
 
     // Insert title
     var title = " significant interactions across the selected cell type pairs";
-    if (storeTokens) {
-        // First page load
-        interacting_pairs_selection_logic = "10";
-    }
-    if (interacting_pairs_selection_logic == undefined) {
+    if (interacting_pairs_selection_logic === undefined) {
         // This covers the case when the user had selected interacting_pairs_selection_logic, and now he has clicked on 'Refresh plot' button -
         // We need to recover interacting_pairs_selection_logic the user previously selected
-        interacting_pairs_selection_logic = $('#interacting_pairs_selection_logic').val();
+        interacting_pairs_selection_logic = $('#interacting_pairs_selection_logic').text();
     }
 
     if (interacting_pairs_selection_logic == "all") {
@@ -1429,7 +1426,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
     // The title in #cci_search_header div is used for naming of the PDF file when the plot is downloaded
     $("#cci_search_header").text(title);
     svg.append("text")
-        .attr("x", - xMargin + width * 0.46)
+        .attr("x", width * 0.32)
         .attr("y", 20)
         .style("font-size", "16px")
         .attr("font-weight", 400)
@@ -1493,7 +1490,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
           cellsign_active_interactions[interaction].hasOwnProperty(cellTypePair)) {
             activeInteractionInfo = cellsign_active_interactions[interaction][cellTypePair];
       }
-      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, -20, pvalues, showZScores, activeInteractionInfo);
+      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, 30, pvalues, showZScores, activeInteractionInfo);
     }
   }
 
@@ -1755,7 +1752,7 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
     if (showZScores) {
        valLabel = "Z-score";
     }
-    var tooltipContent = "Interaction: " + interaction + "<br>Cell type pair: " + cellTypePair + "<br>" + valLabel + ": " + value;
+    var tooltipContent = interaction + "<br>Cell type pair: " + cellTypePair + "<br>" + valLabel + ": " + value;
     if (pvalues) {
         tooltipContent += "<br>Nominal P-value: " + pValue;
         tooltipContent += "<br>-log10pvalue bucket: ";
@@ -1763,8 +1760,14 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
             tooltipContent += ">=";
         }
         tooltipContent += pvalBucket;
+    } else if (relIntFlag && activeInteractionInfo != undefined) {
+        tooltipContent = "<b>Relevant and active</b> interaction " + tooltipContent;
     } else if (relIntFlag) {
-        tooltipContent = "<b>Relevant</b> " + tooltipContent;
+        tooltipContent = "<b>Relevant</b> interaction " + tooltipContent;
+    } else if (activeInteractionInfo != undefined) {
+        tooltipContent = "<b>Active</b> interaction " + tooltipContent;
+    } else {
+        tooltipContent = "Interaction: " + tooltipContent;
     }
     // Assemble in activeTFsCellTypesStr and add to tooltipContent information about all active TFs/active cell types
     if (activeInteractionInfo != undefined) {
