@@ -1377,8 +1377,9 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
         })[0];
 
     var num_ips = data['interacting_pairs_means'].length;
+    var num_ctps = data['cell_type_pairs_means'].length;
     var height = Math.max(700, 40 * num_ips / Math.log10(num_ips));
-    width = 1400,
+    width = Math.max(1400, 45 * num_ctps / Math.log10(num_ctps));
     bottom_yMargin = 180,
     top_yMargin = 60,
     xMargin = longest_ip_label.length * 7.3,
