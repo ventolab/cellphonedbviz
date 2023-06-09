@@ -153,6 +153,9 @@ def populate_significant_means_data(dict_dd, df, separator):
     dict_cci_summary['ct2indx'] = ct2indx
     # Data below is needed for autocomplete functionality
     dict_cci_search['all_cell_type_pairs'] = sorted(all_cell_types_combinations)
+    # num_all_cell_type_pairs is used for warning the user that if they select all cell type pairs and
+    # all relevant interactions for the cci_search plot, the browser may run out of memory and crash
+    dict_cci_search['num_all_cell_type_pairs'] = len(dict_cci_search['all_cell_type_pairs'])
     df_ips = df[df.columns.intersection(['interacting_pair'] + all_cell_types_combinations)].copy()
     df_ips.set_index('interacting_pair', inplace=True)
     # We need df_ips to be able to select top N interacting pairs based on the selected cell type pairs

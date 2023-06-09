@@ -124,6 +124,10 @@ document.addEventListener('DOMContentLoaded', function() {
         dataType: 'json',
         success: function(res) {
             generateCellCellInteractionSearchPlot(res, storeTokens=true, showZScores=false);
+            // Populate num_all_cell_type_pairs div with the total number of cell type pairs in the experiment - the value in that
+            // field will be used to warn the user that if they select all cell type pairs and all relevant interacting pairs
+            // their browser run out of memory and crash.
+            $('#num_all_cell_type_pairs').text(res['num_all_cell_type_pairs']);
             // Enable gene and cell type input autocompletes for gene expression plot
             enable_autocomplete('cci_search_celltype_input', 'cci_search_selected_celltypes', res['all_cell_types']);
             enable_autocomplete('cci_search_celltype_pair_input', 'cci_search_selected_celltype_pairs', res['all_cell_type_pairs']);
@@ -1290,6 +1294,11 @@ function clearCCISearchFilters() {
     $('.cci_search_selected_celltype_pairs').empty();
 }
 
+function clearCCISearchCellTypeFilters() {
+    $('.cci_search_selected_celltypes').empty();
+    $('.cci_search_selected_celltype_pairs').empty();
+}
+
 function getPValBucket(pVal) {
     var ret;
     if (!pVal) {
@@ -1359,6 +1368,12 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
         for (var i = 0; i < selectedInteractingPairs.length; i++) {
             storeToken(selectedInteractingPairs[i], "cci_search_selected_interactions", "cci_search_interaction_input");
         }
+
+        const num_all_cell_type_pairs = parseInt($("#num_all_cell_type_pairs").text());
+        if (interacting_pairs_selection_logic = "all" && selectedCellTypePairs.length == num_all_cell_type_pairs) {
+            M.toast({html: 'N.B. Your browser may not have enough memory to plot all cell type pairs and all relevant interactions. Consider restricting the number of cell type pairs to be shown in the plot.'})
+        }
+
         // The value in this field will be used when the user clicks on 'Refresh plot' button later
         $('#interacting_pairs_selection_logic').text(interacting_pairs_selection_logic);
         // To keep the behaviour consistent across all input fields on the page - if the user selected a new interacting_pairs_selection_logic,
