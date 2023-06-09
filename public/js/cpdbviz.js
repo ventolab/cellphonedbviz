@@ -112,7 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 $("#cci_search_microenvironment_sel").hide();
             }
             // Allow the user to switch between cci_summary heatmaps and chord plots
-            enable_cci_summary_switch();
+            num_cell_types = res['all_cell_types'].length;
+            enable_cci_summary_switch(num_cell_types);
         }
      });
 
@@ -207,13 +208,15 @@ function enable_cci_search_switch() {
       });
 }
 
-function enable_cci_summary_switch() {
+function enable_cci_summary_switch(num_cell_types) {
     $('#cci_summary_switch').on('change', function() {
         var max_cci_summary_plot_number= 9;
         var i = 0;
         if ($(this).is(':checked')) {
             // Hide all heatmaps and show chords
-
+            if (num_cell_types > 40) {
+                M.toast({html: 'N.B. Chord plots work for up to ~40 cell types in a single plot.'})
+            }
             while (i <= max_cci_summary_plot_number) {
                 const divId = "#cci" + i
                 if ($(divId).is(':visible') || i == 0) {
