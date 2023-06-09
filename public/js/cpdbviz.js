@@ -1384,14 +1384,18 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
         function (a, b) {
             return b.length - a.length;
         })[0];
+    var longest_ct_label = [...data['cell_type_pairs_means']].sort(
+        function (a, b) {
+            return b.length - a.length;
+        })[0];
 
     var num_ips = data['interacting_pairs_means'].length;
     var num_ctps = data['cell_type_pairs_means'].length;
     var height = Math.max(700, 40 * num_ips / Math.log10(num_ips));
     width = Math.max(1400, 45 * num_ctps / Math.log10(num_ctps));
-    bottom_yMargin = 180,
+    bottom_yMargin = 250,
     top_yMargin = 60,
-    xMargin = longest_ip_label.length * 7.3,
+    xMargin = Math.max(longest_ip_label.length * 7.3, longest_ct_label.length * 3.4),
     yVals = data['interacting_pairs_means'],
     yMin = -1,
     xMin = -1,
