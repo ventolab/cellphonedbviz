@@ -402,7 +402,7 @@ function generateCellCompositionPlot(data) {
         $("#ctcomp_title").hide();
         $("#ctcomp").hide();
         $("#ctcomp_save_button").hide();
-        // Hide the options from ToC dropdown
+        // Hide the corresponding option from ToC dropdown
         $("#toc_ctcomp").hide();
         return;
     }
@@ -461,6 +461,8 @@ function generateMicroenvironmentsPlot(data) {
         $("#spme_header").hide();
         $("#spme").hide();
         $("#spme_save_button").hide();
+        // Hide the corresponding option from ToC dropdown
+        $("#toc_spme").hide();
         return;
     }
 
@@ -663,8 +665,9 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
         return;
     }
 
-    var height = 700,
-    width = 900,
+    var num_cts = data['cell_types'].length;
+    var height = Math.max(700, 40 * num_cts / Math.log10(num_cts));
+    var width = 900,
     bottom_yMargin = 250,
     top_yMargin = 60,
     xMargin = 120,
@@ -1019,11 +1022,14 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
  }
 
  function generateCellCellInteractionSummaryPlot(data, cellTypes, title, plotCnt) {
-      var height = 600,
-        width = 800,
-        bottom_yMargin = 160,
+      const numCellTypes = cellTypes.length;
+
+      var xMargin = 200;
+      var height = Math.max(600, 20 * numCellTypes / Math.log10(numCellTypes)) ;
+      var width = Math.max(800, 200 + 20 * numCellTypes / Math.log10(numCellTypes));
+      var bottom_yMargin = 160,
         top_yMargin = 50,
-        xMargin = 140,
+        xMargin = 200,
         yVals = cellTypes,
         yMin = -1,
         xMin = -1,
@@ -1038,11 +1044,11 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         boxWidth = Math.round(380/yVals.length),
         legend_width=50
         legend_height=150,
-        legend_xPos=width-220,
+        legend_xPos= width-160,
         title_xPos = legend_xPos * 0.5,
         legend_yPos=top_yMargin+50,
-        xAxisYOffset = -0.048*xVals.length + 2.8,
-        yAxisYOffset = -0.054*yVals.length + 2.59,
+        xAxisYOffset = 1.1 + 10/numCellTypes;
+        yAxisYOffset = 0.7 + 10/numCellTypes;
         tooltipXPos = legend_xPos;
         tooltipYPos = legend_yPos+240;
 

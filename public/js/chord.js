@@ -171,9 +171,9 @@ function define(main, observer, data, title, plotCnt) {
      main.variable(observer("color")).define("color", ["d3","names"], _color);
      main.variable(observer("formatValue")).define("formatValue", _formatValue);
      // all cell types default
-     var innerRadius = 150;
-     var outerRadius = 156;
-     var size = 500;
+     var innerRadius = 200;
+     var outerRadius = 206;
+     var size = 800;
      if (plotCnt > 0) {
         // microenvironments
         innerRadius = 70;
