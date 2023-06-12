@@ -1,17 +1,28 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+  var hash = getHash();
   var projectId = $("#project_id").text();
 
-    // Effect smooth transition to a local tag on page
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const attr = this.getAttribute('href');
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
+  $.ajax({
+    type: "GET",
+    url: '/api/validate/' + projectId + "?hash=" + hash,
+    success: function (response) {
+        if (!response) {
+            window.location.href = "/forbidden.html";
+        }
+    }
+  });
+
+  // Effect smooth transition to a local tag on page
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const attr = this.getAttribute('href');
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
         });
     });
+  });
 
   // Enable dropdowns
   var options = {constrainWidth: false};
@@ -1924,4 +1935,11 @@ function refreshCCISearchPlot(showZScores, interacting_pairs_selection_logic) {
                 generateCellCellInteractionSearchPlot(res, storeTokens=false, showZScores=showZScores, interacting_pairs_selection_logic);
             }
      });
+}
+
+// This is used to check if the page viewer is authorized to view the page
+function getHash() {
+    const queryString = window.location.search
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id')
 }

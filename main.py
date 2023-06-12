@@ -76,6 +76,20 @@ def get_viz_data(project: str,
         ret = dir_name2project_data[project][viz]
     return ret
 
+@api.get("/generate/hash")
+def generate_random_hash() -> str:
+    return utils.generate_random_hash()
+
+@api.get("/validate/{project_id}")
+def validate_hash(project_id: str, hash: str) -> bool:
+    ret = False
+    if 'hash' in dir_name2project_data[project_id]:
+            if hash is not None and hash == dir_name2project_data[project_id]['hash']:
+                ret = True
+    else:
+        ret = True
+    return ret
+
 def get_jsonable(val: str) -> list:
     ret = []
     if jsonable_encoder(val):

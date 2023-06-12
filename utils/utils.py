@@ -5,6 +5,7 @@ from scipy import stats
 import yaml
 import re
 from collections import OrderedDict
+import secrets
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 DATA_ROOT = f"{base_path}/../data"
@@ -13,7 +14,7 @@ DATA_ROOT = f"{base_path}/../data"
 # we need to get the mapping: interacting pair->interaction_id from the means file and only then we can do interaction_id->genes in deconvoluted file.
 CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','microenvironments', \
                'significant_means', 'relevant_interactions', 'deconvoluted_result','deconvoluted_percents','degs','pvalues', \
-               'cellsign_active_interactions_deconvoluted']
+               'cellsign_active_interactions_deconvoluted', 'hash']
 VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
           'cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
@@ -36,9 +37,12 @@ def get_projects() -> dict:
                     dict['title'] = config['title']
                     for key in CONFIG_KEYS[3:]:
                         if key in config:
-                            fpath = "{}/{}".format(root, config[key])
-                            df = pd.read_csv(fpath, sep='\t')
-                            populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
+                            if key != 'hash':
+                                fpath = "{}/{}".format(root, config[key])
+                                df = pd.read_csv(fpath, sep='\t')
+                                populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
+                            else:
+                                dict['hash'] = config['hash']
                     dict['cell_cell_interaction_search']['separator'] = config['separator']
                     dir_name2project_data[dir_name] = dict
     return (dir_name2project_data, dir_name2file_name2df)
@@ -481,3 +485,6 @@ def filter_interactions(result_dict,
                         # pvalues = 1.0 have been filtered out to reduce API output
                         result_dict['filtered_pvalues'][i][j] = 1
 
+def generate_random_hash():
+    # See: https://docs.python.org/3/library/secrets.html (16 = bytes ~ 16 * 1.3 chars)
+    return secrets.token_urlsafe(16)
