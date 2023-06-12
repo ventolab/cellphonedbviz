@@ -625,7 +625,7 @@ function spmeRenderPoint(svg, x, y, colorPos, xMargin, top_yMargin, xScale, ySca
       .attr("r", 7);
 }
 
-function validateInput(data) {
+function validateSGEInput(data) {
     var errMsg;
     if (data['cell_types'].length == 0) {
         if (data['genes'].length == 0) {
@@ -664,7 +664,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     }
 
     // Show error message and return if data input is invalid
-    errMsg = validateInput(data);
+    errMsg = validateSGEInput(data);
     if (errMsg != undefined) {
         d3.select("#sge")
           .style("color", "purple")
@@ -1312,6 +1312,24 @@ function getPValBucket(pVal) {
     return ret;
 }
 
+function validateCCISearchInput(data) {
+    var errMsg;
+    if (!data.hasOwnProperty('selected_cell_type_pairs') || data['selected_cell_type_pairs'].length == 0) {
+        if (!data.hasOwnProperty('selected_interacting_pairs') || data['selected_interacting_pairs'].length == 0) {
+            errMsg = 'Please select at least one interacting pair and at least two cell type pairs.';
+        } else {
+            errMsg = 'Please select at least two cell type pairs.';
+        }
+    } else if (data['selected_cell_type_pairs'].length == 1) {
+        // Z-scores (calculated across all selected cell type pairs) cannot be calculated when only
+        // one cell type pair has been selected - report an error
+        errMsg = 'The plot shows z-scores that cannot be calculated if only one cell type pair is selected. Please select more than one cell type.';
+    } else if (!data.hasOwnProperty('interacting_pairs_means')) {
+        errMsg = 'No significant interactions were found - please try another search.';
+    }
+    return errMsg;
+}
+
 function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, interacting_pairs_selection_logic) {
     // DEBUG console.log(data);
     const selectedGenes = data['selected_genes'];
@@ -1321,32 +1339,6 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
     const selectedCTP2Me = data['selected_cell_type_pairs2microenvironment'];
     const microenvironments = data['microenvironments']
     const cellsign_active_interactions = data['cellsign_active_interactions']
-
-    // See: https://observablehq.com/@d3/color-schemes
-    const colours = d3.schemeCategory10;
-    var me2Colour = {};
-    var mes = Array.from(new Set(Object.values(selectedCTP2Me)));
-    for (var i = 0; i < mes.length; i++) {
-      const me = mes[i];
-      if (me === "all") {
-        // No micro-environments are specified in the config
-        me2Colour[me] = "black";
-      } else {
-        me2Colour[me] = colours[i % colours.length];
-      }
-    }
-
-    var mes4Legend = [];
-    var ctp2Colour = {}
-    for (var i = 0; i < selectedCellTypePairs.length; i++) {
-      const ctp = selectedCellTypePairs[i];
-      const me = selectedCTP2Me[ctp];
-      ctp2Colour[ctp] = me2Colour[me];
-      if (!mes4Legend.includes(me)) {
-        // We need mes4Legend to be in the same order as the groups of cell type pairs on the x-axis
-        mes4Legend.push(me);
-      }
-    }
 
     if (storeTokens) {
         for (var i = 0; i < selectedGenes.length; i++) {
@@ -1385,11 +1377,39 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
         $("#cci_search").empty();
     }
 
-    if (!data.hasOwnProperty('interacting_pairs_means')) {
+    // Show error message and return if data input is invalid
+    errMsg = validateCCISearchInput(data);
+    if (errMsg != undefined) {
         d3.select("#cci_search")
-        .style("color", "purple")
-        .text('No significant interactions were found - please try another search.');
-        return
+          .style("color", "purple")
+          .text(errMsg);
+        return;
+    }
+
+    // See: https://observablehq.com/@d3/color-schemes
+    const colours = d3.schemeCategory10;
+    var me2Colour = {};
+    var mes = Array.from(new Set(Object.values(selectedCTP2Me)));
+    for (var i = 0; i < mes.length; i++) {
+      const me = mes[i];
+      if (me === "all") {
+        // No micro-environments are specified in the config
+        me2Colour[me] = "black";
+      } else {
+        me2Colour[me] = colours[i % colours.length];
+      }
+    }
+
+    var mes4Legend = [];
+    var ctp2Colour = {}
+    for (var i = 0; i < selectedCellTypePairs.length; i++) {
+      const ctp = selectedCellTypePairs[i];
+      const me = selectedCTP2Me[ctp];
+      ctp2Colour[ctp] = me2Colour[me];
+      if (!mes4Legend.includes(me)) {
+        // We need mes4Legend to be in the same order as the groups of cell type pairs on the x-axis
+        mes4Legend.push(me);
+      }
     }
 
     // Needed for calculating the left margin
@@ -1406,8 +1426,12 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, showZScores, i
 
     var num_ips = data['interacting_pairs_means'].length;
     var num_ctps = data['cell_type_pairs_means'].length;
-    var height = Math.max(700, 40 * num_ips / Math.log10(num_ips));
-    width = Math.max(1400, 45 * num_ctps / Math.log10(num_ctps));
+    var height = 700;
+    if (num_ips > 1) {
+        Math.max(height, 40 * num_ips / Math.log10(num_ips));
+    }
+    // Note that validateCCISearchInput() above ensures that num_ctps > 1
+    var width = Math.max(1400, 45 * num_ctps / Math.log10(num_ctps));
     bottom_yMargin = 250,
     top_yMargin = 60,
     xMargin = Math.max(longest_ip_label.length * 7.3, longest_ct_label.length * 3.4),

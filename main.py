@@ -64,7 +64,6 @@ def get_viz_data(project: str,
             # Autocompletes are initialised on first load only - hence on refresh_plot
             # we avoid bulking-up the API output unnecessarily
             ret.pop('all_genes')
-            ret.pop('all_cell_type_pairs')
             ret.pop('all_interacting_pairs')
         ret.pop('interaction_id2interacting_pair')
         utils.filter_interactions(ret, dir_name2file_name2df[project],

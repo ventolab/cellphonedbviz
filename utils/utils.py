@@ -370,9 +370,11 @@ def filter_interactions(result_dict,
         if cell_type_pairs:
             # Note: the search for cell types and cell type pairs is additive (inclusive OR)
             selected_cell_type_pairs += cell_type_pairs
-        for ct in selected_cell_types:
-            for ct1 in selected_cell_types:
-                selected_cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
+        # Extract from result_dict['all_cell_type_pairs'] all elements containing at least one cell type in selected_cell_types
+        for ct_pair in result_dict['all_cell_type_pairs']:
+            (ct1, ct2) = ct_pair.split(separator)
+            if ct1 in selected_cell_types or ct2 in selected_cell_types:
+                selected_cell_type_pairs += [ct_pair]
         # Restrict all combinations of cell types to just those in means_df
         selected_cell_type_pairs = [ct_pair for ct_pair in selected_cell_type_pairs if ct_pair in means_df.columns.values]
     elif not cell_type_pairs:
@@ -385,6 +387,10 @@ def filter_interactions(result_dict,
     else:
         selected_cell_types = []
         selected_cell_type_pairs = cell_type_pairs
+    if not selected_cell_type_pairs:
+        # Nothing sensible can be plotted
+        return
+
     means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
     result_dict['selected_cell_types'] = sorted(selected_cell_types)
     selected_cell_type_pairs, ctp2me = \
