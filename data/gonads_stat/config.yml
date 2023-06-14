@@ -3,7 +3,8 @@ separator:                                    '|'
 title:                                        Gonads - CellphoneDB statistical analysis results
 microenvironments:                            microenvironment.tsv
 deconvoluted_result:                          statistical_analysis_deconvoluted_06_01_2023_161543.txt
-significant_means:                            statistical_analysis_significant_means_06_01_2023_161543.txt
+analysis_means:                               statistical_analysis_means_06_01_2023_161543.txt
+relevant_interactions:                        statistical_analysis_significant_means_06_01_2023_161543.txt
 pvalues:                                      statistical_analysis_pvalues_06_01_2023_161543.txt
 deconvoluted_percents:                        statistical_analysis_deconvoluted_percents_06_01_2023_161543.txt
 cellsign_active_interactions_deconvoluted:    statistical_analysis_CellSign_active_interactions_deconvoluted_06_01_2023_161543.txt

@@ -3,7 +3,7 @@ separator:                  '|'
 title:                      Maternal-Fetal Interface - CellphoneDB DEG analysis results
 celltype_composition:       celltype_composition.tsv
 deconvoluted_result:        degs_analysis_deconvoluted_result_05_03_2023_135012.txt
-significant_means:          degs_analysis_significant_means_05_03_2023_135012.txt
+analysis_means:             degs_analysis_means_result_05_03_2023_135012.txt
 degs:                       DEGs_list_inv_AllDonors_trophoblast_cellphone_20221123.tsv
 deconvoluted_percents:      degs_analysis_deconvoluted_percents_05_03_2023_135012.txt
 relevant_interactions:      degs_analysis_relevant_interactions_result_05_03_2023_135012.txt

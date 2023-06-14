@@ -40,8 +40,7 @@ def get_viz_data(project: str,
         ret = copy.deepcopy(dir_name2project_data[project])
         utils.populate_deconvoluted_data(ret, dir_name2file_name2df[project]['deconvoluted_result'], \
                                          selected_genes = selected_genes, selected_cell_types = selected_cell_types,
-                                         refresh_plot = refresh_plot, percents = False,
-                                         sort_interacting_pairs_alphabetically = sort_interacting_pairs_alphabetically)
+                                         refresh_plot = refresh_plot, percents = False)
         dict_sge = ret['single_gene_expression']
         if 'deconvoluted_percents' in dir_name2file_name2df[project]:
             utils.populate_deconvoluted_data(ret, dir_name2file_name2df[project]['deconvoluted_percents'], \
@@ -49,8 +48,7 @@ def get_viz_data(project: str,
                                              # filter deconvoluted_percents as were used to filter deconvoluted_result
                                              selected_genes=dict_sge['genes'], \
                                              selected_cell_types=dict_sge['cell_types'], \
-                                             refresh_plot=refresh_plot, percents = True,
-                                             sort_interacting_pairs_alphabetically = sort_interacting_pairs_alphabetically)
+                                             refresh_plot=refresh_plot, percents = True)
         if refresh_plot:
             # Autocompletes are initialised on first load only - hence on refresh_plot we avoid
             # bulking-up the API output unnecessarily
@@ -68,13 +66,12 @@ def get_viz_data(project: str,
             # we avoid bulking-up the API output unnecessarily
             ret.pop('all_genes')
             ret.pop('all_interacting_pairs')
-        ret.pop('interaction_id2interacting_pair')
         utils.filter_interactions(ret, dir_name2file_name2df[project],
                                   selected_genes, selected_interacting_pairs, selected_cell_types,
                                   selected_cell_type_pairs, refresh_plot, show_zscores,
                                   interacting_pairs_selection_logic, sort_interacting_pairs_alphabetically)
-        # 'significant_means' is used for pre-selecting interacting pairs - it is not needed by the front end
-        ret.pop('significant_means')
+        # 'analysis_means' is used for pre-selecting interacting pairs - it is not needed by the front end
+        ret.pop('analysis_means')
     else:
         ret = dir_name2project_data[project][viz]
     return ret

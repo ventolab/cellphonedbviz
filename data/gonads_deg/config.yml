@@ -3,7 +3,7 @@ separator:                                    '|'
 title:                                        Gonads - CellphoneDB DEG analysis results
 microenvironments:                            microenvironment.tsv
 deconvoluted_result:                          degs_analysis_deconvoluted_06_01_2023_162918.txt
-significant_means:                            degs_analysis_significant_means_06_01_2023_162918.txt
+analysis_means:                               degs_analysis_means_06_01_2023_162918.txt
 relevant_interactions:                        degs_analysis_relevant_interactions_06_01_2023_162918.txt
 degs:                                         DEGs.tsv
 deconvoluted_percents:                        degs_analysis_deconvoluted_percents_06_01_2023_162918.txt

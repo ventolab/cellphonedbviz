@@ -1377,6 +1377,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         for (var i = 0; i < selectedInteractingPairs.length; i++) {
             storeToken(selectedInteractingPairs[i], "cci_search_selected_interactions", "cci_search_interaction_input");
         }
+        // Clear selected genes - as interacting_pairs_selection_logic overrides all previous gene/interacting pairs selections
+        $('.cci_search_selected_genes').empty();
 
         const num_all_cell_type_pairs = parseInt($("#num_all_cell_type_pairs").text());
         if (interacting_pairs_selection_logic == "all" && selectedCellTypePairs.length == num_all_cell_type_pairs) {

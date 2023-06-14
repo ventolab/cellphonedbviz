@@ -4,6 +4,7 @@ title:                      Endometrial Atlas - CellphoneDB statistical analysis
 celltype_composition:       celltype_composition.tsv
 microenvironments:          microenvironments.tsv
 deconvoluted_result:        statistical_analysis_deconvoluted_05_03_2023_194803.txt
-significant_means:          statistical_analysis_significant_means_05_03_2023_194803.txt
+analysis_means:             statistical_analysis_means_05_03_2023_194803.txt
+relevant_interactions:      statistical_analysis_significant_means_05_03_2023_194803.txt
 pvalues:                    statistical_analysis_pvalues_05_03_2023_194803.txt
 deconvoluted_percents:      statistical_analysis_deconvoluted_percents_05_03_2023_194803.txt
