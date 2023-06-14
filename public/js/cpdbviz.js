@@ -1914,6 +1914,13 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
             url += "genes=" + selectedGenes + "&";
         }
         if (selectedInteractions) {
+            if (interacting_pairs_selection_logic != undefined) {
+                // There's no point increasing the length of the GET request unnecessarily with the current selection
+                // of interacting pairs if all we need the API call to do is overwrite them with with interacting_pairs_selection_logic
+                // This is particularly important if selectedInteractions contain all interacting pairs - then the maximum length of GET request
+                // could be exceeded if we didn't do the below.
+                selectedInteractions=''
+            }
             url += "interacting_pairs=" + selectedInteractions + "&";
         }
         if (selectedCellTypes) {
