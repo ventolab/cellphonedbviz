@@ -343,8 +343,10 @@ def sort_cell_type_pairs(cell_type_pairs, result_dict, separator) -> (list, dict
             ct2 = ct_pair.split(separator)[1]
             mes1 = ct2mes[ct1]
             mes2 = ct2mes[ct2]
-            if len(mes1) == 1 and len(mes2) == 1 and mes1[0] == mes2[0]:
+            if len(mes1) == 1 and mes1[0] in mes2:
                 me = mes1[0]
+            elif len(mes2) == 1 and mes2[0] in mes1:
+                me = mes2[0]
             else:
                 me = 'multiple'
             ct_pair2me[ct_pair] = me
