@@ -58,9 +58,9 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
     elif config_key == 'significant_means':
         populate_significant_means_data(result_dict, df, separator)
     elif config_key == 'deconvoluted_result':
-        populate_deconvoluted_data(result_dict, df, separator, percents=False)
+        populate_deconvoluted_data(result_dict, df, separator, percents=False, sort_interacting_pairs_alphabetically = False)
     elif config_key == 'deconvoluted_percents':
-        populate_deconvoluted_data(result_dict, df, separator, percents=True)
+        populate_deconvoluted_data(result_dict, df, separator, percents=True, sort_interacting_pairs_alphabetically = False)
     elif config_key == 'degs':
         populate_degs_data(result_dict, df)
     elif config_key == 'pvalues':
@@ -173,10 +173,14 @@ def populate_significant_means_data(dict_dd, df, separator):
     for i, j in zip(df['id_cp_interaction'].values.tolist(), df['interacting_pair'].values.tolist()):
         dict_cci_search['interaction_id2interacting_pair'][i] = j
 
-def preselect_interacting_pairs(dict_cci_search: dict, selected_cell_type_pairs, interacting_pairs_selection_logic: str):
+def preselect_interacting_pairs(dict_cci_search: dict, selected_cell_type_pairs, interacting_pairs_selection_logic: str, sort_interacting_pairs_alphabetically: bool):
     df_ips = dict_cci_search['significant_means'][selected_cell_type_pairs]
-    selected_interacting_pairs_sorted = \
-        df_ips[df_ips[selected_cell_type_pairs].apply(lambda row: row.sum() > 0, axis=1)].max(axis=1).sort_values(ascending=False).index.tolist()
+    if not sort_interacting_pairs_alphabetically:
+        selected_interacting_pairs_sorted = \
+            df_ips[df_ips[selected_cell_type_pairs].apply(lambda row: row.sum() > 0, axis=1)].max(axis=1).sort_values(ascending=False).index.tolist()
+    else:
+        selected_interacting_pairs_sorted = \
+            df_ips[df_ips[selected_cell_type_pairs].apply(lambda row: row.sum() > 0, axis=1)].sort_index(ascending=False).index.tolist()
     if interacting_pairs_selection_logic == "all":
         return selected_interacting_pairs_sorted
     else:
@@ -186,7 +190,8 @@ def preselect_interacting_pairs(dict_cci_search: dict, selected_cell_type_pairs,
 def preselect_cell_type_pairs(dict_cci_search: dict):
     return dict_cci_search['all_cell_type_pairs']
 
-def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False, percents = False):
+def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False, percents = False,
+                               sort_interacting_pairs_alphabetically = False):
     dict_sge = dict_dd['single_gene_expression']
     dict_cci_search = dict_dd['cell_cell_interaction_search']
     if not separator:
@@ -219,7 +224,7 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
         if not refresh_plot:
             # Pre-select interacting_pairs - note that top 10 (by max mean in any of selected_cell_type_pairs) is the
             # default interacting pairs selection strategy
-            selected_interacting_pairs = preselect_interacting_pairs(dict_cci_search, selected_cell_type_pairs, "10")
+            selected_interacting_pairs = preselect_interacting_pairs(dict_cci_search, selected_cell_type_pairs, "10", sort_interacting_pairs_alphabetically)
             selected_genes = set([])
             # Derive pre-selected genes from the pre-selected interacting_pairs
             for ip in selected_interacting_pairs:
@@ -361,7 +366,8 @@ def filter_interactions(result_dict,
                         cell_type_pairs,
                         refresh_plot,
                         show_zscores,
-                        interacting_pairs_selection_logic):
+                        interacting_pairs_selection_logic,
+                        sort_interacting_pairs_alphabetically):
     means_df = file_name2df['significant_means']
     deconvoluted_df = file_name2df['deconvoluted_result']
     separator = result_dict['separator']
@@ -412,12 +418,21 @@ def filter_interactions(result_dict,
     if not genes and not interacting_pairs:
         if not refresh_plot:
             # If neither genes nor interactions are selected on first page load, pre-select top 10 interacting pairs
-            interacting_pairs = preselect_interacting_pairs(result_dict, selected_cell_type_pairs, "10")
+            interacting_pairs = preselect_interacting_pairs(result_dict, selected_cell_type_pairs, "10", sort_interacting_pairs_alphabetically)
         elif interacting_pairs_selection_logic is not None:
-            interacting_pairs = preselect_interacting_pairs(result_dict, selected_cell_type_pairs, interacting_pairs_selection_logic)
+            interacting_pairs = preselect_interacting_pairs(result_dict, selected_cell_type_pairs, interacting_pairs_selection_logic, sort_interacting_pairs_alphabetically)
         else:
             genes = []
             interacting_pairs = []
+    if interacting_pairs and sort_interacting_pairs_alphabetically:
+        # Sort selected interacting_pairs alphabetically
+        interacting_pairs.sort()
+    else:
+        # Sort selected interacting_pairs by expression
+        # ... by first pre-selecting all interacting pairs, sorted by expression
+        all_interacting_pairs_sorted_by_expression = preselect_interacting_pairs(result_dict, selected_cell_type_pairs,"all", False)
+        # ... and then plucking out all interacting_pairs from that list (so that the order by expression is preserved)
+        interacting_pairs = [ip for ip in all_interacting_pairs_sorted_by_expression if ip in interacting_pairs]
     if genes:
             interactions.update( \
                 deconvoluted_df[deconvoluted_df['gene_name'].isin(genes)]['id_cp_interaction'].tolist())

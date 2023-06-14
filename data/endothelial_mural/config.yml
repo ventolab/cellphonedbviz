@@ -1,0 +1,7 @@
+# CellphoneDB results visualisation config
+separator:                  '|'
+title:                      Endothelial-mural interactions across organs
+deconvoluted_result:        statistical_analysis_deconvoluted_06_07_2023_15_19_27.txt
+significant_means:          statistical_analysis_significant_means_06_07_2023_15_19_27.txt
+pvalues:                    statistical_analysis_pvalues_06_07_2023_15_19_27.txt
+hash:                       slkRTXkW6Dhg-xZ0rRuuag

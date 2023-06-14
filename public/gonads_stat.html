@@ -456,14 +456,14 @@ $.ajax({
                                   <div class="cci_search_selected_interactions"></div>
                                   <div style="padding-top: 10px;">
                                       <!-- Default: select top 10 interacting pairs corresponding to the selected cell type pairs-->
-                                      <div id="interacting_pairs_selection_logic" hidden>10</div>
+                                      <div id="interacting_pairs_selection_logic" hidden></div>
                                       <a class="btn waves-effect waves-light btn-small z-depth-2 dropdown-trigger" style="text-transform: none;" data-target="cci_search_select_relevant_interactions_dropdown">
                                           Select significant/relevant interactions&nbsp;<i style="vertical-align: middle;" class="material-icons white-text">pageview</i></a>
                                       <ul id="cci_search_select_relevant_interactions_dropdown" class="dropdown-content" tabindex="0" style="">
-                                          <li><a href="javascript:refreshCCISearchPlot(false, '10');">Top 10</a></li>
-                                          <li><a href="javascript:refreshCCISearchPlot(false, '20');">Top 20</a></li>
-                                          <li><a href="javascript:refreshCCISearchPlot(false, '40');">Top 40</a></li>
-                                          <li><a href="javascript:refreshCCISearchPlot(false, 'all');">All</a></li>
+                                          <li><a href="javascript:refreshCCISearchPlot('10');">Top 10</a></li>
+                                          <li><a href="javascript:refreshCCISearchPlot('20');">Top 20</a></li>
+                                          <li><a href="javascript:refreshCCISearchPlot('40');">Top 40</a></li>
+                                          <li><a href="javascript:refreshCCISearchPlot('all');">All</a></li>
                                       </ul>
                                   </div>
                               </div>
@@ -474,7 +474,7 @@ $.ajax({
                     <div class="row center">
                       <li class="divider" tabindex="-1"></li>
                       <div class="section">
-                        <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot(false)">Refresh plot
+                        <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
                             <i class="material-icons right">refresh</i>
                         </button>
                         <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchFilters()">Clear filters
@@ -491,10 +491,20 @@ $.ajax({
                       </button>
                       <div class="switch" style="padding-top: 20px;">
                         <label>
-                          <span class="black-text text-lighten-10 switch-label">Show mean expressions</span>
+                          <span class="black-text text-lighten+10 switch-label">Show:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                          <span class="black-text text-lighten-10 switch-label">mean expressions</span>
                           <input id="cci_search_switch" type="checkbox">
                           <span class="lever"></span>
-                          <span class="black-text text-lighten-10 switch-label">Show z-scores</span>
+                          <span class="black-text text-lighten-10 switch-label">z-scores</span>
+                        </label>
+                      </div>
+                      <div class="switch" style="padding-top: 20px;">
+                        <label>
+                          <span class="black-text text-lighten+10 switch-label">Sort interacting pairs:&nbsp;&nbsp;&nbsp;</span>
+                          <span class="black-text text-lighten-10 switch-label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by expression</span>
+                          <input id="cci_search_sort_ips_switch" type="checkbox">
+                          <span class="lever"></span>
+                          <span class="black-text text-lighten-10 switch-label">alphabetically</span>
                         </label>
                       </div>
                       <div id="cci_search_header" hidden></div>
