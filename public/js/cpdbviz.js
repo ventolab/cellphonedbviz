@@ -1899,7 +1899,7 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
         return ret;
      }
 
-     const tooltip_xPos = 550;
+     const tooltip_xPos = 510;
      const tooltip_yPos = 10;
      d3.selectAll("#cci_search_y-axis g.tick").each(function() {
         d3.select(this)
