@@ -1466,6 +1466,9 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     pvalues=data['filtered_pvalues'],
     relevant_interactions=data['filtered_relevant_interactions'];
 
+    const tooltip_xPos = 510;
+    const tooltip_yPos = 10;
+
   // min_value, max_value needed for color scale
   max_val=data['max_value'];
   if (showZScores) {
@@ -1537,7 +1540,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
           .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["black", "blue", "yellow", "red"]));
   }
 
-  cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, interacting_pair2participants, interacting_pair2properties);
+  cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos, interacting_pair2participants, interacting_pair2properties);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
   const barLegend_xPos=width-300;
   const barLegend_yPos=top_yMargin+30;
@@ -1564,7 +1567,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
           cellsign_active_interactions[interaction].hasOwnProperty(cellTypePair)) {
             activeInteractionInfo = cellsign_active_interactions[interaction][cellTypePair];
       }
-      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, barLegend_xPos-80, 20, pvalues, showZScores, activeInteractionInfo);
+      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues, showZScores, activeInteractionInfo);
     }
   }
 
@@ -1784,7 +1787,7 @@ function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, 
     })
 }
 
-function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, interacting_pair2participants, interacting_pair2properties) {
+function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos, interacting_pair2participants, interacting_pair2properties) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -1899,8 +1902,6 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
         return ret;
      }
 
-     const tooltip_xPos = 510;
-     const tooltip_yPos = 10;
      d3.selectAll("#cci_search_y-axis g.tick").each(function() {
         d3.select(this)
         .on("mouseover", function(){ tooltip.html(getTooltipContent(this.textContent)); return tooltip.style("visibility", "visible");})
