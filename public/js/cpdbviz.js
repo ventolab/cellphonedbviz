@@ -1940,9 +1940,9 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
     } else if (relIntFlag && activeInteractionInfo != undefined) {
         tooltipContent = "<b>Relevant and active</b> interaction " + tooltipContent;
     } else if (relIntFlag) {
-        tooltipContent = "<b>Relevant</b> interaction " + tooltipContent;
+        tooltipContent = "<b>Relevant</b> interaction: " + tooltipContent;
     } else if (activeInteractionInfo != undefined) {
-        tooltipContent = "<b>Active</b> interaction " + tooltipContent;
+        tooltipContent = "<b>Active</b> interaction: " + tooltipContent;
     } else {
         tooltipContent = "Interaction: " + tooltipContent;
     }
