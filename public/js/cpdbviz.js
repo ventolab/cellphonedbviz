@@ -1356,6 +1356,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     const selectedCTP2Me = data['selected_cell_type_pairs2microenvironment'];
     const microenvironments = data['microenvironments']
     const cellsign_active_interactions = data['cellsign_active_interactions']
+    const interacting_pair2participants = data['interacting_pair2participants'];
+    const interacting_pair2properties = data['interacting_pair2properties'];
 
     if (storeTokens) {
         for (var i = 0; i < selectedGenes.length; i++) {
@@ -1535,7 +1537,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
           .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["black", "blue", "yellow", "red"]));
   }
 
-  cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
+  cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, interacting_pair2participants, interacting_pair2properties);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
   const barLegend_xPos=width-300;
   const barLegend_yPos=top_yMargin+30;
@@ -1782,7 +1784,7 @@ function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, 
     })
 }
 
-function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale) {
+function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, interacting_pair2participants, interacting_pair2properties) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -1807,6 +1809,108 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
       .attr("x2", xAxisLength)
       .attr("y2", 0)
       .attr("fill", colorscale(0));
+
+   var tooltip =
+        d3.select("#cci_search")
+        .append("div")
+        .style("position", "absolute")
+        .style("visibility", "hidden")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "0px")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+        .style("box-shadow", "2px 2px 20px")
+        .style("opacity", "0.9")
+        .attr("id", "cci_search_tooltip");
+
+     // Retrieve properties of at least one participant in the interaction
+     function getInteractionProperties(property2val) {
+        var properties = '';
+        if (property2val['is_integrin'] == true) {
+            if (properties != '') {
+                    properties += ", ";
+                }
+                properties += "<b>integrin</b>";
+        }
+        if (property2val['secreted'] == true) {
+            if (properties != '') {
+                properties += ", ";
+            }
+            properties += "<b>secreted</b>";
+        }
+        return properties;
+     }
+
+     // Retrieve properties of one interaction participant, the one identified by letter
+     function getParticipantProperties(complexName, property2val, letter) {
+        var properties = '';
+        if (property2val['receptor_' + letter] == true) {
+            if (properties != '') {
+                    properties += ", ";
+            }
+            properties += "<b>receptor</b>";
+        }
+        return properties;
+     }
+
+     // Assemble a tooltip content for interactingPair
+     function getTooltipContent(interactingPair) {
+        const gap = '&nbsp; ';
+        var ret = "Interacting pair: <b>" + interactingPair + "</b><br>";
+        const participants = interacting_pair2participants[interactingPair];
+        const property2val = interacting_pair2properties[interactingPair];
+        var prevPartner;
+        var complexName;
+        var letter;
+        var interactionProperties = undefined;
+        for (var k = 0; k < participants.length; k++) {
+            const row = participants[k];
+            let [geneName, uniprotAcc, proteinName, complexName] = participants[k];
+            letter = ['a','b'][Math.min(k,1)];
+            var curPartner;
+            if (complexName != '') {
+                curPartner = complexName;
+            } else {
+                curPartner = geneName;
+            }
+            if (prevPartner == undefined || curPartner != prevPartner) {
+                ret += "Partner " + letter + ": <b>" + curPartner + "</b><br>";
+            }
+            prevPartner = curPartner;
+            ret += gap + gap + " - Gene name: <b>" + geneName + "</b>"
+                 + gap + "Uniprot: <b>" + uniprotAcc + "</b>"
+                 + gap + "Protein name: <b>" + proteinName + "</b><br>";
+            if (prevPartner == undefined || curPartner != prevPartner) {
+                var properties = getParticipantProperties(complexName, property2val, letter);
+                if (properties != '') {
+                     ret += gap + gap + "Properties: " + properties + "<br>";
+                }
+            }
+        }
+        properties = getParticipantProperties(complexName, property2val, letter);
+        if (properties != '') {
+             ret += gap + gap + "Properties: " + properties + "<br>";
+        }
+        properties = getInteractionProperties(property2val);
+        if (properties != '') {
+             ret += "Properties of one or both participants: " + properties + "<br>";
+        }
+        return ret;
+     }
+
+     const tooltip_xPos = 550;
+     const tooltip_yPos = 10;
+     d3.selectAll("#cci_search_y-axis g.tick").each(function() {
+        d3.select(this)
+        .on("mouseover", function(){ tooltip.html(getTooltipContent(this.textContent)); return tooltip.style("visibility", "visible");})
+        .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
+        .on("mouseout", function(){return tooltip.style("visibility", "hidden")})
+        .select("text").style("fill", function() {
+            return "#008080"; // teal
+        })
+    });
+
 }
 
 function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues, showZScores, activeInteractionInfo) {

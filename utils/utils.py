@@ -168,6 +168,12 @@ def populate_analysis_means_data(dict_dd, df, separator):
     dict_cci_search['interaction_id2interacting_pair'] = {}
     for i, j in zip(df['id_cp_interaction'].values.tolist(), df['interacting_pair'].values.tolist()):
         dict_cci_search['interaction_id2interacting_pair'][i] = j
+    dict_cci_search['interacting_pair2properties'] = {}
+    for ip, properties in zip(df['interacting_pair'].values.tolist(), df[['secreted', 'receptor_a', 'receptor_b', 'is_integrin']].values.tolist()):
+        if ip not in dict_cci_search['interacting_pair2properties']:
+            dict_cci_search['interacting_pair2properties'][ip] = {}
+        for i, property_name in enumerate(['secreted', 'receptor_a', 'receptor_b', 'is_integrin']):
+            dict_cci_search['interacting_pair2properties'][ip][property_name] = properties[i]
 
 def get_all_relevant_interactions(dict_cci_search: dict, selected_cell_type_pairs):
     rel_ints_dict = dict_cci_search['relevant_interactions']
@@ -239,6 +245,18 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
     # Note: all_genes is needed for autocomplete - for the user to include genes in the plot
     all_genes = set(df['gene_name'].values)
     all_cell_types = list(df.columns[6:])
+
+    # Retrieve gene and complex information for each interacting pair
+    interacting_pair2participants = {}
+    if not percents:
+        # We need to do this once only - hence not when percents are retrieved
+        for row in df[['id_cp_interaction', 'gene_name', 'uniprot', 'protein_name', 'complex_name']].fillna('').values:
+            interaction_id = row[0]
+            interacting_pair = dict_cci_search['interaction_id2interacting_pair'][interaction_id]
+            if interacting_pair not in interacting_pair2participants:
+                interacting_pair2participants[interacting_pair] = []
+            interacting_pair2participants[interacting_pair].append([str(i) for i in row[1:]])
+        dict_cci_search['interacting_pair2participants'] = interacting_pair2participants
 
     # Retrieve means for genes in selected_genes and cell types in all_cell_types
     selected_genes_means_or_pcts_df = df[df['gene_name'].isin(selected_genes)][['gene_name', 'complex_name'] + selected_cell_types].drop_duplicates()
