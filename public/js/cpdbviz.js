@@ -1850,23 +1850,25 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
                 }
                 properties += "<b>integrin</b>";
         }
-        if (property2val['secreted'] == true) {
-            if (properties != '') {
-                properties += ", ";
-            }
-            properties += "<b>secreted</b>";
-        }
         return properties;
      }
 
      // Retrieve properties of one interaction participant, the one identified by letter
-     function getParticipantProperties(complexName, property2val, letter) {
+     function getParticipantProperties(property2val, letter) {
         var properties = '';
         if (property2val['receptor_' + letter] == true) {
             if (properties != '') {
                     properties += ", ";
             }
             properties += "<b>receptor</b>";
+        }
+        if (letter == 'a') {
+            if (property2val['secreted'] == true) {
+                if (properties != '') {
+                    properties += ", ";
+                }
+                properties += "<b>secreted</b>";
+            }
         }
         return properties;
      }
@@ -1894,18 +1896,18 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
             if (prevPartner == undefined || curPartner != prevPartner) {
                 ret += "Partner " + letter + ": <b>" + curPartner + "</b><br>";
             }
-            prevPartner = curPartner;
             ret += gap + gap + " - Gene name: <b>" + geneName + "</b>"
                  + gap + "Uniprot: <b>" + uniprotAcc + "</b>"
                  + gap + "Protein name: <b>" + proteinName + "</b><br>";
+            var properties = getParticipantProperties(property2val, letter);
             if (prevPartner == undefined || curPartner != prevPartner) {
-                var properties = getParticipantProperties(complexName, property2val, letter);
                 if (properties != '') {
                      ret += gap + gap + "Properties: " + properties + "<br>";
+                     properties = '';
                 }
             }
+            prevPartner = curPartner;
         }
-        properties = getParticipantProperties(complexName, property2val, letter);
         if (properties != '') {
              ret += gap + gap + "Properties: " + properties + "<br>";
         }
