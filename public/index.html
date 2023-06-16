@@ -24,7 +24,7 @@
                         const map = new Map(Object.entries(res));
                         for (let [projectId, title] of map) {
                             var row = $('<tr></tr>').appendTo(tbl);
-                             $('<td></td>').prepend($('<a></a>').attr({ href: './' + projectId + '.html' }).text(title)).appendTo(row);
+                             $('<td></td>').prepend($('<a></a>').attr({ href: './viz.html?projectid=' + projectId }).text(title)).appendTo(row);
                         }
                     }
                 }

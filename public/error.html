@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang='en' xml:lang='en' xmlns='http://www.w3.org/1999/xhtml'>
+  <head>
+        <title>Error</title>
+
+        <meta content='text/html; charset=utf-8' http-equiv='Content-Type' />
+        <link rel="stylesheet" href="./external/css/material_icons.css" >
+        <link rel="stylesheet" href="./external/css/materialize.min.css">
+        <link rel="stylesheet" href="css/cpdbviz.css">
+        <script type="text/javascript" src="./external/js/jquery-3.2.1.min.js"></script>
+
+        <script src=" <script type="text/javascript" src="./external/js/materialize.min.js"></script>
+    </head>
+  <body>
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+    $("#err_msg").text(getErrorMsg);
+});
+
+function getErrorMsg() {
+    const queryString = window.location.search
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('msg')
+}
+  </script>
+     <div class="card">
+        <div id="err_msg" class="col s12 center card-title" />
+     </div>
+  </body>
+</html>

@@ -1,17 +1,31 @@
 document.addEventListener('DOMContentLoaded', function() {
 
   var hash = getHash();
-  var projectId = $("#project_id").text();
+  var projectId = getProjectId();
+  // Redirect to error page if no project id was provided
+  if (!projectId) {
+      window.location.href = "/error.html?msg="+encodeURIComponent("Error: Please provide project identifier, e.g. index.html?projectid=myprojectid");
+  } else {
+      // Redirect to error page if projectid is invalid
+      const validate_projectid = async () => {
+         const response = await fetch('/api/validate/' + projectId);
+         const json = await response.json();
+         if (!json) {
+            window.location.href = "/error.html?msg="+encodeURIComponent("Sorry, project '" + projectId + "' does not exist.");
+         }
+      }
+      validate_projectid();
+  }
 
-  $.ajax({
-    type: "GET",
-    url: '/api/validate/' + projectId + "?hash=" + hash,
-    success: function (response) {
-        if (!response) {
-            window.location.href = "/forbidden.html";
-        }
-    }
-  });
+  // Redirect to error page if project is restricted access and no or incorrect auth hash was provided
+  const validate_auth = async () => {
+     const response = await fetch('/api/validate/auth/' + projectId + '?auth=' + hash);
+     const json = await response.json();
+     if (!json) {
+        window.location.href = "/error.html?msg="+encodeURIComponent("Sorry, you don't have access to this page.");
+     }
+  }
+  validate_auth();
 
   // Effect smooth transition to a local tag on page
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -310,7 +324,7 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
 }
 
 function selectAllCellTypes(viz){
-    var projectId = $("#project_id").text();
+    var projectId = getProjectId();
     var url = '/api/data/'+projectId+'/' + viz;
     $.ajax({
             url: url,
@@ -376,7 +390,7 @@ function getSelectedTokens(divClassList) {
 }
 
 function refreshSGEPlot() {
-    var projectId = $("#project_id").text();
+    var projectId = getProjectId();
     var ret = getSelectedTokens(["sge_selected_genes", "sge_selected_celltypes"]);
     var selectedGenes = ret[0];
     var selectedCellTypes = ret[1];
@@ -2003,7 +2017,7 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
 }
 
 function refreshCCISearchPlot(interacting_pairs_selection_logic) {
-    var projectId = $("#project_id").text();
+    var projectId = getProjectId();
     const sort_interacting_pairs_alphabetically = $('#cci_search_sort_ips_switch').is(':checked');
     const showZScores = $('#cci_search_switch').is(':checked');
     var ret = getSelectedTokens([
@@ -2063,5 +2077,11 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
 function getHash() {
     const queryString = window.location.search
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id')
+    return urlParams.get('auth')
+}
+
+function getProjectId() {
+    const queryString = window.location.search
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('projectid')
 }

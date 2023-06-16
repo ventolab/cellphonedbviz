@@ -81,10 +81,17 @@ def generate_random_hash() -> str:
     return utils.generate_random_hash()
 
 @api.get("/validate/{project_id}")
-def validate_hash(project_id: str, hash: str) -> bool:
+def validate_projectid(project_id: str) -> bool:
+    ret = False
+    if project_id in dir_name2project_data:
+        ret = True
+    return ret
+
+@api.get("/validate/auth/{project_id}")
+def validate_auth(project_id: str, auth: str) -> bool:
     ret = False
     if 'hash' in dir_name2project_data[project_id]:
-            if hash is not None and hash == dir_name2project_data[project_id]['hash']:
+            if hash is not None and auth == dir_name2project_data[project_id]['hash']:
                 ret = True
     else:
         ret = True
