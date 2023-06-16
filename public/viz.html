@@ -38,7 +38,7 @@
   </head>
   <script type="module">
 import generateCellCellInteractionSummaryChordPlot from "./js/chord.js";
-const projectId = $("#project_id").text();
+const projectId = getProjectId();
 $.ajax({
     url: '/api/data/'+projectId+'/cell_cell_interaction_summary',
     contentType: "application/json",
