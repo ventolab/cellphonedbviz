@@ -6,12 +6,13 @@ import yaml
 import re
 from collections import OrderedDict
 import secrets
+from cellphonedb.utils import db_utils, search_utils
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 DATA_ROOT = f"{base_path}/../data"
 CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','microenvironments', \
                'analysis_means', 'relevant_interactions', 'deconvoluted_result','deconvoluted_percents','degs','pvalues', \
-               'cellsign_active_interactions_deconvoluted', 'hash']
+               'cellsign_active_interactions_deconvoluted', 'hash', 'cellphonedb']
 VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
           'cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
@@ -34,12 +35,20 @@ def get_projects() -> dict:
                     dict['title'] = config['title']
                     for key in CONFIG_KEYS[3:]:
                         if key in config:
-                            if key != 'hash':
+                            if key not in ['hash', 'cellphonedb']:
                                 fpath = "{}/{}".format(root, config[key])
                                 df = pd.read_csv(fpath, sep='\t')
                                 populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
-                            else:
-                                dict['hash'] = config['hash']
+                            elif key == 'hash':
+                                dict[key] = config[key]
+                            elif key == 'cellphonedb':
+                                fpath = "{}/{}".format(root, config[key])
+                                protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name = \
+                                    db_utils.get_protein_and_complex_data_for_web(fpath)
+                                dict['cell_cell_interaction_search'][key] = {'protein2Info': protein2Info,
+                                             'complex2Info': complex2Info,
+                                             'resource2Complex2Acc': resource2Complex2Acc,
+                                             'proteinAcc2Name': proteinAcc2Name}
                     dict['cell_cell_interaction_search']['separator'] = config['separator']
                     dir_name2project_data[dir_name] = dict
     return (dir_name2project_data, dir_name2file_name2df)
@@ -379,6 +388,41 @@ def sort_cell_type_pairs(cell_type_pairs, result_dict, separator) -> (list, dict
         for me in OrderedDict(sorted(me2ct_pairs.items())):
             sorted_selected_cell_type_pairs += sorted(list(me2ct_pairs[me]))
         return sorted_selected_cell_type_pairs, ct_pair2me
+def get_properties_html_for_interacting_pairs(result_dict: dict) -> dict:
+    interacting_pairs = result_dict['interacting_pairs_means']
+    interacting_pair2properties_html = {}
+    cpdb_data = result_dict['cellphonedb']
+    protein2Info = cpdb_data['protein2Info']
+    complex2Info = cpdb_data['complex2Info']
+    resource2Complex2Acc = cpdb_data['resource2Complex2Acc']
+    proteinAcc2Name = cpdb_data['proteinAcc2Name']
+    interacting_pair2participants = result_dict['interacting_pair2participants']
+    for ip in interacting_pairs:
+        html = "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">".format(ip)
+        complex_name2proteins = {}
+        partners = [None, None]
+        partner_letters = "ab"
+        i = 0
+        for (geneName, uniprotAcc, proteinName, complexName) in interacting_pair2participants[ip]:
+             pos = min(i, 1)
+             if complexName != '':
+                partners[pos] = complexName
+                if complexName not in complex_name2proteins:
+                    complex_name2proteins[complexName] = []
+                    complex_name2proteins[complexName].append(uniprotAcc)
+             else:
+                 partners[pos] = uniprotAcc
+             i += 1
+        for i, partner in enumerate(partners):
+            if i > 0:
+                html += "<li><div class=\"divider\"></div></li>"
+            html += "<li><a class=\"subheader black-text\">Partner {} </a></li>".format(partner_letters[i])
+            html += search_utils.get_sidenav_html(partner in complex_name2proteins, partner, complex_name2proteins, protein2Info,
+                                                   complex2Info, resource2Complex2Acc, proteinAcc2Name)
+        html += "<li><div class=\"divider\"></div></li>"
+        html += "</ul></td>"
+        interacting_pair2properties_html[ip] = html
+    return interacting_pair2properties_html
 
 def filter_interactions(result_dict,
                         file_name2df,
@@ -531,6 +575,8 @@ def filter_interactions(result_dict,
                     else:
                         # pvalues = 1.0 have been filtered out to reduce API output
                         result_dict['filtered_pvalues'][i][j] = 1
+        if 'cellphonedb' in result_dict:
+            result_dict['interacting_pair2properties_html'] = get_properties_html_for_interacting_pairs(result_dict)
 
 def generate_random_hash():
     # See: https://docs.python.org/3/library/secrets.html (16 = bytes ~ 16 * 1.3 chars)

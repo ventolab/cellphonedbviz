@@ -178,6 +178,8 @@ document.addEventListener('DOMContentLoaded', function() {
             enable_cci_search_switch();
             // Allow the user to sort interacting pair either by the highest mean on top or alphabetically
             enable_cci_search_sort_ips_switch();
+            // Enable side navs - used for displaying interacting pair participant information
+            enable_side_navs();
         }
      });
 
@@ -239,6 +241,12 @@ function enable_cci_search_sort_ips_switch() {
     $('#cci_search_sort_ips_switch').on('change', function() {
         refreshCCISearchPlot();
       });
+}
+
+function enable_side_navs() {
+    const options = {};
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems, options);
 }
 
 function enable_cci_summary_switch(num_cell_types) {
@@ -1371,7 +1379,18 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     const microenvironments = data['microenvironments']
     const cellsign_active_interactions = data['cellsign_active_interactions']
     const interacting_pair2participants = data['interacting_pair2participants'];
+    // interacting_pair2properties is retrieved from analysis_means file
     const interacting_pair2properties = data['interacting_pair2properties'];
+    // interacting_pair2properties_html from CellphoneDB database file - it it was provided in the config file
+    const interacting_pair2properties_html = data['interacting_pair2properties_html'];
+    if (interacting_pair2properties_html != undefined) {
+        // CellphoneDB database file name was provided in config file - we have richer participants info to show (in sidenav) than
+        // interacting_pair2properties (retrieved from analysis means file and shown as a tooltip) - insert sidenav content
+        // into #cci_search_sidenav_content div
+        for (var ip in interacting_pair2properties_html) {
+            $('#cci_search_sidenav_content').append(interacting_pair2properties_html[ip]);
+        }
+    }
 
     if (storeTokens) {
         for (var i = 0; i < selectedGenes.length; i++) {
@@ -1524,6 +1543,14 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         .attr("font-family", "Arial")
         .text(title);
 
+    var ip_info = " on an interaction pair on Y axis for more information.";
+    if (interacting_pair2properties_html != undefined) {
+        ip_info = "Click" + ip_info;
+    } else {
+        ip_info = "Mouse over " + ip_info;
+    }
+    $("#interacting_pair_help").attr("data-tooltip", ip_info);
+
   var yAxisLength = height - top_yMargin - bottom_yMargin,
       xAxisLength = width - xMargin - 350;
 
@@ -1554,7 +1581,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
           .interpolator(d3.piecewise(d3.interpolateRgb.gamma(2.2), ["black", "blue", "yellow", "red"]));
   }
 
-  cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos, interacting_pair2participants, interacting_pair2properties);
+  cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos,
+                       interacting_pair2participants, interacting_pair2properties, interacting_pair2properties_html);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
   const barLegend_xPos=width-300;
   const barLegend_yPos=top_yMargin+30;
@@ -1801,7 +1829,8 @@ function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, 
     })
 }
 
-function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos, interacting_pair2participants, interacting_pair2properties) {
+function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos,
+                              interacting_pair2participants, interacting_pair2properties, interacting_pair2properties_html) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -1918,16 +1947,30 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
         return ret;
      }
 
-     d3.selectAll("#cci_search_y-axis g.tick").each(function() {
-        d3.select(this)
-        .on("mouseover", function(){ tooltip.html(getTooltipContent(this.textContent)); return tooltip.style("visibility", "visible");})
-        .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
-        .on("mouseout", function(){return tooltip.style("visibility", "hidden")})
-        .select("text").style("fill", function() {
-            return "#008080"; // teal
-        })
-    });
-
+     if (interacting_pair2properties_html != undefined) {
+         d3.selectAll("#cci_search_y-axis g.tick").each(function() {
+            d3.select(this)
+            .on("click", function(d) {
+                var instance = M.Sidenav.getInstance($('#sidenav_' + this.textContent));
+                instance.open();
+            })
+            .select("text").style("cursor", function() {
+                return "pointer";
+            }).style("fill", function() {
+                return "#008080"; // teal
+            })
+        });
+     } else {
+         d3.selectAll("#cci_search_y-axis g.tick").each(function() {
+            d3.select(this)
+            .on("mouseover", function(){ tooltip.html(getTooltipContent(this.textContent)); return tooltip.style("visibility", "visible");})
+            .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
+            .on("mouseout", function(){return tooltip.style("visibility", "hidden")})
+            .select("text").style("fill", function() {
+                return "#008080"; // teal
+            })
+        });
+    }
 }
 
 function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues, showZScores, activeInteractionInfo) {
@@ -2071,6 +2114,8 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
             dataType: 'json',
             success: function(res) {
                 generateCellCellInteractionSearchPlot(res, storeTokens=false, interacting_pairs_selection_logic);
+                // Enable side navs - used for displaying interacting pair participant information
+                enable_side_navs();
             }
      });
 }

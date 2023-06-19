@@ -8,3 +8,4 @@ analysis_means:             statistical_analysis_means_05_03_2023_194803.txt
 relevant_interactions:      statistical_analysis_significant_means_05_03_2023_194803.txt
 pvalues:                    statistical_analysis_pvalues_05_03_2023_194803.txt
 deconvoluted_percents:      statistical_analysis_deconvoluted_percents_05_03_2023_194803.txt
+cellphonedb:                cellphonedb.zip

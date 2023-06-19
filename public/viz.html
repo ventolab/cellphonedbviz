@@ -439,6 +439,7 @@ $.ajax({
 
                         <!-- Cell-cell Interaction Search - Gene/Interaction Inputs -->
                         <div id="ccis_input2_div" style="padding-left: 20px;">
+
                           <div class="col s12 m6 l6">
                             <div class="card">
                               <div class="card-content black-text col s12">
@@ -487,6 +488,9 @@ $.ajax({
                       <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci_search','cci_search_title','cci_search_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                       </button>
+                     <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                           <i id="interacting_pair_help" class="material-icons left tooltipped" data-tooltip="">info_outline</i>
+                      </span>
                       <div class="switch" style="padding-top: 20px;">
                         <label>
                           <span class="black-text text-lighten+10 switch-label">Show:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -506,6 +510,7 @@ $.ajax({
                         </label>
                       </div>
                       <div id="cci_search_header" hidden></div>
+                        <div id="cci_search_sidenav_content"></div>
                         <div id="cci_search" style="width:1400px"></div>
                     </div>
                   </div>

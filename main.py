@@ -72,6 +72,9 @@ def get_viz_data(project: str,
                                   interacting_pairs_selection_logic, sort_interacting_pairs_alphabetically)
         # 'analysis_means' is used for pre-selecting interacting pairs - it is not needed by the front end
         ret.pop('analysis_means')
+        # cellphonedb is needed for retrieving properties of interacting pairs but it is not used by the front end directly
+        if 'cellphonedb' in ret:
+            ret.pop('cellphonedb')
     else:
         ret = dir_name2project_data[project][viz]
     return ret
