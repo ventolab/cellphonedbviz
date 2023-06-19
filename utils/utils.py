@@ -430,6 +430,7 @@ def filter_interactions(result_dict,
                         interacting_pairs,
                         cell_types,
                         cell_type_pairs,
+                        microenvironments,
                         refresh_plot,
                         show_zscores,
                         interacting_pairs_selection_logic,
@@ -437,6 +438,7 @@ def filter_interactions(result_dict,
     means_df = file_name2df['analysis_means']
     deconvoluted_df = file_name2df['deconvoluted_result']
     separator = result_dict['separator']
+    ct2mes = result_dict['cell_type2microenvironments']
 
     # Collect all combinations of cell types (disregarding the order) from cell_types and cell_type_pairs combined
     if cell_types:
@@ -447,10 +449,16 @@ def filter_interactions(result_dict,
             # Note: the search for cell types and cell type pairs is additive (inclusive OR)
             selected_cell_type_pairs += cell_type_pairs
         # Extract from result_dict['all_cell_type_pairs'] all elements containing at least one cell type in selected_cell_types
+        mes = set(microenvironments)
         for ct_pair in result_dict['all_cell_type_pairs']:
             (ct1, ct2) = ct_pair.split(separator)
-            if ct1 in selected_cell_types or ct2 in selected_cell_types:
-                selected_cell_type_pairs += [ct_pair]
+            if not microenvironments:
+                if ct1 in selected_cell_types or ct2 in selected_cell_types:
+                    selected_cell_type_pairs += [ct_pair]
+            else:
+                # Allow for cell type pairs in which both cell types' respective microenvironments intersect with microenvironments call argument
+                if any(i in ct2mes[ct1] for i in mes) and any(i in ct2mes[ct2] for i in mes):
+                    selected_cell_type_pairs += [ct_pair]
         # Restrict all combinations of cell types to just those in means_df
         selected_cell_type_pairs = [ct_pair for ct_pair in selected_cell_type_pairs if ct_pair in means_df.columns.values]
     elif not cell_type_pairs:

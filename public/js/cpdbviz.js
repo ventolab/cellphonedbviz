@@ -2067,11 +2067,14 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     const showZScores = $('#cci_search_switch').is(':checked');
     var ret = getSelectedTokens([
         "cci_search_selected_genes", "cci_search_selected_celltypes",
-        "cci_search_selected_celltype_pairs", "cci_search_selected_interactions"]);
-    var selectedGenes = ret[0];
-    var selectedCellTypes = ret[1];
-    var selectedCellTypePairs = ret[2];
-    var selectedInteractions = ret[3];
+        "cci_search_selected_celltype_pairs", "cci_search_selected_interactions",
+        "cci_search_selected_microenvironments"]);
+    var pos=0;
+    var selectedGenes = ret[pos++];
+    var selectedCellTypes = ret[pos++];
+    var selectedCellTypePairs = ret[pos++];
+    var selectedInteractions = ret[pos++];
+    var selectedMicroenvironments = ret[pos++];
     // DEBUG console.log(selectedGenes, selectedCellTypes, selectedCellTypePairs, selectedInteractions);
     var url = '/api/data/'+projectId+'/cell_cell_interaction_search';
     if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs) {
@@ -2094,6 +2097,9 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
         }
         if (selectedCellTypePairs) {
             url += "cell_type_pairs=" + selectedCellTypePairs + "&";
+        }
+        if (selectedMicroenvironments) {
+            url += "microenvironments=" + selectedMicroenvironments + "&";
         }
     } else {
         url += "?";

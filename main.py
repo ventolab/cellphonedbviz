@@ -29,6 +29,7 @@ def get_viz_data(project: str,
                  interacting_pairs: str = None,
                  cell_types: str = None,
                  cell_type_pairs: str = None,
+                 microenvironments: str = None,
                  refresh_plot: bool = False,
                  show_zscores: bool = False,
                  interacting_pairs_selection_logic: str = None,
@@ -60,6 +61,7 @@ def get_viz_data(project: str,
         selected_interacting_pairs = get_jsonable(interacting_pairs)
         selected_cell_types = get_jsonable(cell_types)
         selected_cell_type_pairs = get_jsonable(cell_type_pairs)
+        selected_microenvironments = get_jsonable(microenvironments)
         ret = copy.deepcopy(dir_name2project_data[project][viz])
         if refresh_plot:
             # Autocompletes are initialised on first load only - hence on refresh_plot
@@ -68,7 +70,7 @@ def get_viz_data(project: str,
             ret.pop('all_interacting_pairs')
         utils.filter_interactions(ret, dir_name2file_name2df[project],
                                   selected_genes, selected_interacting_pairs, selected_cell_types,
-                                  selected_cell_type_pairs, refresh_plot, show_zscores,
+                                  selected_cell_type_pairs, selected_microenvironments, refresh_plot, show_zscores,
                                   interacting_pairs_selection_logic, sort_interacting_pairs_alphabetically)
         # 'analysis_means' is used for pre-selecting interacting pairs - it is not needed by the front end
         ret.pop('analysis_means')
