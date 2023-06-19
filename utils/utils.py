@@ -413,6 +413,9 @@ def get_properties_html_for_interacting_pairs(result_dict: dict) -> dict:
              else:
                  partners[pos] = uniprotAcc
              i += 1
+        if partners[1] is None:
+            # E.g. GJA1_GJA1 - protein interacts with the same protein in a different cell
+            partners[1] = partners[0]
         for i, partner in enumerate(partners):
             if i > 0:
                 html += "<li><div class=\"divider\"></div></li>"
