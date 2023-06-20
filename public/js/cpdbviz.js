@@ -464,7 +464,16 @@ function generateCellCompositionPlot(data) {
       var elem2colour = {};
       // See: https://observablehq.com/@d3/color-schemes
       // const colours = d3.schemeTableau10.reverse();
-      const colours = d3.schemePaired;
+      // NB. Two different colour schemes are concatenated in order to provide
+      // the colour resolution sufficient for the number of items on the sankey plot.
+      // The colours are also shuffled - allowing the user to keep refreshing the page
+      // until they see the colours they like on the cell composition plot.
+      const unshuffled_colours = d3.schemePaired.concat(d3.Pastel2);
+      let colours = unshuffled_colours
+        .map(value => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value)
+
       var elems = data['all_elems'];
       for (var i = 0; i < elems.length; i++) {
         elem = elems[i];
