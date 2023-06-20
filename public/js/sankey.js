@@ -36,6 +36,7 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
       this.opacity_highlight = '0.1';
       this.default_font_size = '10px';
       this.highlighted_font_size = '13px';
+      this.top_margin = 30;
     }
 
     Sankey.prototype.find_or_create_transformation_box = function(name) {
@@ -531,7 +532,7 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
 
     TransformationBox.prototype.position_and_colour_lines = function() {
       var box_width, left_lines, line, ly, right_lines, ry, _i, _j, _len, _len1, _results;
-      ly = this.y;
+      ly = this.y + this.sankey.top_margin;
       left_lines = this.left_lines;
       left_lines.sort(function(a, b) {
         return a.left_box.y - b.left_box.y;
@@ -542,7 +543,7 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
         line.dy = ly + (line.size / 2);
         ly = ly + line.size;
       }
-      ry = this.y;
+      ry = this.y + this.sankey.top_margin;
       right_lines = this.right_lines;
       right_lines.sort(function(a, b) {
         return a.right_box.y - b.right_box.y;
@@ -580,7 +581,7 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
     };
 
     TransformationBox.prototype.labelPositionY = function() {
-      return this.y + (this.size() / 2);
+      return this.y + this.sankey.top_margin + (this.size() / 2);
     };
 
     TransformationBox.prototype.labelAttributes = function() {
@@ -639,7 +640,7 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
         return false;
       }
       box_width = this.sankey.box_width;
-      this.box = r.rect(this.x, this.y, box_width, this.size()).attr({
+      this.box = r.rect(this.x, this.y + this.sankey.top_margin, box_width, this.size()).attr({
         'fill': "#E8E2FF",
         "stroke": "#D4CBF2"
       });
