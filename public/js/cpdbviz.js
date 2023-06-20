@@ -512,7 +512,7 @@ function generateMicroenvironmentsPlot(data) {
 
      var height = 500,
         width = 600,
-        xMargin = 200,
+        xMargin = 220,
         top_yMargin = 60,
         bottom_yMargin = 90,
         yVals = data['y_vals'],
@@ -573,7 +573,7 @@ function generateMicroenvironmentsPlot(data) {
         .data(colorDomain)
         .enter()
         .append("circle")
-          .attr("cx", width - 180)
+          .attr("cx", width - 190)
           .attr("cy", function(d,i){ return top_yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .attr("r", 7)
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
@@ -582,7 +582,7 @@ function generateMicroenvironmentsPlot(data) {
         .data(colorDomain)
         .enter()
         .append("text")
-          .attr("x", width - 160)
+          .attr("x", width - 170)
           .attr("y", function(d,i){ return top_yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
           .text(function(d){ return d})
