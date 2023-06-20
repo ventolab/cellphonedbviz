@@ -1,6 +1,7 @@
 # CellphoneDB results visualisation config
 separator:                  '|'
 title:                      Harmonized Endometrial Atlas - CellphoneDB DEG analysis results
+celltype_composition:       celltype_composition.tsv
 microenvironments:          microenvironments.tsv
 deconvoluted_result:        degs_analysis_deconvoluted_result_06_12_2023_111157.txt 
 analysis_means:             degs_analysis_means_result_06_12_2023_111157.txt
