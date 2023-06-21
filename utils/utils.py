@@ -360,8 +360,8 @@ def populate_cellsign_active_interactions_deconvoluted(result_dict, df):
 def sort_cell_type_pairs(cell_type_pairs, result_dict, separator) -> (list, dict):
     if 'cell_type2microenvironments' not in result_dict:
         selected_cell_type_pairs = sorted(cell_type_pairs)
-        ctp2me = {ctp: 'all' for ctp in selected_cell_type_pairs}
-        return selected_cell_type_pairs, ctp2me
+        ct_pair2me = {ctp: 'all' for ctp in selected_cell_type_pairs}
+        return selected_cell_type_pairs, ct_pair2me
     else:
         ct2mes = result_dict['cell_type2microenvironments']
         # Microenvironments are used - sort selected_cell_type_pairs by microenvironment
@@ -441,7 +441,12 @@ def filter_interactions(result_dict,
     means_df = file_name2df['analysis_means']
     deconvoluted_df = file_name2df['deconvoluted_result']
     separator = result_dict['separator']
-    ct2mes = result_dict['cell_type2microenvironments']
+
+    if 'cell_type2microenvironments' not in result_dict:
+        selected_cell_type_pairs = sorted(cell_type_pairs)
+        ct2mes = {ctp: 'all' for ctp in selected_cell_type_pairs}
+    else:
+        ct2mes = result_dict['cell_type2microenvironments']
 
     # Collect all combinations of cell types (disregarding the order) from cell_types and cell_type_pairs combined
     if cell_types:
