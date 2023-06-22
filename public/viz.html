@@ -70,7 +70,6 @@ $.ajax({
 
 
 </script>
-
   <body>
         <h4 class="center" id="page_header"></h4>
         <div class="col s12">
@@ -439,7 +438,6 @@ $.ajax({
 
                         <!-- Cell-cell Interaction Search - Gene/Interaction Inputs -->
                         <div id="ccis_input2_div" style="padding-left: 20px;">
-
                           <div class="col s12 m6 l6">
                             <div class="card">
                               <div class="card-content black-text col s12">
@@ -485,6 +483,19 @@ $.ajax({
                 <div class="col s12">
                   <div class="card">
                     <div class="card-content black-text col s12">
+                        <div id="cci_search_spinner" class="container center">
+                          <div class="preloader-wrapper active center">
+                            <div class="spinner-layer spinner-red-only">
+                              <div class="circle-clipper left">
+                                <div class="circle"></div>
+                              </div><div class="gap-patch">
+                                <div class="circle"></div>
+                              </div><div class="circle-clipper right">
+                                <div class="circle"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci_search','cci_search_title','cci_search_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                       </button>

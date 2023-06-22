@@ -180,6 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
             enable_cci_search_sort_ips_switch();
             // Enable side navs - used for displaying interacting pair participant information
             enable_side_navs();
+            $("#cci_search_spinner").hide();
         }
      });
 
