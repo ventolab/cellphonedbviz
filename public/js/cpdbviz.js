@@ -198,7 +198,7 @@ function downloadAsPDF(divId, titleId, headerId) {
     options['useCSS'] = true;
     if (is_cci && div.is(":hidden")) {
          div = $("#" + divId + "_chord");
-         options['size'] = [svgWidth, svgHeight * 1.2];
+         options['size'] = [svgWidth * 1.4, svgHeight * 1.8];
     }
     const svg = div.find("svg")[0];
     const title = document.getElementById(titleId).innerHTML;
