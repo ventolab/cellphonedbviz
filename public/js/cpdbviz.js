@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 $("#page_title").text(res[projectId]);
             }
     });
+
     // Generate cell type composition plot
     $.ajax({
         url: '/api/data/'+projectId+'/celltype_composition',
@@ -183,7 +184,6 @@ document.addEventListener('DOMContentLoaded', function() {
             $("#cci_search_spinner").hide();
         }
      });
-
 });
 
 function downloadAsPDF(divId, titleId, headerId) {
@@ -1424,12 +1424,13 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         }
         // Clear selected genes - as interacting_pairs_selection_logic overrides all previous gene/interacting pairs selections
         $('.cci_search_selected_genes').empty();
+        // Hide progress spinner
+        $("#cci_search_sel_ips_logic_spinner").hide();
 
         const num_all_cell_type_pairs = parseInt($("#num_all_cell_type_pairs").text());
         if (interacting_pairs_selection_logic == "all" && selectedCellTypePairs.length == num_all_cell_type_pairs) {
             M.toast({html: 'N.B. Your browser may not have enough memory to plot all cell type pairs and all relevant interactions. Consider restricting the number of cell type pairs to be shown in the plot.'})
         }
-
         // The value in this field will be used when the user clicks on 'Refresh plot' button later
         $('#interacting_pairs_selection_logic').text(interacting_pairs_selection_logic);
         // To keep the behaviour consistent across all input fields on the page - if the user selected a new interacting_pairs_selection_logic,
@@ -2124,6 +2125,11 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     }
     url += "&sort_interacting_pairs_alphabetically=" + sort_interacting_pairs_alphabetically;
 
+    // The retrieval may take a few seconds - show spinner to indicate to the user that an operation is in progress so that the don't try refreshing
+    // the page and starting again..
+    $("#cci_search_sel_ips_logic_spinner").show();
+    // Hide any error message from the previous search
+    $("#cci_search_sel_ips_request_error").hide();
     $.ajax({
             url: url,
             contentType: "application/json",
@@ -2132,6 +2138,18 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
                 generateCellCellInteractionSearchPlot(res, storeTokens=false, interacting_pairs_selection_logic);
                 // Enable side navs - used for displaying interacting pair participant information
                 enable_side_navs();
+            },
+            complete: function(jqXHR, textStatus) {
+                var errMsg;
+                if (jqXHR.status == 400) {
+                    $("#cci_search_sel_ips_request_error").text("ERROR: Your search criteria are too large for this service to handle. Please restrict your search and try again.")
+                    $("#cci_search_sel_ips_request_error").show();
+                } else if (jqXHR.status != 200) {
+                    $("#cci_search_sel_ips_request_error").text("An unexpected error occurred. Your search criteria may be too large for this service to handle. Please restrict your search and try again. If that doesn't work, please try again later.")
+                    $("#cci_search_sel_ips_request_error").show();
+                    // console.log(jqXHR, jqXHR.status, textStatus);
+                }
+                $("#cci_search_sel_ips_logic_spinner").hide();
             }
      });
 }
