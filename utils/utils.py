@@ -30,12 +30,14 @@ def get_projects() -> dict:
             if dir_name in project_dirs:
                 dict = {}
                 dir_name2file_name2df[dir_name] = {}
+                print("Loading project: {}...".format(dir_name))
                 with open('{}/config.yml'.format(root), 'r') as file:
                     config = yaml.safe_load(file)
                     dict['title'] = config['title']
                     for key in CONFIG_KEYS[3:]:
                         if key in config:
                             if key not in ['hash', 'cellphonedb']:
+                                print(key+"...")
                                 fpath = "{}/{}".format(root, config[key])
                                 df = pd.read_csv(fpath, sep='\t')
                                 populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
