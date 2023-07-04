@@ -37,7 +37,6 @@ def get_projects() -> dict:
                     for key in CONFIG_KEYS[3:]:
                         if key in config:
                             if key not in ['hash', 'cellphonedb']:
-                                print("   " + key)
                                 fpath = "{}/{}".format(root, config[key])
                                 df = pd.read_csv(fpath, sep='\t')
                                 populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
@@ -66,7 +65,7 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
     elif config_key == 'analysis_means':
         populate_analysis_means_data(result_dict, df, separator)
     elif config_key == 'relevant_interactions':
-        populate_relevant_interactions_data(result_dict, df)
+        populate_relevant_interactions_data(result_dict, df, separator)
     elif config_key == 'deconvoluted_result':
         populate_deconvoluted_data(result_dict, df, separator, percents=False)
     elif config_key == 'deconvoluted_percents':
@@ -74,7 +73,7 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
     elif config_key == 'degs':
         populate_degs_data(result_dict, df)
     elif config_key == 'pvalues':
-        populate_pvalues_data(result_dict, df)
+        populate_pvalues_data(result_dict, df, separator)
     elif config_key == 'cellsign_active_interactions_deconvoluted':
         populate_cellsign_active_interactions_deconvoluted(result_dict, df)
     if config_key in ['deconvoluted_result', 'analysis_means','deconvoluted_percents']:
@@ -140,11 +139,17 @@ def populate_celltype_composition_data(result_dict, df):
         dict_cc['y_space{}'.format(idx)] = y_space
         dict_cc['y_box{}'.format(idx)] = y_box
 
+def get_cell_type_pairs(df, separator):
+    cell_type_pairs = []
+    for i, ctp in enumerate(list(df.columns)):
+        if separator in ctp:
+            cell_type_pairs.append(ctp)
+    return cell_type_pairs
+
 def populate_analysis_means_data(dict_dd, df, separator):
     dict_cci_summary = dict_dd['cell_cell_interaction_summary']
     dict_cci_search = dict_dd['cell_cell_interaction_search']
-    cell_type_pair_columns = df.columns[12:]
-    all_cell_types_combinations = list(cell_type_pair_columns)
+    all_cell_types_combinations = get_cell_type_pairs(df, separator)
     all_cell_types = set([])
     for ct_pair in all_cell_types_combinations:
         all_cell_types.update(ct_pair.split(separator))
@@ -309,10 +314,10 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
     dict_cci_search['all_genes'] = all_genes
     dict_cci_search['all_cell_types'] = all_cell_types
 
-def populate_pvalues_data(result_dict, df):
+def populate_pvalues_data(result_dict, df, separator):
     dict_cci_search = result_dict['cell_cell_interaction_search']
     dict_pvals = {}
-    all_cell_types_combinations = list(df.columns[12:])
+    all_cell_types_combinations = get_cell_type_pairs(df, separator)
     for ct_pair in all_cell_types_combinations:
         # Filter out pvals = 1.0 - no point bloating the API call result
         df_filtered = df[df[ct_pair] < 1]
@@ -320,10 +325,10 @@ def populate_pvalues_data(result_dict, df):
     dict_cci_search['pvalues'] = dict_pvals
 
 
-def populate_relevant_interactions_data(result_dict, df):
+def populate_relevant_interactions_data(result_dict, df, separator):
     dict_cci_search = result_dict['cell_cell_interaction_search']
     dict_ri_flags = {}
-    all_cell_types_combinations = list(df.columns[12:])
+    all_cell_types_combinations = get_cell_type_pairs(df, separator)
     for ct_pair in all_cell_types_combinations:
         # Filter out values of 0 (= irrelevant interactions) - no point bloating the API call result
         df_filtered = df[df[ct_pair] > 0]
