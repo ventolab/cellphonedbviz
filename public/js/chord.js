@@ -104,7 +104,7 @@ d3.arc()
 )}
 
 function _ribbon(d3,innerRadius){return(
-d3.ribbonArrow()
+d3.ribbon()
     .radius(innerRadius - 0.5)
     .padAngle(1 / innerRadius)
 )}
