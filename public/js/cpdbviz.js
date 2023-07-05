@@ -104,44 +104,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
      });
 
-     // Generate cell-cell interaction summary plot
-    $.ajax({
-        url: '/api/data/'+projectId+'/cell_cell_interaction_summary',
-        contentType: "application/json",
-        dataType: 'json',
-        success: function(res) {
-           if (res.hasOwnProperty('microenvironment2cell_types')) {
-                microenvironment2cell_types = res['microenvironment2cell_types'];
-                const map = new Map(Object.entries(microenvironment2cell_types));
-                if (map.size > 0) {
-                    var cnt = 1;
-                    for (let [microenvironment, cellTypes] of map.entries()) {
-                        generateCellCellInteractionSummaryPlot(res, cellTypes.sort(), microenvironment, cnt);
-                        cnt++;
-                        if (cnt > 9) {
-                            // TODO: We currently only have up to nine slots for microenvironment-specific cci plots - to be reviewed
-                            break;
-                        }
-                    }
-                    // Generate plot across cell types also - in case the user wishes to see it
-                   generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
-                   $("#cci0_div").hide();
-
-                } else {
-                    generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
-                    // Hide microenvironment input
-                    $("#cci_search_microenvironment_sel").hide();
-                }
-            } else {
-                generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
-                // Hide microenvironment input
-                $("#cci_search_microenvironment_sel").hide();
-            }
-            // Allow the user to switch between cci_summary heatmaps and chord plots
-            num_cell_types = res['all_cell_types'].length;
-            enable_cci_summary_switch(num_cell_types);
-        }
-     });
+     // Generate CCISummary plots on first page load
+     refreshCCISummaryPlots();
 
     // Generate cell-cell interaction search plot
     $.ajax({
@@ -161,13 +125,6 @@ document.addEventListener('DOMContentLoaded', function() {
             enable_autocomplete('cci_search_interaction_input', 'cci_search_selected_interactions', res['all_interacting_pairs']);
             if (res.hasOwnProperty('microenvironments')) {
                 enable_autocomplete('cci_search_microenvironment_input', 'cci_search_selected_microenvironments', res['microenvironments']);
-                // Populate 'filter cell types by micro-environment' select dropdown for single-gene expression plot
-                $.each(res['microenvironments'], function (i, item) {
-                  $('#cci_search_me_filter').append($('<option>', {
-                      value: item,
-                      text : item
-                  }));
-                });
                 // Initialise 'Filter cell types by micro-environment in 'cell-cell interaction search' plot select dropdown
                 enable_me2ct_select(res['microenvironment2cell_types'], res['all_cell_types'],
                                         'cci_search_selected_microenvironments','cci_search_selected_celltypes', 'cci_search_celltype_input');
@@ -1127,6 +1084,9 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
       }
       filteredNumInteractions = filterNumInteractions(data, cellTypes, true);
 
+      // Remove any previous plot
+      $("#cci"+plotCnt).empty();
+
       $("#cci"+plotCnt + "_div").show();
       // This (hidden) field is used for naming the PDF file when the plot is downloaded
       $("#cci"+plotCnt + "_header").text(title);
@@ -1329,9 +1289,70 @@ function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScal
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
+function refreshCCISummaryPlots() {
+    var projectId = getProjectId();
+    var ret = getSelectedTokens(["cci_summary_selected_classes"]);
+    var selectedClasses = ret[0];
+    var url = '/api/data/'+projectId+'/cell_cell_interaction_summary';
+    if (selectedClasses) {
+        url += "?classes=" + selectedClasses;
+    }
+    $.ajax({
+        url: url,
+        contentType: "application/json",
+        dataType: 'json',
+        success: function(res) {
+           if (res.hasOwnProperty('microenvironment2cell_types')) {
+                microenvironment2cell_types = res['microenvironment2cell_types'];
+                const map = new Map(Object.entries(microenvironment2cell_types));
+                if (map.size > 0) {
+                    var cnt = 1;
+                    for (let [microenvironment, cellTypes] of map.entries()) {
+                        generateCellCellInteractionSummaryPlot(res, cellTypes.sort(), microenvironment, cnt);
+                        cnt++;
+                        if (cnt > 9) {
+                            // TODO: We currently only have up to nine slots for microenvironment-specific cci plots - to be reviewed
+                            break;
+                        }
+                    }
+                    // Generate plot across cell types also - in case the user wishes to see it
+                   generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
+                   if ($('#cci_summary_show_all_celltypes').is(':checked')) {
+                       $("#cci0_div").show();
+                   } else {
+                       $("#cci0_div").hide();
+                   }
+                } else {
+                    generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
+                    // Hide microenvironment input
+                    $("#cci_search_microenvironment_sel").hide();
+                }
+            } else {
+                generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
+                // Hide microenvironment input
+                $("#cci_search_microenvironment_sel").hide();
+            }
+       if (res.hasOwnProperty('all_classes')) {
+            enable_autocomplete('cci_summary_class_input', 'cci_summary_selected_classes', res['all_classes']);
+           // Populate placeholder to show the user available classes of interacting pairs
+            $("#cci_summary_class_input")
+                .attr("placeholder",res['all_classes'].toString());
+            $("#cci_summary_class_filter_div").show();
+        }
+        // Allow the user to switch between cci_summary heatmaps and chord plots
+        num_cell_types = res['all_cell_types'].length;
+        enable_cci_summary_switch(num_cell_types);
+        }
+     });
+}
+
 function clearSGEFilters() {
     $('.sge_selected_genes').empty();
     $('.sge_selected_celltypes').empty();
+}
+
+function clearCCISummaryFilters() {
+    $('.cci_summary_selected_classes').empty();
 }
 
 function clearCCISearchFilters() {

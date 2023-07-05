@@ -27,6 +27,7 @@ def get_viz_data(project: str,
                  viz: str,
                  genes: str = None,
                  interacting_pairs: str = None,
+                 classes: str = None,
                  cell_types: str = None,
                  cell_type_pairs: str = None,
                  microenvironments: str = None,
@@ -62,14 +63,15 @@ def get_viz_data(project: str,
         selected_cell_types = get_jsonable(cell_types)
         selected_cell_type_pairs = get_jsonable(cell_type_pairs)
         selected_microenvironments = get_jsonable(microenvironments)
+        selected_classes = get_jsonable(classes)
         ret = copy.deepcopy(dir_name2project_data[project][viz])
         if refresh_plot:
             # Autocompletes are initialised on first load only - hence on refresh_plot
             # we avoid bulking-up the API output unnecessarily
             ret.pop('all_genes')
             ret.pop('all_interacting_pairs')
-        utils.filter_interactions(ret, dir_name2file_name2df[project],
-                                  selected_genes, selected_interacting_pairs, selected_cell_types,
+        utils.filter_interactions_for_cci_search(ret, dir_name2file_name2df[project],
+                                  selected_genes, selected_interacting_pairs, selected_classes, selected_cell_types,
                                   selected_cell_type_pairs, selected_microenvironments, refresh_plot, show_zscores,
                                   interacting_pairs_selection_logic, sort_interacting_pairs_alphabetically)
         # 'analysis_means' is used for pre-selecting interacting pairs - it is not needed by the front end
@@ -77,6 +79,10 @@ def get_viz_data(project: str,
         # cellphonedb is needed for retrieving properties of interacting pairs but it is not used by the front end directly
         if 'cellphonedb' in ret:
             ret.pop('cellphonedb')
+    elif viz == 'cell_cell_interaction_summary':
+        selected_classes = get_jsonable(classes)
+        ret = copy.deepcopy(dir_name2project_data[project][viz])
+        utils.filter_interactions_for_cci_summary(ret, dir_name2file_name2df[project], selected_classes)
     else:
         ret = dir_name2project_data[project][viz]
     return ret

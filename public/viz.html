@@ -38,36 +38,56 @@
   </head>
   <script type="module">
 import generateCellCellInteractionSummaryChordPlot from "./js/chord.js";
-const projectId = getProjectId();
-$.ajax({
-    url: '/api/data/'+projectId+'/cell_cell_interaction_summary',
-    contentType: "application/json",
-    dataType: 'json',
-    success: function(res) {
-       if (res.hasOwnProperty('microenvironment2cell_types')) {
-            const microenvironment2cell_types = res['microenvironment2cell_types'];
-            const map = new Map(Object.entries(microenvironment2cell_types));
-            if (map.size > 0) {
-                var cnt = 1;
-                for (let [microenvironment, cellTypes] of map.entries()) {
-                    generateCellCellInteractionSummaryChordPlot(res, cellTypes.sort(), microenvironment, cnt);
-                    cnt++;
-                    if (cnt > 9) {
-                        // TODO: We currently only have up to nine slots for microenvironment-specific cci plots - to be reviewed
-                        break;
+
+function getProjectId() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('projectid')
+}
+
+function refreshCCISummaryChordPlots() {
+    const projectId = getProjectId();
+    var ret = getSelectedTokens(["cci_summary_selected_classes"]);
+    var selectedClasses = ret[0];
+    var url = '/api/data/'+projectId+'/cell_cell_interaction_summary';
+    if (selectedClasses) {
+        url += "?classes=" + selectedClasses;
+    }
+    $.ajax({
+        url: url,
+        contentType: "application/json",
+        dataType: 'json',
+        success: function(res) {
+           if (res.hasOwnProperty('microenvironment2cell_types')) {
+                const microenvironment2cell_types = res['microenvironment2cell_types'];
+                const map = new Map(Object.entries(microenvironment2cell_types));
+                if (map.size > 0) {
+                    var cnt = 1;
+                    for (let [microenvironment, cellTypes] of map.entries()) {
+                        generateCellCellInteractionSummaryChordPlot(res, cellTypes.sort(), microenvironment, cnt);
+                        cnt++;
+                        if (cnt > 9) {
+                            // TODO: We currently only have up to nine slots for microenvironment-specific cci plots - to be reviewed
+                            break;
+                        }
                     }
+                    // Generate plot across cell types also - in case the user wishes to see it
+                    generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0);
+                } else {
+                    generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0);
                 }
-                // Generate plot across cell types also - in case the user wishes to see it
-                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0);
             } else {
                 generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0);
             }
-        } else {
-            generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0);
         }
-    }
- });
+     });
+ }
 
+ // Generate chord plots on first page load
+ refreshCCISummaryChordPlots();
+
+ // Regenerate chord plots when the user clicks on the 'Refresh plots' button
+ document.querySelector('#refresh_cci_summary_plots').addEventListener('click', refreshCCISummaryChordPlots);
 
 </script>
   <body>
@@ -231,6 +251,20 @@ $.ajax({
                       <span id="cci_summary_show_all_celltypes_label">Show all cell types</span>
                   </label>
               </div>
+              <div id="cci_summary_class_filter_div" style="padding-left: 20px; padding-right: 20px" hidden>
+                  <div class="input-field">
+                    <input style="padding-top: 30px;" type="text" id="cci_summary_class_input" placeholder="TODO: populate with comma-separated list of classes">
+                    <label style="padding-top: 30px;" for="cci_summary_class_input" class="black-text text-lighten-10 search-input-label">Filter interactions by one or more classes</label>
+                  </div>
+                  <div style="padding-bottom: 20px;" class="cci_summary_selected_classes"></div>
+                  <button id="refresh_cci_summary_plots" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISummaryPlots();">Refresh plots
+                        <i class="material-icons right">refresh</i>
+                  </button>
+                  <button id="clear_cci_summary_class_filter" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISummaryFilters()">Clear filter&nbsp;
+                        <i class="material-icons right">clear_all</i>
+                  </button>
+              </div>
+
               <div class="row">
                 <!-- Cell cell interaction plot - All cell types-->
                 <div id="cci0_div" hidden>

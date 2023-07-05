@@ -195,7 +195,10 @@ function define(main, observer, data, title, plotCnt) {
     // See: https://github.com/observablehq/runtime
     const runtime = new Runtime();
     const module = runtime.module();
-    const observer = Inspector.into(document.querySelector("#cci"+plotCnt + "_chord"));
+    const plotId = "#cci"+plotCnt + "_chord";
+    // Remove any previous chord plot first
+    $(plotId).empty();
+    const observer = Inspector.into(document.querySelector(plotId));
     const chordData = d3.csvParse(num_ints_csv, d3.autoType);
     define(module, observer, chordData, title, plotCnt);
  }
