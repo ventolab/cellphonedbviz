@@ -7,6 +7,7 @@ import re
 from collections import OrderedDict
 import secrets
 from cellphonedb.utils import db_utils, search_utils
+import copy
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 DATA_ROOT = f"{base_path}/../data"
@@ -50,6 +51,7 @@ def get_projects() -> dict:
                                              'complex2Info': complex2Info,
                                              'resource2Complex2Acc': resource2Complex2Acc,
                                              'proteinAcc2Name': proteinAcc2Name}
+                    dict['cell_cell_interaction_summary']['separator'] = config['separator']
                     dict['cell_cell_interaction_search']['separator'] = config['separator']
                     dir_name2project_data[dir_name] = dict
     return (dir_name2project_data, dir_name2file_name2df)
@@ -155,17 +157,7 @@ def populate_analysis_means_data(dict_dd, df, separator):
         all_cell_types.update(ct_pair.split(separator))
     all_cell_types = sorted(list(all_cell_types))
     ct2indx = dict([(ct, all_cell_types.index(ct)) for ct in all_cell_types])
-    size = len(all_cell_types)
-    num_ints = np.zeros((size, size),dtype=np.uint32)
-    for ct_pair in all_cell_types_combinations:
-        ct1 = ct_pair.split(separator)[0]
-        ct2 = ct_pair.split(separator)[1]
-        s = df[ct_pair].dropna()
-        num_ints[ct2indx[ct1], ct2indx[ct2]] = len(s[s>0])
     dict_cci_summary['all_cell_types'] = all_cell_types
-    dict_cci_summary['num_ints'] = num_ints.tolist()
-    dict_cci_summary['min_num_ints'] = str(np.min(num_ints))
-    dict_cci_summary['max_num_ints'] = str(np.max(num_ints))
     dict_cci_summary['ct2indx'] = ct2indx
     # Data below is needed for autocomplete functionality
     dict_cci_search['all_cell_type_pairs'] = sorted(all_cell_types_combinations)
@@ -190,6 +182,16 @@ def populate_analysis_means_data(dict_dd, df, separator):
             dict_cci_search['interacting_pair2properties'][ip] = {}
         for i, property_name in enumerate(['secreted', 'receptor_a', 'receptor_b', 'is_integrin']):
             dict_cci_search['interacting_pair2properties'][ip][property_name] = properties[i]
+    # Data used for filtering cci_summary and cci_search plots by class of interacting pair
+    if 'classification' in df.columns:
+        class2interacting_pairs = {}
+        for i, j in zip(df['classification'].values.tolist(), df['interacting_pair'].values.tolist()):
+            class2interacting_pairs.setdefault(i, set([])).add(j)
+        dict_cci_summary['class2interacting_pairs'] = class2interacting_pairs
+        dict_cci_search['class2interacting_pairs'] = class2interacting_pairs
+        all_classes = sorted(class2interacting_pairs.keys())
+        dict_cci_summary['all_classes'] = all_classes
+        dict_cci_search['all_classes'] = all_classes
 
 def get_all_relevant_interactions(dict_cci_search: dict, selected_cell_type_pairs):
     rel_ints_dict = dict_cci_search['relevant_interactions']
@@ -434,10 +436,11 @@ def get_properties_html_for_interacting_pairs(result_dict: dict) -> dict:
         interacting_pair2properties_html[ip] = html
     return interacting_pair2properties_html
 
-def filter_interactions(result_dict,
+def filter_interactions_for_cci_search(result_dict,
                         file_name2df,
                         genes,
                         interacting_pairs,
+                        classes,
                         cell_types,
                         cell_type_pairs,
                         microenvironments,
@@ -600,6 +603,28 @@ def filter_interactions(result_dict,
                         result_dict['filtered_pvalues'][i][j] = 1
         if 'cellphonedb' in result_dict:
             result_dict['interacting_pair2properties_html'] = get_properties_html_for_interacting_pairs(result_dict)
+
+def filter_interactions_for_cci_summary(result_dict, file_name2df, classes):
+    means_df = file_name2df['analysis_means']
+    separator = result_dict['separator']
+    # Filter means_df by interacting pairs belonging to a class in classes
+    if classes:
+        interacting_pairs = []
+        for c in classes:
+            interacting_pairs.extend(result_dict['class2interacting_pairs'][c])
+        means_df = copy.deepcopy(means_df[means_df['interacting_pair'].isin(interacting_pairs)])
+    size = len(result_dict['all_cell_types'])
+    ct2indx = result_dict['ct2indx']
+    all_cell_types_combinations = get_cell_type_pairs(means_df, separator)
+    num_ints = np.zeros((size, size),dtype=np.uint32)
+    for ct_pair in all_cell_types_combinations:
+         ct1 = ct_pair.split(separator)[0]
+         ct2 = ct_pair.split(separator)[1]
+         s = means_df[ct_pair].dropna()
+         num_ints[ct2indx[ct1], ct2indx[ct2]] = len(s[s>0])
+    result_dict['num_ints'] = num_ints.tolist()
+    result_dict['min_num_ints'] = str(np.min(num_ints))
+    result_dict['max_num_ints'] = str(np.max(num_ints))
 
 def generate_random_hash():
     # See: https://docs.python.org/3/library/secrets.html (16 = bytes ~ 16 * 1.3 chars)
