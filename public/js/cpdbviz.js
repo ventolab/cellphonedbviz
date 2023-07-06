@@ -1553,18 +1553,13 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     .attr("height", height);
 
     // Insert title
-    var title = " significant interactions across the selected cell type pairs";
+    var title = "Significant interactions across the selected cell type pairs and interactions";
     if (interacting_pairs_selection_logic === undefined) {
         // This covers the case when the user had selected interacting_pairs_selection_logic, and now they have clicked on 'Refresh plot' button -
         // We need to recover interacting_pairs_selection_logic the user previously selected
         interacting_pairs_selection_logic = $('#interacting_pairs_selection_logic').text();
     }
 
-    if (interacting_pairs_selection_logic == "all") {
-        title = "All" + title;
-    } else {
-        title = "Top " + interacting_pairs_selection_logic + title;
-    }
     // The title in #cci_search_header div is used for naming of the PDF file when the plot is downloaded
     $("#cci_search_header").text(title);
     svg.append("text")
