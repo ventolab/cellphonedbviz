@@ -544,6 +544,8 @@ function generateMicroenvironmentsPlot(data) {
           .attr("cy", function(d,i){ return top_yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .attr("r", 7)
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
+          .on("mousemove", function(event, d){ highlightCellTypesForMicroenvironment(d, mapping, colorDomain, colorscale);}) // highlight cell type labels on Y-axis corresponding to microenvironment d
+          .on("mouseout", function(){setDeafultColourForAllCellTypes();}); // return all cell type labels on Y-axis to the default colour and font size
 
       svg.selectAll("legend_labels")
         .data(colorDomain)
@@ -554,7 +556,48 @@ function generateMicroenvironmentsPlot(data) {
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
           .text(function(d){ return d})
           .attr("text-anchor", "left")
-          .style("alignment-baseline", "middle");
+          .style("alignment-baseline", "middle")
+          .on("mousemove", function(event, d){ highlightCellTypesForMicroenvironment(d, mapping, colorDomain, colorscale);}) // highlight cell type labels on Y-axis corresponding to microenvironment d
+          .on("mouseout", function(){setDeafultColourForAllCellTypes();}); // return all cell type labels on Y-axis to the default colour
+}
+
+function highlightCellTypesForMicroenvironment(d, mapping, colourDomain, colorscale) {
+   // Collect cell types corresponding to microenvironment d into cts
+   var cts = [];
+   for (var i = 0; i <= mapping.length - 1; i++) {
+      vals = mapping[i];
+      ct = vals[0];
+      me = vals[1];
+      if (me == d) {
+        cts.push(ct);
+      }
+    }
+    // Highlight on Y-axis only the cell typed in cts
+    var colour = colorscale(colorDomain.indexOf(d));
+    d3.selectAll("#spme_y-axis g.tick").each(function() {
+        d3.select(this).select("text").style("fill", function() {
+            if (cts.includes(this.textContent)) {
+                return colour;
+            } else {
+                return "#5a5757";
+            }
+        }).style("font-size", function() {
+            if (cts.includes(this.textContent)) {
+                return '17px';
+            } else {
+                return "12px";
+            }
+        })
+    });
+}
+
+// Reset colour and font size to default for all cell types involved
+function setDeafultColourForAllCellTypes() {
+    d3.selectAll("#spme_y-axis g.tick").each(function() {
+        d3.select(this).select("text").style("fill", function() {
+            return "#5a5757";
+        }).style("font-size", "12px")
+    });
 }
 
 function spmeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin) {
