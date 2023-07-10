@@ -1458,6 +1458,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     const selectedCellTypes = data['selected_cell_types'];
     const selectedCellTypePairs = data['selected_cell_type_pairs'];
     const selectedCTP2Me = data['selected_cell_type_pairs2microenvironment'];
+    const selectedIP2Class = data['selected_interacting_pair2class'];
     const microenvironments = data['microenvironments']
     const cellsign_active_interactions = data['cellsign_active_interactions']
     const interacting_pair2participants = data['interacting_pair2participants'];
@@ -1551,6 +1552,36 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
       }
     }
 
+    var class2Colour = {};
+    if (selectedIP2Class != undefined) {
+        var classes = Array.from(new Set(Object.values(selectedIP2Class)));
+        for (var i = 0; i < classes.length; i++) {
+          const ipClass = classes[i];
+          if (ipClass != "none") {
+            class2Colour[ipClass] = colours[i % colours.length];
+          } else {
+            // If interaction ip was not classified, show it in black.
+            class2Colour[ipClass] = "black";
+          }
+        }
+    }
+
+    var classes4Legend = [];
+    var ip2Colour = {}
+    for (var i = 0; i < selectedInteractingPairs.length; i++) {
+      const ip = selectedInteractingPairs[i];
+      if (selectedIP2Class == undefined) {
+          // No classification information is present in analysis means file - show all ips in the default teal colour
+          ip2Colour[ip] = "#008080"; // teal
+      } else {
+          const ipClass = selectedIP2Class[ip];
+          ip2Colour[ip] = class2Colour[ipClass];
+          if (!classes4Legend.includes(ipClass)) {
+            classes4Legend.push(ipClass);
+          }
+      }
+    }
+
     // Needed for calculating the left margin
     // Note shallow copy of data['interacting_pairs_means'] below -
     // we want to preserve the order of data['interacting_pairs_means']
@@ -1567,7 +1598,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     var num_ctps = data['cell_type_pairs_means'].length;
     var height = 700;
     if (num_ips > 1) {
-        Math.max(height, 40 * num_ips / Math.log10(num_ips));
+        height = Math.max(height, 40 * num_ips / Math.log10(num_ips));
     }
     // Note that validateCCISearchInput() above ensures that num_ctps > 1
     var width = Math.max(1400, 45 * num_ctps / Math.log10(num_ctps));
@@ -1603,7 +1634,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     .append("svg")
     .attr("class", "axis")
     .attr("width", width)
-    .attr("height", height);
+    // The extract 150px is needed if many classes are shown in the bottom LHS legend
+    .attr("height", height + 150);
 
     // Insert title
     var title = "Significant interactions across the selected cell type pairs and interactions";
@@ -1663,7 +1695,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos,
                        interacting_pair2participants, interacting_pair2properties, interacting_pair2properties_html,
-                       interacting_pair2classes);
+                       interacting_pair2classes, ip2Colour);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
   const barLegend_xPos=width-300;
   const barLegend_yPos=top_yMargin+30;
@@ -1830,7 +1862,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
       dotSizeLegend.append("circle").attr("cx",15).attr("cy",60).attr("r", 8).style("fill", "#404080");
       dotSizeLegend.append("text").attr("x", 35).attr("y", 60).text("Is relevant interaction").style("font-size", "15px").attr("alignment-baseline","middle")
   }
-  
+
   if (microenvironments) {
       // Legend for cell type pair colours - by micro-environment
       const meLegend_xPos=width-315;
@@ -1866,6 +1898,40 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
           meLegend.append("rect").attr("x",15).attr("y",meLegendYPos).attr("width", size).attr("height", size).style("fill", colour)
           meLegend.append("text").attr("x", 35).attr("y", meLegendYPos+6).text(me).style("font-size", "15px").attr("alignment-baseline","middle");
           meLegendYPos += 30;
+      }
+  }
+
+  if (interacting_pair2classes) {
+      // Legend for interacting pair colours (on Y axis) - by class
+      const classLegend_xPos= 0;
+      const classLegenedWidth = 450;
+      const classLegendHeight = 500;
+      const classLegend_yPos = height - 320;
+      const classLegend = svg
+            .append("svg")
+            .attr("width", classLegenedWidth)
+            .attr("height", classLegendHeight)
+            .attr("x", classLegend_xPos)
+            .attr("y", classLegend_yPos);
+
+      // Classes legend header
+      classLegend
+        .append("text").attr("x", 5).attr("y", 80).text("Interaction classes").style("font-size", "15px")
+        .attr("alignment-baseline","middle")
+
+      // Classes legend content
+      const size = 12;
+      const classLegendStartYPos = 100;
+      var classLegendYPos = classLegendStartYPos;
+      for (var i = 0; i <= classes4Legend.length - 1; i++) {
+          var ipClass = classes4Legend[i];
+          if (ipClass.length > 10) {
+            ipClass = ipClass.substring(0,10)+"..";
+          }
+          var colour = class2Colour[ipClass];
+          classLegend.append("rect").attr("x",15).attr("y",classLegendYPos).attr("width", size).attr("height", size).style("fill", colour)
+          classLegend.append("text").attr("x", 35).attr("y", classLegendYPos+6).text(ipClass).style("font-size", "15px").attr("alignment-baseline","middle");
+          classLegendYPos += 30;
       }
   }
 }
@@ -1912,7 +1978,7 @@ function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, 
 
 function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos,
                               interacting_pair2participants, interacting_pair2properties, interacting_pair2properties_html,
-                              interacting_pair2classes) {
+                              interacting_pair2classes, ip2Colour) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -2045,7 +2111,8 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
             .select("text").style("cursor", function() {
                 return "pointer";
             }).style("fill", function() {
-                return "#008080"; // teal
+                var ip = this.textContent;
+                return ip2Colour[ip];
             })
         });
      } else {
@@ -2055,7 +2122,8 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
             .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
             .on("mouseout", function(){return tooltip.style("visibility", "hidden")})
             .select("text").style("fill", function() {
-                return "#008080"; // teal
+                var ip = this.textContent;
+                return ip2Colour[ip];
             })
         });
     }

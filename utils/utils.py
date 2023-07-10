@@ -189,8 +189,10 @@ def populate_analysis_means_data(dict_dd, df, separator):
         # interacting_pair2classes is used for populating sidenav with interaction info
         interacting_pair2classes = {}
         for i, j in zip(df['classification'].values.tolist(), df['interacting_pair'].values.tolist()):
-            class2interacting_pairs.setdefault(i, set([])).add(j)
-            interacting_pair2classes[j] = i
+            if str(i) != "nan":
+                # Only store if class (i) was provided for interacting pair j
+                class2interacting_pairs.setdefault(i, set([])).add(j)
+                interacting_pair2classes[j] = i
         dict_cci_summary['class2interacting_pairs'] = class2interacting_pairs
         dict_cci_search['class2interacting_pairs'] = class2interacting_pairs
         dict_cci_search['interacting_pair2classes'] = interacting_pair2classes
@@ -413,7 +415,7 @@ def get_properties_html_for_interacting_pairs(result_dict: dict) -> dict:
     interacting_pair2participants = result_dict['interacting_pair2participants']
     for ip in interacting_pairs:
         html = "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">".format(ip)
-        if 'interacting_pair2classes' in 'interacting_pair2classes' and ip in result_dict['interacting_pair2classes']:
+        if 'interacting_pair2classes' in result_dict and ip in result_dict['interacting_pair2classes']:
             classes = result_dict['interacting_pair2classes'][ip]
             html += "<li><a class=\"subheader black-text\">Interaction classification</a></li>" + \
                     "<a {}>{}</a><br> ".format(SIDENAV_PROPERTY_STYLE, classes)
@@ -553,6 +555,18 @@ def filter_interactions_for_cci_search(result_dict,
     result_dict['selected_genes'] = sorted(list(set(genes)))
     result_dict['selected_interacting_pairs'] = interacting_pairs
     if interacting_pairs:
+        if 'interacting_pair2classes' in result_dict:
+            selected_interacting_pair2class = {}
+            for ip in interacting_pairs:
+                if ip in result_dict['interacting_pair2classes']:
+                    classes = result_dict['interacting_pair2classes'][ip]
+                    if "," in classes:
+                        # TODO: Confirm if multiple classes will be stored in comma-separated list
+                        classes = "multiple"
+                else:
+                    classes = "none"
+                selected_interacting_pair2class[ip] = classes
+            result_dict['selected_interacting_pair2class'] = selected_interacting_pair2class
         interactions.update( \
             means_df[means_df['interacting_pair'].isin(interacting_pairs)]['id_cp_interaction'].tolist())
     if interactions:
