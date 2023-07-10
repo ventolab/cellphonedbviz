@@ -254,8 +254,8 @@ function refreshCCISummaryChordPlots() {
               </div>
               <div id="cci_summary_class_filter_div" style="padding-left: 20px; padding-right: 20px" hidden>
                   <div class="input-field">
-                    <input style="padding-top: 30px;" type="text" id="cci_summary_class_input" placeholder="TODO: populate with comma-separated list of classes">
-                    <label style="padding-top: 30px;" for="cci_summary_class_input" class="black-text text-lighten-10 search-input-label">Filter interactions by one or more classes</label>
+                    <input style="padding-top: 30px;" type="text" id="cci_summary_class_input" placeholder="">
+                    <label style="padding-top: 30px;" for="cci_summary_class_input" class="black-text text-lighten-10 search-input-label">Filter interactions by class</label>
                   </div>
                   <div style="padding-bottom: 20px;" class="cci_summary_selected_classes"></div>
                   <button id="refresh_cci_summary_plots" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISummaryPlots();">Refresh plots
@@ -476,6 +476,11 @@ function refreshCCISummaryChordPlots() {
                           <div class="col s12 m6 l6">
                             <div class="card">
                               <div class="card-content black-text col s12">
+                                  <div id="cci_search_class_filter_div" class="input-field" hidden>
+                                    <input style="padding-top: 30px;" type="text" id="cci_search_class_input" placeholder="">
+                                    <label style="padding-top: 30px;" for="cci_search_class_input" class="black-text text-lighten-10 search-input-label">Filter interactions by class</label>
+                                  </div>
+                                  <div style="padding-bottom: 20px;" class="cci_search_selected_classes"></div>
                                   <div class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="cci_search_gene_input" placeholder="Gene">
                                     <label style="padding-top: 30px;" for="cci_search_gene_input" class="black-text text-lighten-10 search-input-label">Filter by genes</label>

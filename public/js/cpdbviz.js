@@ -139,6 +139,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Enable side navs - used for displaying interacting pair participant information
             enable_side_navs();
             $("#cci_search_spinner").hide();
+            if (res.hasOwnProperty('all_classes')) {
+                 enable_autocomplete('cci_search_class_input', 'cci_search_selected_classes', res['all_classes']);
+                 // Populate placeholder to show the user available classes of interacting pairs
+                 $("#cci_search_class_input")
+                     .attr("placeholder",res['all_classes'].toString());
+                 $("#cci_search_class_filter_div").show();
+            }
         }
      });
 });
@@ -1403,6 +1410,7 @@ function clearCCISearchFilters() {
     $('.cci_search_selected_celltypes').empty();
     $('.cci_search_selected_interactions').empty();
     $('.cci_search_selected_celltype_pairs').empty();
+    $('.cci_search_selected_classes').empty();
 }
 
 function clearCCISearchCellTypeFilters() {
@@ -1455,6 +1463,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     const interacting_pair2participants = data['interacting_pair2participants'];
     // interacting_pair2properties is retrieved from analysis_means file
     const interacting_pair2properties = data['interacting_pair2properties'];
+    // interacting_pair2classes is retrieved from analysis_means file - is available in versions>=v5.0.0 of cellphonedb-data
+    const interacting_pair2classes = data['interacting_pair2classes'];
     // interacting_pair2properties_html from CellphoneDB database file - it it was provided in the config file
     const interacting_pair2properties_html = data['interacting_pair2properties_html'];
     if (interacting_pair2properties_html != undefined) {
@@ -1652,7 +1662,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
   }
 
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos,
-                       interacting_pair2participants, interacting_pair2properties, interacting_pair2properties_html);
+                       interacting_pair2participants, interacting_pair2properties, interacting_pair2properties_html,
+                       interacting_pair2classes);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
   const barLegend_xPos=width-300;
   const barLegend_yPos=top_yMargin+30;
@@ -1900,7 +1911,8 @@ function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, 
 }
 
 function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos,
-                              interacting_pair2participants, interacting_pair2properties, interacting_pair2properties_html) {
+                              interacting_pair2participants, interacting_pair2properties, interacting_pair2properties_html,
+                              interacting_pair2classes) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -1978,6 +1990,12 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
         var ret = "Interacting pair: <b>" + interactingPair + "</b><br>";
         const participants = interacting_pair2participants[interactingPair];
         const property2val = interacting_pair2properties[interactingPair];
+        // Classes are kept separate from the other properties because versions<5.0.0 of cellphonedb-data doesn't have interaction classifications
+        const classes = interacting_pair2classes[interactingPair];
+        // Populate interaction classification info, if provided
+        if (interacting_pair2classes != undefined && interacting_pair2classes.hasOwnProperty(interactingPair)) {
+            ret += "Interaction classification: <b>" + classes + "</b><br>";
+        }
         var prevPartner;
         var complexName;
         var letter;
@@ -2133,22 +2151,27 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
 
 function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     var projectId = getProjectId();
+
     const sort_interacting_pairs_alphabetically = $('#cci_search_sort_ips_switch').is(':checked');
     const showZScores = $('#cci_search_switch').is(':checked');
     var ret = getSelectedTokens([
         "cci_search_selected_genes", "cci_search_selected_celltypes",
         "cci_search_selected_celltype_pairs", "cci_search_selected_interactions",
-        "cci_search_selected_microenvironments"]);
+        "cci_search_selected_microenvironments", "cci_search_selected_classes"]);
     var pos=0;
     var selectedGenes = ret[pos++];
     var selectedCellTypes = ret[pos++];
     var selectedCellTypePairs = ret[pos++];
     var selectedInteractions = ret[pos++];
     var selectedMicroenvironments = ret[pos++];
+    var selectedClasses = ret[pos++];
     // DEBUG console.log(selectedGenes, selectedCellTypes, selectedCellTypePairs, selectedInteractions);
     var url = '/api/data/'+projectId+'/cell_cell_interaction_search';
-    if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs) {
+    if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs || selectedClasses) {
         url += "?";
+        if (selectedClasses) {
+            url += "classes=" + selectedClasses + "&";
+        }
         if (selectedGenes) {
             url += "genes=" + selectedGenes + "&";
         }

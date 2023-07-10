@@ -17,6 +17,7 @@ CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','m
 VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
           'cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
+SIDENAV_PROPERTY_STYLE = "style=\"padding-left: 60px; font-size: 14px; margin: 20px 0px !important; \""
 SANKEY_EDGE_WEIGHT = 30
 
 def get_projects() -> dict:
@@ -185,10 +186,14 @@ def populate_analysis_means_data(dict_dd, df, separator):
     # Data used for filtering cci_summary and cci_search plots by class of interacting pair
     if 'classification' in df.columns:
         class2interacting_pairs = {}
+        # interacting_pair2classes is used for populating sidenav with interaction info
+        interacting_pair2classes = {}
         for i, j in zip(df['classification'].values.tolist(), df['interacting_pair'].values.tolist()):
             class2interacting_pairs.setdefault(i, set([])).add(j)
+            interacting_pair2classes[j] = i
         dict_cci_summary['class2interacting_pairs'] = class2interacting_pairs
         dict_cci_search['class2interacting_pairs'] = class2interacting_pairs
+        dict_cci_search['interacting_pair2classes'] = interacting_pair2classes
         all_classes = sorted(class2interacting_pairs.keys())
         dict_cci_summary['all_classes'] = all_classes
         dict_cci_search['all_classes'] = all_classes
@@ -408,6 +413,11 @@ def get_properties_html_for_interacting_pairs(result_dict: dict) -> dict:
     interacting_pair2participants = result_dict['interacting_pair2participants']
     for ip in interacting_pairs:
         html = "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">".format(ip)
+        if 'interacting_pair2classes' in 'interacting_pair2classes' and ip in result_dict['interacting_pair2classes']:
+            classes = result_dict['interacting_pair2classes'][ip]
+            html += "<li><a class=\"subheader black-text\">Interaction classification</a></li>" + \
+                    "<a {}>{}</a><br> ".format(SIDENAV_PROPERTY_STYLE, classes)
+            html += "<li><div class=\"divider\"></div></li>"
         complex_name2proteins = {}
         partners = [None, None]
         partner_letters = "ab"
@@ -508,19 +518,21 @@ def filter_interactions_for_cci_search(result_dict,
         # then ignore the current selected interacting_pairs
         interacting_pairs = []
         genes = []
-    if not genes and not interacting_pairs:
+        classes = []
+    if not genes and not interacting_pairs and not classes:
         if not refresh_plot:
             # If neither genes nor interactions are selected on first page load, pre-select top 10 interacting pairs
             interacting_pairs = preselect_interacting_pairs(result_dict, selected_cell_type_pairs, "10")
-            genes = []
         elif interacting_pairs_selection_logic is not None:
             # The plot is being refreshed but the user has selected an interacting_pairs_selection_logic
             interacting_pairs = preselect_interacting_pairs(result_dict, selected_cell_type_pairs, interacting_pairs_selection_logic)
-            genes = []
         else:
-            genes = []
             interacting_pairs = []
     else:
+        # Select interacting pairs belonging to a class in classes
+        if classes:
+            for c in classes:
+                interacting_pairs.extend(result_dict['class2interacting_pairs'][c])
         if genes:
             interaction_ids = deconvoluted_df[deconvoluted_df['gene_name'].isin(genes)]['id_cp_interaction'].tolist()
             interacting_pairs_from_genes = [result_dict['interaction_id2interacting_pair'][i] for i in interaction_ids]

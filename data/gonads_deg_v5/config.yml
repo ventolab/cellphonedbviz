@@ -8,4 +8,5 @@ relevant_interactions:                        degs_analysis_relevant_interaction
 degs:                                         DEGs.tsv
 deconvoluted_percents:                        degs_analysis_deconvoluted_percents_07_04_2023_145158.txt
 cellsign_active_interactions_deconvoluted:    degs_analysis_CellSign_active_interactions_deconvoluted_07_04_2023_145158.txt
+cellphonedb:                                  cellphonedb.zip
 
