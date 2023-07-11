@@ -1,0 +1,9 @@
+# CellphoneDB results visualisation config
+separator:                  '|'
+title:                      Hormone Cell Atlas across Human Cell Atlas - Pituitary - CellphoneDB analysis results
+deconvoluted_result:        statistical_analysis_deconvoluted_06_28_2023_210049.txt_Pituitary.txt.condensed
+analysis_means:             statistical_analysis_means_06_28_2023_210049.txt_Pituitary.txt.condensed
+relevant_interactions:      statistical_analysis_significant_means_06_28_2023_210049.txt_Pituitary.txt.condensed
+pvalues:                    statistical_analysis_pvalues_06_28_2023_210049.txt_Pituitary.txt.condensed
+hash:                       ZXYjk8u_uaMc_w86FrREvQ
+cellphonedb:                cellphonedb.zip
