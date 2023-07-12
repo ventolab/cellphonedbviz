@@ -40,7 +40,7 @@ def get_projects() -> dict:
                         if key in config:
                             if key not in ['hash', 'cellphonedb']:
                                 fpath = "{}/{}".format(root, config[key])
-                                df = pd.read_csv(fpath, sep='\t')
+                                df = pd.read_csv(fpath, sep='\t', low_memory=False)
                                 populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
                             elif key == 'hash':
                                 dict[key] = config[key]
