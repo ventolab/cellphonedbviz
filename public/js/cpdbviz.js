@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
      });
 
      // Generate CCISummary plots on first page load
-     refreshCCISummaryPlots();
+      refreshCCISummaryPlots();
 
     // Generate cell-cell interaction search plot
     $.ajax({
@@ -484,11 +484,10 @@ function generateMicroenvironmentsPlot(data) {
         return;
     }
 
-     var height = 500,
-        width = 600,
-        xMargin = 220,
+     var left_xMargin = 400,
+        right_xMargin = 320,
         top_yMargin = 60,
-        bottom_yMargin = 90,
+        bottom_yMargin = 190,
         yVals = data['y_vals'],
         yMin = -1,
         xMin = -1,
@@ -496,6 +495,9 @@ function generateMicroenvironmentsPlot(data) {
         xVals = data['x_vals'],
         xMax= xVals.length - 1,
         mapping = data['raw_data'];
+
+     var height = Math.max(500, 45 * yVals.length / Math.log10(yVals.length));
+     var width = Math.max(1000, 45 * xVals.length / Math.log10(xVals.length));
 
     colorDomain = data['color_domain'];
     // NB. spme_header is hard-coded in html
@@ -511,7 +513,7 @@ function generateMicroenvironmentsPlot(data) {
     // Insert title
     const title = "Cell Type - Microenvironment";
     svg.append("text")
-        .attr("x", (- xMargin + width) / 2)
+        .attr("x", (right_xMargin + width) / 2)
         .attr("y", 12)
         .style("font-size", "16px")
         .attr("font-weight", 400)
@@ -519,7 +521,7 @@ function generateMicroenvironmentsPlot(data) {
         .text(title)
 
       var yAxisLength = height - top_yMargin - bottom_yMargin,
-        xAxisLength = width - 2 * xMargin;
+        xAxisLength = width - left_xMargin - right_xMargin;
 
       var xScale = d3
           .scaleLinear()
@@ -533,21 +535,21 @@ function generateMicroenvironmentsPlot(data) {
           .domain(colorDomain)
           .range(d3.schemeTableau10);
 
-      spmeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
-      spmeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
+      spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, xAxisLength, colorscale);
+      spmeRenderXAxis(svg, xVals, xScale, left_xMargin, height, top_yMargin, bottom_yMargin);
       for (var i = 0; i <= mapping.length - 1; i++) {
         vals = mapping[i];
         yPos = yVals.indexOf(vals[0]);
         xPos = xVals.indexOf(vals[1]);
         colorPos = colorDomain.indexOf(vals[1]);
-        spmeRenderPoint(svg, xPos, yPos, colorPos, xMargin, top_yMargin, xScale, yScale, colorscale);
+        spmeRenderPoint(svg, xPos, yPos, colorPos, left_xMargin, top_yMargin, xScale, yScale, colorscale);
       }
 
       svg.selectAll("legend_dots")
         .data(colorDomain)
         .enter()
         .append("circle")
-          .attr("cx", width - 190)
+          .attr("cx", width - 290)
           .attr("cy", function(d,i){ return top_yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .attr("r", 7)
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
@@ -558,7 +560,7 @@ function generateMicroenvironmentsPlot(data) {
         .data(colorDomain)
         .enter()
         .append("text")
-          .attr("x", width - 170)
+          .attr("x", width - 270)
           .attr("y", function(d,i){ return top_yMargin + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
           .style("fill", function(d){ return colorscale(colorDomain.indexOf(d))})
           .text(function(d){ return d})
@@ -607,7 +609,7 @@ function setDeafultColourForAllCellTypes() {
     });
 }
 
-function spmeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin) {
+function spmeRenderXAxis(svg, xVals, xScale, left_xMargin, height, top_yMargin, bottom_yMargin) {
     var xAxis = d3
       .axisBottom()
       .ticks(xVals.length)
@@ -620,7 +622,7 @@ function spmeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, botto
       .attr("class", "x-axis")
       .attr("id", "spme_x-axis")
       .attr("transform", function() {
-        return "translate(" + xMargin + "," + (height - bottom_yMargin) + ")";
+        return "translate(" + left_xMargin + "," + (height - bottom_yMargin) + ")";
       })
       .attr("opacity", 1)
       .call(xAxis)
@@ -639,7 +641,7 @@ function spmeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, botto
       .attr("y2", -(height - top_yMargin - bottom_yMargin));
 }
 
-function spmeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale) {
+function spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, xAxisLength, colorscale) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -652,7 +654,7 @@ function spmeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, 
       .attr("class", "y-axis")
       .attr("id", "spme_y-axis")
       .attr("transform", function() {
-        return "translate(" + xMargin + "," + top_yMargin + ")";
+        return "translate(" + left_xMargin + "," + top_yMargin + ")";
       })
       .call(yAxis);
 
@@ -666,11 +668,11 @@ function spmeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, 
       .attr("fill", colorscale(0));
 }
 
-function spmeRenderPoint(svg, x, y, colorPos, xMargin, top_yMargin, xScale, yScale, colorscale) {
+function spmeRenderPoint(svg, x, y, colorPos, left_xMargin, top_yMargin, xScale, yScale, colorscale) {
     svg
       .append("circle")
       .attr("transform", function() {
-        return "translate(" + xMargin + "," + top_yMargin + ")";
+        return "translate(" + left_xMargin + "," + top_yMargin + ")";
       })
       .attr("cx", xScale(x))
       .attr("cy", yScale(y))
@@ -727,11 +729,11 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     }
 
     var num_cts = data['cell_types'].length;
-    var height = Math.max(700, 40 * num_cts / Math.log10(num_cts));
-    var width = 900,
-    bottom_yMargin = 250,
+    var height = Math.max(700, 45 * num_cts / Math.log10(num_cts));
+    var width = 1100,
+    bottom_yMargin = 450,
     top_yMargin = 60,
-    xMargin = 120,
+    xMargin = 320,
     yVals = data['cell_types'],
     yMin = -1,
     xMin = -1,
@@ -790,7 +792,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
 
   sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale);
   sgeRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin);
-  const legend_xPos=xAxisLength+legend_offset;
+  const legend_xPos=width-115;
   const legend_yPos=top_yMargin+50;
   // cell types
   for (var i = 0; i <= yVals.length - 1; i++) {
@@ -907,26 +909,26 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
             .attr("y", dotlegend_yPos);
 
       // Dot size legend header
-      const dotLegendXPos = legend_offset + 25;
+      const localLegendXOffset = legend_offset + 25;
       dotSizeLegend
-       .append("text").attr("x", dotLegendXPos).attr("y", 110).text("Percent of cells").style("font-size", "15px")
+       .append("text").attr("x", localLegendXOffset).attr("y", 110).text("Percent of cells").style("font-size", "15px")
         .attr("alignment-baseline","middle")
       dotSizeLegend
-        .append("text").attr("x", dotLegendXPos).attr("y", 130).text("in cell type").style("font-size", "15px")
+        .append("text").attr("x", localLegendXOffset).attr("y", 130).text("in cell type").style("font-size", "15px")
         .attr("alignment-baseline","middle")
       // dot size legend content
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",160).attr("r", 1).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",190).attr("r", 2).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",220).attr("r", 4).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",250).attr("r", 6).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",280).attr("r", 8).style("fill", "#404080")
-      dotSizeLegend.append("circle").attr("cx",dotLegendXPos).attr("cy",310).attr("r", 10).style("fill", "#404080")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 160).text("(0, 0.2)").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 190).text("0.2").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 220).text("0.4").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 250).text("0.6").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 280).text("0.8").style("font-size", "15px").attr("alignment-baseline","middle")
-      dotSizeLegend.append("text").attr("x", dotLegendXPos + 35).attr("y", 310).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("circle").attr("cx",localLegendXOffset).attr("cy",160).attr("r", 1).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",localLegendXOffset).attr("cy",190).attr("r", 2).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",localLegendXOffset).attr("cy",220).attr("r", 4).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",localLegendXOffset).attr("cy",250).attr("r", 6).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",localLegendXOffset).attr("cy",280).attr("r", 8).style("fill", "#404080")
+      dotSizeLegend.append("circle").attr("cx",localLegendXOffset).attr("cy",310).attr("r", 10).style("fill", "#404080")
+      dotSizeLegend.append("text").attr("x", localLegendXOffset + 35).attr("y", 160).text("(0, 0.2)").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", localLegendXOffset + 35).attr("y", 190).text("0.2").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", localLegendXOffset + 35).attr("y", 220).text("0.4").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", localLegendXOffset + 35).attr("y", 250).text("0.6").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", localLegendXOffset + 35).attr("y", 280).text("0.8").style("font-size", "15px").attr("alignment-baseline","middle")
+      dotSizeLegend.append("text").attr("x", localLegendXOffset + 35).attr("y", 310).text("1").style("font-size", "15px").attr("alignment-baseline","middle")
   }
 }
 
@@ -1366,21 +1368,33 @@ function refreshCCISummaryPlots() {
                         }
                     }
                     // Generate plot across cell types also - in case the user wishes to see it
-                   generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
-                   if ($('#cci_summary_show_all_celltypes').is(':checked')) {
-                       $("#cci0_div").show();
-                   } else {
-                       $("#cci0_div").hide();
+                    // Note: The plot is generated for maximum 150 cell types
+                     console.log("-", res['all_cell_types'].length);
+                   if (res['all_cell_types'].length < 150) {
+                       generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
+                       if ($('#cci_summary_show_all_celltypes').is(':checked')) {
+                           $("#cci0_div").show();
+                       } else {
+                           $("#cci0_div").hide();
+                       }
                    }
                 } else {
-                    generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
+                    // Generate plot across cell types also - in case the user wishes to see it
+                    // Note: The plot is generated for maximum 150 cell types
+                    if (res['all_cell_types'].length < 150) {
+                        generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
+                        // Hide microenvironment input
+                        $("#cci_search_microenvironment_sel").hide();
+                    }
+                }
+            } else {
+                // Generate plot across cell types
+                // Note: The plot is generated for maximum 150 cell types
+                if (res['all_cell_types'].length < 150) {
+                generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
                     // Hide microenvironment input
                     $("#cci_search_microenvironment_sel").hide();
                 }
-            } else {
-                generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
-                // Hide microenvironment input
-                $("#cci_search_microenvironment_sel").hide();
             }
        if (res.hasOwnProperty('all_classes')) {
             enable_autocomplete('cci_summary_class_input', 'cci_summary_selected_classes', res['all_classes']);
