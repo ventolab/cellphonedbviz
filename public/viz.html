@@ -219,6 +219,19 @@ function refreshCCISummaryChordPlots() {
                   </div>
 
                   <div class="col s12 m9 l9 push-s1">
+                    <div id="sge_spinner" class="container center" hidden>
+                      <div class="preloader-wrapper active center">
+                        <div class="spinner-layer spinner-red-only">
+                          <div class="circle-clipper left">
+                            <div class="circle"></div>
+                          </div><div class="gap-patch">
+                            <div class="circle"></div>
+                          </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('sge','sge_title','sge_header')">
@@ -242,7 +255,7 @@ function refreshCCISummaryChordPlots() {
                 <label>
                   <span class="black-text text-lighten-10 switch-label">Show heatmaps</span>
                   <input id="cci_summary_switch" type="checkbox">
-                  <span class="lever"></span>
+                  <span id="cci_summary_switch_lever" class="lever"></span>
                   <span class="black-text text-lighten-10 switch-label">Show chord plots</span>
                 </label>
               </div>
@@ -252,20 +265,45 @@ function refreshCCISummaryChordPlots() {
                       <span id="cci_summary_show_all_celltypes_label">Show all cell types</span>
                   </label>
               </div>
-              <div id="cci_summary_class_filter_div" style="padding-left: 20px; padding-right: 20px" hidden>
-                  <div class="input-field">
-                    <input style="padding-top: 30px;" type="text" id="cci_summary_class_input" placeholder="">
-                    <label style="padding-top: 30px;" for="cci_summary_class_input" class="black-text text-lighten-10 search-input-label">Filter interactions by class</label>
+              <div>
+                  <div id="cci_summary_class_filter_div" style="padding-left: 20px; padding-right: 20px" hidden>
+                      <div class="input-field">
+                        <input style="padding-top: 30px;" type="text" id="cci_summary_class_input" placeholder="">
+                        <label style="padding-top: 30px;" for="cci_summary_class_input" class="black-text text-lighten-10 search-input-label">Filter interactions by class</label>
+                      </div>
+                      <div style="padding-bottom: 20px;" class="cci_summary_selected_classes"></div>
                   </div>
-                  <div style="padding-bottom: 20px;" class="cci_summary_selected_classes"></div>
-                  <button id="refresh_cci_summary_plots" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISummaryPlots();">Refresh plots
-                        <i class="material-icons right">refresh</i>
-                  </button>
-                  <button id="clear_cci_summary_class_filter" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISummaryFilters()">Clear filter&nbsp;
-                        <i class="material-icons right">clear_all</i>
-                  </button>
+                  <div id="cci_summary_class_microenvironment_div" style="padding-left: 20px; padding-right: 20px" hidden>
+                      <div class="input-field">
+                        <input style="padding-top: 30px;" type="text" id="cci_summary_microenvironment_input" placeholder="">
+                        <label style="padding-top: 10px;" for="cci_summary_microenvironment_input" class="black-text text-lighten-10 search-input-label">Select microenvironments to plot</label>
+                      </div>
+                      <div class="cci_summary_selected_microenvironments" style="padding-bottom: 10px;" ></div>
+                  </div>
+                  <div id="cci_summary_buttons_div" style="padding-left: 20px; padding-right: 20px; padding-bottom: 20px; padding-top: 20px" hidden>
+                      <button id="refresh_cci_summary_plots" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISummaryPlots();">Refresh plots
+                            <i class="material-icons right">refresh</i>
+                      </button>
+                      <button id="clear_cci_summary_filter" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISummaryFilters()">Clear filter&nbsp;
+                            <i class="material-icons right">clear_all</i>
+                      </button>
+                  </div>
+                  </div>
               </div>
-
+              <div id="cci_summary_spinner" class="container center" hidden>
+                  <div class="preloader-wrapper active center">
+                    <div class="spinner-layer spinner-red-only">
+                      <div class="circle-clipper left">
+                        <div class="circle"></div>
+                      </div><div class="gap-patch">
+                        <div class="circle"></div>
+                      </div><div class="circle-clipper right">
+                        <div class="circle"></div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              <div id="cci_summary_error" class="container center red-text" style="padding-top: 20px;" hidden></div>
               <div class="row">
                 <!-- Cell cell interaction plot - All cell types-->
                 <div id="cci0_div" hidden>
