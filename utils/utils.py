@@ -32,7 +32,7 @@ def get_projects() -> dict:
             if dir_name in project_dirs:
                 dict = {}
                 dir_name2file_name2df[dir_name] = {}
-                print("Loading project: {}...".format(dir_name))
+                print("Loading project: {}...".format(dir_name), flush=True)
                 with open('{}/config.yml'.format(root), 'r') as file:
                     config = yaml.safe_load(file)
                     dict['title'] = config['title']
