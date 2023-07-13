@@ -221,8 +221,22 @@ def preselect_interacting_pairs(dict_cci_search: dict, selected_cell_type_pairs,
         topN = int(interacting_pairs_selection_logic)
         return selected_interacting_pairs_sorted[0:topN]
 
-def preselect_cell_type_pairs(dict_cci_search: dict):
-    return dict_cci_search['all_cell_type_pairs']
+def preselect_cell_type_pairs(dict_cci_search: dict, separator: str):
+    if dict_cci_search['num_all_cell_type_pairs'] >= 1500:
+        if 'microenvironment2cell_types' in dict_cci_search:
+            dd = dict_cci_search['microenvironment2cell_types']
+            for me in dd:
+                cell_types = dd[me]
+                cell_type_pairs = []
+                for ct_pair in dict_cci_search['all_cell_type_pairs']:
+                    (ct1, ct2) = ct_pair.split(separator)
+                    if ct1 in cell_types and ct2 in cell_types:
+                        cell_type_pairs += [ct_pair]
+                return cell_type_pairs
+        else:
+            return []
+    else:
+        return dict_cci_search['all_cell_type_pairs']
 
 def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False, percents = False):
     dict_sge = dict_dd['single_gene_expression']
@@ -242,7 +256,7 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
     if not selected_cell_types:
         if not refresh_plot:
             # Pre-select cell type pairs
-            selected_cell_type_pairs = preselect_cell_type_pairs(dict_cci_search)
+            selected_cell_type_pairs = preselect_cell_type_pairs(dict_cci_search, separator)
             # Derive pre-selected cell types from selected_cell_type_pairs
             selected_cell_types = set([])
             for ctp in selected_cell_type_pairs:
@@ -495,7 +509,7 @@ def filter_interactions_for_cci_search(result_dict,
         selected_cell_types = []
         if not refresh_plot:
             # Pre-select cell type pairs
-            selected_cell_type_pairs = preselect_cell_type_pairs(result_dict)
+            selected_cell_type_pairs = preselect_cell_type_pairs(result_dict, separator)
         else:
             selected_cell_type_pairs = []
     else:
