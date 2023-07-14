@@ -1548,7 +1548,7 @@ function clearCCISearchCellTypeFilters() {
 
 function getPValBucket(pVal) {
     var ret;
-    if (!pVal) {
+    if (pVal === undefined) {
         pVal = 1;
     }
     if (pVal > 0) {
