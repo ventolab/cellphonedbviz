@@ -221,28 +221,45 @@ def preselect_interacting_pairs(dict_cci_search: dict, selected_cell_type_pairs,
         topN = int(interacting_pairs_selection_logic)
         return selected_interacting_pairs_sorted[0:topN]
 
-def preselect_cell_type_pairs(dict_cci_search: dict, separator: str):
-    if dict_cci_search['num_all_cell_type_pairs'] >= 1500:
+def maxCellTypePairsExceeded(dd):
+    return dd['num_all_cell_type_pairs'] >= 1500
+
+def preselect_cell_types_pairs(dict_cci_search: dict, separator: str, mes: set):
+    if maxCellTypePairsExceeded(dict_cci_search):
         if 'microenvironment2cell_types' in dict_cci_search:
             dd = dict_cci_search['microenvironment2cell_types']
-            for me in dd:
-                cell_types = dd[me]
-                cell_type_pairs = []
+            if not mes:
+                me = list(dd.keys())[0]
+                mes.add(me)
+            cell_type_pairs = []
+            cell_types = []
+            for me in mes:
+                cts = dd[me]
                 for ct_pair in dict_cci_search['all_cell_type_pairs']:
                     (ct1, ct2) = ct_pair.split(separator)
-                    if ct1 in cell_types and ct2 in cell_types:
+                    if ct1 in cts and ct2 in cts:
                         cell_type_pairs += [ct_pair]
-                return cell_type_pairs
+                        cell_types += cts
+            return cell_types, cell_type_pairs
         else:
-            return []
+            return [],[]
     else:
-        return dict_cci_search['all_cell_type_pairs']
+        return dict_cci_search['all_cell_types'], dict_cci_search['all_cell_type_pairs']
 
 def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False, percents = False):
     dict_sge = dict_dd['single_gene_expression']
     dict_cci_search = dict_dd['cell_cell_interaction_search']
     if not separator:
         separator = dict_dd['cell_cell_interaction_search']['separator']
+
+    # Note: all_genes is needed for autocomplete - for the user to include genes in the plot
+    all_genes = set(df['gene_name'].values)
+    all_cell_types = list(df.columns[7:])
+    # Data below is needed for autocomplete functionality
+    dict_sge['all_genes'] = all_genes
+    dict_sge['all_cell_types'] = all_cell_types
+    dict_cci_search['all_genes'] = all_genes
+    dict_cci_search['all_cell_types'] = all_cell_types
 
     # On first page load, we pre-select N interacting pairs (from means file), but we can map each interacting
     # pair label to a pair of gene names using deconvoluted file (via interaction id - shared by deconvoluted and means files -
@@ -256,12 +273,7 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
     if not selected_cell_types:
         if not refresh_plot:
             # Pre-select cell type pairs
-            selected_cell_type_pairs = preselect_cell_type_pairs(dict_cci_search, separator)
-            # Derive pre-selected cell types from selected_cell_type_pairs
-            selected_cell_types = set([])
-            for ctp in selected_cell_type_pairs:
-                selected_cell_types.update(set(ctp.split(separator)))
-            selected_cell_types = list(selected_cell_types)
+            selected_cell_types, selected_cell_type_pairs = preselect_cell_types_pairs(dict_cci_search, separator, set())
         else:
             selected_cell_types = []
     selected_cell_types = sorted(list(set(selected_cell_types)))
@@ -280,10 +292,6 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
         else:
             selected_genes = []
     dict_sge['genes'] = selected_genes
-
-    # Note: all_genes is needed for autocomplete - for the user to include genes in the plot
-    all_genes = set(df['gene_name'].values)
-    all_cell_types = list(df.columns[6:])
 
     # Retrieve gene and complex information for each interacting pair
     interacting_pair2participants = {}
@@ -331,11 +339,6 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
     if not deconvoluted_df.empty:
         dict_sge[min_key] = deconvoluted_df.min(axis=None)
         dict_sge[max_key] = deconvoluted_df.max(axis=None)
-    # Data below is needed for autocomplete functionality
-    dict_sge['all_genes'] = all_genes
-    dict_sge['all_cell_types'] = all_cell_types
-    dict_cci_search['all_genes'] = all_genes
-    dict_cci_search['all_cell_types'] = all_cell_types
 
 def populate_pvalues_data(result_dict, df, separator):
     dict_cci_search = result_dict['cell_cell_interaction_search']
@@ -346,7 +349,6 @@ def populate_pvalues_data(result_dict, df, separator):
         df_filtered = df[df[ct_pair] < 1]
         dict_pvals[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
     dict_cci_search['pvalues'] = dict_pvals
-
 
 def populate_relevant_interactions_data(result_dict, df, separator):
     dict_cci_search = result_dict['cell_cell_interaction_search']
@@ -485,6 +487,7 @@ def filter_interactions_for_cci_search(result_dict,
         ct2mes = result_dict['cell_type2microenvironments']
 
     # Collect all combinations of cell types (disregarding the order) from cell_types and cell_type_pairs combined
+    mes = set(microenvironments)
     if cell_types:
         selected_cell_types = cell_types
         # Derive selected_cell_type_pairs from selected_cell_types
@@ -493,7 +496,6 @@ def filter_interactions_for_cci_search(result_dict,
             # Note: the search for cell types and cell type pairs is additive (inclusive OR)
             selected_cell_type_pairs += cell_type_pairs
         # Extract from result_dict['all_cell_type_pairs'] all elements containing at least one cell type in selected_cell_types
-        mes = set(microenvironments)
         for ct_pair in result_dict['all_cell_type_pairs']:
             (ct1, ct2) = ct_pair.split(separator)
             if not microenvironments:
@@ -506,12 +508,7 @@ def filter_interactions_for_cci_search(result_dict,
         # Restrict all combinations of cell types to just those in means_df
         selected_cell_type_pairs = [ct_pair for ct_pair in selected_cell_type_pairs if ct_pair in means_df.columns.values]
     elif not cell_type_pairs:
-        selected_cell_types = []
-        if not refresh_plot:
-            # Pre-select cell type pairs
-            selected_cell_type_pairs = preselect_cell_type_pairs(result_dict, separator)
-        else:
-            selected_cell_type_pairs = []
+        selected_cell_types, selected_cell_type_pairs = preselect_cell_types_pairs(result_dict, separator, mes)
     else:
         selected_cell_types = []
         selected_cell_type_pairs = cell_type_pairs
@@ -522,6 +519,14 @@ def filter_interactions_for_cci_search(result_dict,
     means_cols_filter = means_df.columns[means_df.columns.isin(selected_cell_type_pairs)]
     result_dict['selected_cell_types'] = sorted(selected_cell_types)
     selected_cell_type_pairs, ctp2me = sort_cell_type_pairs(selected_cell_type_pairs, result_dict, separator)
+
+    if maxCellTypePairsExceeded(result_dict):
+        if 'microenvironment2cell_types' in result_dict:
+            dd = result_dict['microenvironment2cell_types']
+            me = list(dd.keys())[0]
+            # The following is in an attempt to avoid exceeding max length of GET request - if microenvironments (me's) are present, the
+            # first me key in dd is populated into the page _instead_ of selected_cell_type_pairs
+            result_dict['selected_microenvironments'] = [me]
     result_dict['selected_cell_type_pairs'] = selected_cell_type_pairs
 
     # The following will be used to colour cell type pair labels on the plot's x-axis depending on
@@ -568,6 +573,7 @@ def filter_interactions_for_cci_search(result_dict,
 
     result_dict['selected_genes'] = sorted(list(set(genes)))
     result_dict['selected_interacting_pairs'] = interacting_pairs
+    result_dict['selected_cell_type_pairs'] = selected_cell_type_pairs
     if interacting_pairs:
         if 'interacting_pair2classes' in result_dict:
             selected_interacting_pair2class = {}

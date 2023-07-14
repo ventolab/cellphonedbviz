@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
   } else {
       // Redirect to error page if projectid is invalid
       const validate_projectid = async () => {
-         const response = await fetch('/api/validate/' + projectId);
+         const response = await fetch('./api/validate/' + projectId);
          const json = await response.json();
          if (!json) {
             window.location.href = "/error.html?msg="+encodeURIComponent("Sorry, project '" + projectId + "' does not exist.");
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Redirect to error page if project is restricted access and no or incorrect auth hash was provided
   const validate_auth = async () => {
-     const response = await fetch('/api/validate/auth/' + projectId + '?auth=' + hash);
+     const response = await fetch('./api/validate/auth/' + projectId + '?auth=' + hash);
      const json = await response.json();
      if (!json) {
         window.location.href = "/error.html?msg="+encodeURIComponent("Sorry, you don't have access to this page.");
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
    // Populate page title
    $.ajax({
-            url: '/api/list',
+            url: './api/list',
             contentType: "application/json",
             dataType: 'json',
             success: function(res) {
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Generate cell type composition plot
     $.ajax({
-        url: '/api/data/'+projectId+'/celltype_composition',
+        url: './api/data/'+projectId+'/celltype_composition',
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Generate spatial micro-environments plot
     $.ajax({
-            url: '/api/data/'+projectId+'/microenvironments',
+            url: './api/data/'+projectId+'/microenvironments',
             contentType: "application/json",
             dataType: 'json',
             success: function(res) {
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Generate single gene expression plot
     $.ajax({
-        url: '/api/data/'+projectId+'/single_gene_expression',
+        url: './api/data/'+projectId+'/single_gene_expression',
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
      // Generate cell-cell interaction search plot
      $.ajax({
-        url: '/api/data/'+projectId+'/cell_cell_interaction_search',
+        url: './api/data/'+projectId+'/cell_cell_interaction_search',
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
@@ -167,7 +167,7 @@ function downloadAsPDF(divId, titleId, headerId) {
     // See: https://cdn.jsdelivr.net/npm/pdfkit@0.10.0/js/pdfkit.standalone.js
     const svgWidth = parseInt(div.find('svg').attr('width'));    // Generate cell-cell interaction search plot
     $.ajax({
-        url: '/api/data/'+projectId+'/cell_cell_interaction_search',
+        url: './api/data/'+projectId+'/cell_cell_interaction_search',
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
@@ -321,12 +321,18 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
               $('#cci_search_select_all_celltypes').addClass('disabled');
             }
         } else {
-            selected_cell_types = all_cell_types;
             if (selected_microenvironments_div == 'sge_selected_microenvironments') {
+               selected_cell_types = all_cell_types;
                $('.sge_selected_celltypes').show();
                $('#sge_celltype_input').prop( "disabled", false );
                $('#sge_select_all_celltypes').removeClass('disabled');
             } else if (selected_microenvironments_div == 'cci_search_selected_microenvironments') {
+              if (maxCellTypesExceeded(all_cell_types)) {
+                // Don't select all cell types for v. large datasets
+                selected_cell_types = []
+              } else {
+                selected_cell_types = all_cell_types;
+              }
               $('#cci_search_celltype_input').prop( "disabled", false );
               $('#cci_search_celltype_pair_input').prop( "disabled", false );
               $('.cci_search_selected_celltypes').show();
@@ -334,7 +340,7 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
               $('#cci_search_select_all_celltypes').removeClass('disabled');
             }
         }
-        // Replace any previously select cell types in selected_celltypes_div with the ones in the selected microenvironments
+        // Replace any previously selected cell types in selected_celltypes_div with the ones in the selected microenvironments
         // We're effectively forcing the user to select either cell types or microenvironments, but not both.
         $('.'+ selected_celltypes_div).empty();
         for (var i = 0; i < selected_cell_types.length; i++) {
@@ -345,7 +351,7 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
 
 function selectAllCellTypes(viz){
     var projectId = getProjectId();
-    var url = '/api/data/'+projectId+'/' + viz;
+    var url = './api/data/'+projectId+'/' + viz;
     $.ajax({
             url: url,
             contentType: "application/json",
@@ -414,7 +420,7 @@ function refreshSGEPlot() {
     var ret = getSelectedTokens(["sge_selected_genes", "sge_selected_celltypes"]);
     var selectedGenes = ret[0];
     var selectedCellTypes = ret[1];
-    var url = '/api/data/'+projectId+'/single_gene_expression';
+    var url = './api/data/'+projectId+'/single_gene_expression';
     if (selectedGenes || selectedCellTypes) {
         url += "?";
         if (selectedGenes) {
@@ -1394,8 +1400,8 @@ function disableCCISummarySwitches() {
     $('#cci_summary_switch_lever').attr('style', "background-color: #9e9e9e !important;");
 }
 
-function maxCellTypesExceeded(res) {
-    return res['all_cell_types'].length >= 150;
+function maxCellTypesExceeded(all_cell_types) {
+    return all_cell_types.length >= 150;
 }
 
 function refreshCCISummaryPlots() {
@@ -1407,7 +1413,7 @@ function refreshCCISummaryPlots() {
     var selectedClasses = ret[0];
     ret = getSelectedTokens(["cci_summary_selected_microenvironments"]);
     var selectedMicroenvironments = ret[0];
-    var url = '/api/data/'+projectId+'/cell_cell_interaction_summary';
+    var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
     }
@@ -1417,7 +1423,7 @@ function refreshCCISummaryPlots() {
         dataType: 'json',
         success: function(res) {
            if (res.hasOwnProperty('microenvironment2cell_types')) {
-                if (maxCellTypesExceeded(res)) {
+                if (maxCellTypesExceeded(res['all_cell_types'])) {
                         if (selectedMicroenvironments != undefined && selectedMicroenvironments.length > 1) {
                         $("#cci_summary_error").text("Due to a very large number of cell types in the analysis, the number of interactions can be plotted for one microenvironment only. Please restrict your microenvironments filter to just one and try again.")
                         $("#cci_summary_error").show();
@@ -1441,7 +1447,7 @@ function refreshCCISummaryPlots() {
                     enable_autocomplete('cci_summary_microenvironment_input', 'cci_summary_selected_microenvironments', all_microenvironments);
                     var cnt = 1;
                     var max = 9;
-                    if (maxCellTypesExceeded(res)) {
+                    if (maxCellTypesExceeded(res['all_cell_types'])) {
                         // Plot only one per-microenvironment plot
                         // N.B. cnt = 0 has the effect of plotting the one per-microenvironment plot as if it was an 'all cell types' plot
                         // if maxCellTypesExceeded(res) had been false - that is in the larger format. Normally if maxCellTypesExceeded(res) is false,
@@ -1468,7 +1474,7 @@ function refreshCCISummaryPlots() {
                     }
                     // Generate plot across cell types also - in case the user wishes to see it
                     // Note: The plot is generated if the number of cell types has not exceeded the maximum
-                   if (!maxCellTypesExceeded(res)) {
+                   if (!maxCellTypesExceeded(res['all_cell_types'])) {
                        generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
                        if ($('#cci_summary_show_all_celltypes').is(':checked')) {
                            $("#cci0_div").show();
@@ -1481,7 +1487,7 @@ function refreshCCISummaryPlots() {
                 } else {
                     // Generate plot across cell types also - in case the user wishes to see it
                     // Note: The plot is generated if the number of cell types has not exceeded the maximum
-                    if (!maxCellTypesExceeded(res)) {
+                    if (!maxCellTypesExceeded(res['all_cell_types'])) {
                         generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
                         // Hide microenvironment input
                         $("#cci_search_microenvironment_sel").hide();
@@ -1492,7 +1498,7 @@ function refreshCCISummaryPlots() {
             } else {
                 // Generate plot across cell types
                 // Note: The plot is generated if the number of cell types has not exceeded the maximum
-                if (!maxCellTypesExceeded(res)) {
+                if (!maxCellTypesExceeded(res['all_cell_types'])) {
                     generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
                     // Hide microenvironment input
                     $("#cci_search_microenvironment_sel").hide();
@@ -1570,7 +1576,7 @@ function validateCCISearchInput(data) {
     } else if (data['selected_cell_type_pairs'].length == 1) {
         // Z-scores (calculated across all selected cell type pairs) cannot be calculated when only
         // one cell type pair has been selected - report an error
-        errMsg = 'The plot shows z-scores that cannot be calculated if only one cell type pair is selected. Please select more than one cell type.';
+        errMsg = 'The plot shows z-scores that cannot be calculated if only one cell type pair is selected. Please select more than one cell type pair.';
     } else if (!data.hasOwnProperty('interacting_pairs_means')) {
         errMsg = 'No significant interactions were found - please try another search.';
     }
@@ -1588,6 +1594,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     const selectedCTP2Me = data['selected_cell_type_pairs2microenvironment'];
     const selectedIP2Class = data['selected_interacting_pair2class'];
     const microenvironments = data['microenvironments']
+    const selectedMicroenvironments = data['selected_microenvironments']
     const cellsign_active_interactions = data['cellsign_active_interactions']
     const interacting_pair2participants = data['interacting_pair2participants'];
     // interacting_pair2properties is retrieved from analysis_means file
@@ -1609,14 +1616,21 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         for (var i = 0; i < selectedGenes.length; i++) {
             storeToken(selectedGenes[i], "cci_search_selected_genes", "cci_search_gene_input");
         }
-        for (var i = 0; i < selectedCellTypes.length; i++) {
-            storeToken(selectedCellTypes[i], "cci_search_selected_celltypes", "cci_search_celltype_input");
-        }
         for (var i = 0; i < selectedInteractingPairs.length; i++) {
             storeToken(selectedInteractingPairs[i], "cci_search_selected_interactions", "cci_search_interaction_input");
         }
-        for (var i = 0; i < selectedCellTypePairs.length; i++) {
-            storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
+        if (selectedMicroenvironments != undefined && selectedMicroenvironments.length > 0) {
+            // This is the case on first page load for v. large data sets
+            for (var i = 0; i < selectedMicroenvironments.length; i++) {
+                storeToken(selectedMicroenvironments[i], "cci_search_selected_microenvironments", "cci_search_microenvironment_input");
+            }
+        } else {
+            for (var i = 0; i < selectedCellTypes.length; i++) {
+                storeToken(selectedCellTypes[i], "cci_search_selected_celltypes", "cci_search_celltype_input");
+            }
+            for (var i = 0; i < selectedCellTypePairs.length; i++) {
+                storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
+            }
         }
     } else if (interacting_pairs_selection_logic != undefined) {
         // The user selected a new interacting_pairs_selection_logic - clear previously selected interacting pairs and
@@ -2362,7 +2376,7 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     var selectedMicroenvironments = ret[pos++];
     var selectedClasses = ret[pos++];
     // DEBUG console.log(selectedGenes, selectedCellTypes, selectedCellTypePairs, selectedInteractions);
-    var url = '/api/data/'+projectId+'/cell_cell_interaction_search';
+    var url = './api/data/'+projectId+'/cell_cell_interaction_search';
     if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs || selectedClasses) {
         url += "?";
         if (selectedClasses) {
