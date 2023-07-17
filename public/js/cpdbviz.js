@@ -161,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function downloadAsPDF(divId, titleId, headerId) {
+    var projectId = getProjectId();
     var options = {};
     var div = $("#" + divId);
     const is_cci = divId.search(/cci\d/ != -1);
