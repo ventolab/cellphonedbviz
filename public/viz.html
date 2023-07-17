@@ -49,7 +49,7 @@ function refreshCCISummaryChordPlots() {
     const projectId = getProjectId();
     var ret = getSelectedTokens(["cci_summary_selected_classes"]);
     var selectedClasses = ret[0];
-    var url = '/api/data/'+projectId+'/cell_cell_interaction_summary';
+    var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
     }
