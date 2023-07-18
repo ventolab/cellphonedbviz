@@ -65,7 +65,7 @@ function refreshCCISummaryChordPlots() {
                 const map = new Map(Object.entries(microenvironment2cell_types));
                 if (map.size > 0) {
                     var cnt = 1;
-                    // First figure out min_num_ints and max_num_ints across the cell types in all microenvironments
+                    // First calculate min_num_ints and max_num_ints across the cell types in all microenvironments
                     for (let [microenvironment, cellTypes] of map.entries()) {
                         const num_ints_csv = filterNumInteractions(res, cellTypes, false);
                         const chordData = d3.csvParse(num_ints_csv, d3.autoType);

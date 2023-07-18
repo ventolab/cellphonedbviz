@@ -1153,11 +1153,9 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         yMax = yVals.length - 1,
         xVals = cellTypes,
         xMax= xVals.length - 1,
-        // total_min_ints, total_max_ints needed for color scale
-        // N.B. We don't take parseInt(data['min_num_ints']) as min_ints because the bar legend misbehaves when min_ints > 0
-        // and so far I've not been able to make it work with min_ints > 0
-        min_ints=0,
+        // min_ints, max_ints needed for color scale
         max_ints=parseInt(data['max_num_ints']),
+        min_ints=parseInt(data['min_num_ints']),
         boxWidth = Math.round(380/yVals.length),
         legend_width=50
         legend_height=150,
@@ -1274,7 +1272,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         .xScale(legend_xScale)
         .yScale(legend_yScale)
         .crossValue(0)
-        .baseValue((_, i) => (i > 0 ? expandedDomain[i - 1] : 0))
+        .baseValue((_, i) => (i > 0 ? expandedDomain[i - 1] : min_ints))
         .mainValue(d => d)
         .decorate(selection => {
           selection.selectAll("path").style("fill", d => colorscale(d));
@@ -1461,7 +1459,25 @@ function refreshCCISummaryPlots() {
                     for (var i = 0; i <= 9; i++) {
                         $("#cci"+i).empty();
                     }
-
+                    // First calculate min_num_ints and max_num_ints across the cell types in all microenvironments
+                    var min_num_ints = res['max_num_ints'];
+                    var max_num_ints = res['min_num_ints'];
+                    for (let [microenvironment, cellTypes] of map.entries()) {
+                        const num_ints_csv = filterNumInteractions(res, cellTypes, false);
+                        const chordData = d3.csvParse(num_ints_csv, d3.autoType);
+                        const num_ints = Array.from(new Set(chordData.flatMap(d => [parseInt(d.value)])));
+                        const meMin = Math.min(...num_ints);
+                        const meMax = Math.max(...num_ints);
+                        if (meMin < min_num_ints) {
+                            min_num_ints = meMin;
+                        }
+                        if (meMax > max_num_ints) {
+                            max_num_ints = meMax;
+                        }
+                    }
+                    res['min_num_ints'] = min_num_ints;
+                    res['max_num_ints'] = max_num_ints;
+                    // Now generate the per-microenvironment plots
                     for (let [microenvironment, cellTypes] of map.entries()) {
                         if (selectedMicroenvironments == undefined || selectedMicroenvironments.includes(microenvironment)) {
                             generateCellCellInteractionSummaryPlot(res, cellTypes.sort(), microenvironment, cnt);
