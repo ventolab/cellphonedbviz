@@ -2,6 +2,9 @@ import {Runtime, Library, Inspector} from "../external/js/runtime.unminified.nop
 
 function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,formatValue,arc,title,maxNumInts)
 {
+    if (maxNumInts == 0) {
+        return;
+    }
     const svg = d3.create("svg")
         .attr("width", width*1.6)
         .attr("height", height*1.6)
