@@ -34,7 +34,7 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
         .style("mix-blend-mode", "multiply")
     // The following acts as a tooltip over a ribbon
     .append("title")
-        .text(d => `${names[d.source.index]} -> ${names[d.target.index]} : ${formatValue(d.source.value)} interactions`);
+        .text(d => `${names[d.source.index]} - ${names[d.target.index]} : ${formatValue(d.source.value)} interactions`);
 
     // Work our parameters for placement of labels
     // NB. Maximum 4 levels of spread for labels
