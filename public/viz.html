@@ -72,7 +72,8 @@ function refreshCCISummaryChordPlots() {
                         const num_ints = Array.from(new Set(chordData.flatMap(d => [parseInt(d.value)])));
                         const meMin = Math.min(...num_ints);
                         const meMax = Math.max(...num_ints);
-                        if (meMin < min_num_ints) {
+                        // Chord plot shows nothing if number of interactions is 0, hence no point including it in the colour legend
+                        if (meMin > 0 && meMin < min_num_ints) {
                             min_num_ints = meMin;
                         }
                         if (meMax > max_num_ints) {
