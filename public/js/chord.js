@@ -1,6 +1,6 @@
 import {Runtime, Library, Inspector} from "../external/js/runtime.unminified.noparamsdisplay.js";
 
-function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,formatValue,arc,title,maxNumInts)
+function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,formatValue,arc,title,minNumInts,maxNumInts)
 {
     if (maxNumInts == 0) {
         return;
@@ -79,7 +79,7 @@ ${formatValue(d3.sum(matrix[d.index]))} outgoing interactions
 ${formatValue(d3.sum(matrix, row => row[d.index]))} incoming interactions`));
 
   // Display colour legend bar
-    var min_ints = 0;
+    var min_ints = parseInt(minNumInts);
     var max_ints = parseInt(maxNumInts);
     const colorscale = d3
       .scaleSequential()
@@ -125,7 +125,7 @@ ${formatValue(d3.sum(matrix, row => row[d.index]))} incoming interactions`));
     .xScale(legend_xScale)
     .yScale(legend_yScale)
     .crossValue(0)
-    .baseValue((_, i) => (i > 0 ? expandedDomain[i - 1] : 0))
+    .baseValue((_, i) => (i > 0 ? expandedDomain[i - 1] : min_ints))
     .mainValue(d => d)
     .decorate(selection => {
       selection.selectAll("path").style("fill", d => colorscale(d));
@@ -207,11 +207,10 @@ function d3_rgbString (value) {
     return d3.rgb(value >> 16, value >> 8 & 0xff, value & 0xff);
 }
 
-function _color(d3,data){
-  const max_ints = Math.max(...Array.from(new Set(data.flatMap(d => [d.value]))));
+function _color(d3,minNumInts, maxNumInts){
   return(d3
   .scaleSequential()
-  .domain([max_ints, 0])
+  .domain([maxNumInts, minNumInts])
   .interpolator(d3.interpolateRdYlBu)
 )}
 
@@ -240,8 +239,8 @@ function _d3(require){return(
 require("d3@6")
 )}
 
-function define(main, observer, data, title, plotCnt, max_num_ints) {
-     main.variable(observer("chart")).define("chart", ["d3","width","height","chord","matrix","DOM","outerRadius","ribbon","color","names","formatValue","arc","title","maxNumInts"], _chart);
+function define(main, observer, data, title, plotCnt, min_num_ints, max_num_ints) {
+     main.variable(observer("chart")).define("chart", ["d3","width","height","chord","matrix","DOM","outerRadius","ribbon","color","names","formatValue","arc","title","minNumInts","maxNumInts"], _chart);
      main.variable(observer("data")).define("data", [], data);
      main.variable(observer("title")).define("title", [], title);
      main.variable(observer("names")).define("names", ["data"], _names);
@@ -249,7 +248,7 @@ function define(main, observer, data, title, plotCnt, max_num_ints) {
      main.variable(observer("chord")).define("chord", ["d3","innerRadius"], _chord);
      main.variable(observer("arc")).define("arc", ["d3","innerRadius","outerRadius"], _arc);
      main.variable(observer("ribbon")).define("ribbon", ["d3","innerRadius"], _ribbon);
-     main.variable(observer("color")).define("color", ["d3","data"], _color);
+     main.variable(observer("color")).define("color", ["d3","minNumInts","maxNumInts"], _color);
      main.variable(observer("formatValue")).define("formatValue", _formatValue);
      // all cell types default
      var innerRadius = 200;
@@ -265,11 +264,12 @@ function define(main, observer, data, title, plotCnt, max_num_ints) {
      main.variable(observer("innerRadius")).define("innerRadius", ["width","height"], innerRadius);
      main.variable(observer("width")).define("width", size);
      main.variable(observer("height")).define("height", ["width"], size);
+     main.variable(observer("minNumInts")).define("minNumInts", [], min_num_ints);
      main.variable(observer("maxNumInts")).define("maxNumInts", [], max_num_ints);
      main.variable(observer("d3")).define("d3", ["require"], _d3);
  }
 
- export default function generateCellCellInteractionSummaryChordPlot(data, cellTypes, title, plotCnt, max_num_ints) {
+ export default function generateCellCellInteractionSummaryChordPlot(data, cellTypes, title, plotCnt, min_num_ints, max_num_ints) {
     const num_ints_csv = filterNumInteractions(data, cellTypes, false);
     // See: https://observablehq.com/@observablehq/advanced-embeds
     // See: https://observablehq.com/@observablehq/stdlib
@@ -282,6 +282,5 @@ function define(main, observer, data, title, plotCnt, max_num_ints) {
     $(plotId).empty();
     const observer = Inspector.into(document.querySelector(plotId));
     const chordData = d3.csvParse(num_ints_csv, d3.autoType);
-    define(module, observer, chordData, title, plotCnt, max_num_ints);
-
+    define(module, observer, chordData, title, plotCnt, min_num_ints, max_num_ints);
  }

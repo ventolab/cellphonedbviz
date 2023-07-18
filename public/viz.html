@@ -58,14 +58,30 @@ function refreshCCISummaryChordPlots() {
         contentType: "application/json",
         dataType: 'json',
         success: function(res) {
-           var max_num_ints = res['max_num_ints'];
+           var min_num_ints = res['max_num_ints'];
+           var max_num_ints = res['min_num_ints'];
            if (res.hasOwnProperty('microenvironment2cell_types')) {
                 const microenvironment2cell_types = res['microenvironment2cell_types'];
                 const map = new Map(Object.entries(microenvironment2cell_types));
                 if (map.size > 0) {
                     var cnt = 1;
+                    // First figure out min_num_ints and max_num_ints across the cell types in all microenvironments
                     for (let [microenvironment, cellTypes] of map.entries()) {
-                        generateCellCellInteractionSummaryChordPlot(res, cellTypes.sort(), microenvironment, cnt, max_num_ints);
+                        const num_ints_csv = filterNumInteractions(res, cellTypes, false);
+                        const chordData = d3.csvParse(num_ints_csv, d3.autoType);
+                        const num_ints = Array.from(new Set(chordData.flatMap(d => [parseInt(d.value)])));
+                        const meMin = Math.min(...num_ints);
+                        const meMax = Math.max(...num_ints);
+                        if (meMin < min_num_ints) {
+                            min_num_ints = meMin;
+                        }
+                        if (meMax > max_num_ints) {
+                            max_num_ints = meMax;
+                        }
+                    }
+                    // Now generate the plots
+                    for (let [microenvironment, cellTypes] of map.entries()) {
+                        generateCellCellInteractionSummaryChordPlot(res, cellTypes.sort(), microenvironment, cnt, min_num_ints, max_num_ints);
                         cnt++;
                         if (cnt > 9) {
                             // TODO: We currently only have up to nine slots for microenvironment-specific cci plots - to be reviewed
@@ -73,12 +89,12 @@ function refreshCCISummaryChordPlots() {
                         }
                     }
                     // Generate plot across cell types also - in case the user wishes to see it
-                    generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0, max_num_ints);
+                    generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0, min_num_ints, max_num_ints);
                 } else {
-                    generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0, max_num_ints);
+                    generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0, min_num_ints, max_num_ints);
                 }
             } else {
-                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0, max_num_ints);
+                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0, min_num_ints, max_num_ints);
             }
         }
      });
