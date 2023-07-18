@@ -2068,12 +2068,14 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
       var classLegendYPos = classLegendStartYPos;
       for (var i = 0; i <= classes4Legend.length - 1; i++) {
           var ipClass = classes4Legend[i];
-          if (ipClass.length > 10) {
-            ipClass = ipClass.substring(0,10)+"..";
+          if (ipClass.length > 20) {
+            shortenedIPClass = ipClass.substring(0,20)+"..";
+          } else {
+            shortenedIPClass = ipClass;
           }
           var colour = class2Colour[ipClass];
-          classLegend.append("rect").attr("x",15).attr("y",classLegendYPos).attr("width", size).attr("height", size).style("fill", colour)
-          classLegend.append("text").attr("x", 35).attr("y", classLegendYPos+6).text(ipClass).style("font-size", "15px").attr("alignment-baseline","middle");
+          classLegend.append("rect").attr("x",0).attr("y",classLegendYPos).attr("width", size).attr("height", size).style("fill", colour)
+          classLegend.append("text").attr("x",20).attr("y", classLegendYPos+6).text(shortenedIPClass).style("font-size", "15px").attr("alignment-baseline","middle");
           classLegendYPos += 30;
       }
   }
