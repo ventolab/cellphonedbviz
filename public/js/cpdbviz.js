@@ -1155,7 +1155,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         xMax= xVals.length - 1,
         // min_ints, max_ints needed for color scale
         max_ints=parseInt(data['max_num_ints']),
-        min_ints=parseInt(data['min_num_ints']),
+        min_ints = title == "All cell types" ? 0 : parseInt(data['min_num_ints']),
         boxWidth = Math.round(380/yVals.length),
         legend_width=50
         legend_height=150,
