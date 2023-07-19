@@ -49,6 +49,8 @@ function refreshCCISummaryChordPlots() {
     const projectId = getProjectId();
     var ret = getSelectedTokens(["cci_summary_selected_classes"]);
     var selectedClasses = ret[0];
+    ret = getSelectedTokens(["cci_summary_selected_microenvironments"]);
+    var selectedMicroenvironments = ret[0];
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
@@ -63,30 +65,38 @@ function refreshCCISummaryChordPlots() {
            if (res.hasOwnProperty('microenvironment2cell_types')) {
                 const microenvironment2cell_types = res['microenvironment2cell_types'];
                 const map = new Map(Object.entries(microenvironment2cell_types));
+                for (var i = 1; i <= 9; i++) {
+                    // Remove all previous plots
+                    $("#cci"+ i + "_chord").empty();
+                }
                 if (map.size > 0) {
                     var cnt = 1;
                     // First calculate min_num_ints and max_num_ints across the cell types in all microenvironments
                     for (let [microenvironment, cellTypes] of map.entries()) {
-                        const num_ints_csv = filterNumInteractions(res, cellTypes, false);
-                        const chordData = d3.csvParse(num_ints_csv, d3.autoType);
-                        const num_ints = Array.from(new Set(chordData.flatMap(d => [parseInt(d.value)])));
-                        const meMin = Math.min(...num_ints);
-                        const meMax = Math.max(...num_ints);
-                        // Chord plot shows nothing if number of interactions is 0, hence no point including it in the colour legend
-                        if (meMin > 0 && meMin < min_num_ints) {
-                            min_num_ints = meMin;
-                        }
-                        if (meMax > max_num_ints) {
-                            max_num_ints = meMax;
+                        if (selectedMicroenvironments == undefined || selectedMicroenvironments.includes(microenvironment)) {
+                            const num_ints_csv = filterNumInteractions(res, cellTypes, false);
+                            const chordData = d3.csvParse(num_ints_csv, d3.autoType);
+                            const num_ints = Array.from(new Set(chordData.flatMap(d => [parseInt(d.value)])));
+                            const meMin = Math.min(...num_ints);
+                            const meMax = Math.max(...num_ints);
+                            // Chord plot shows nothing if number of interactions is 0, hence no point including it in the colour legend
+                            if (meMin > 0 && meMin < min_num_ints) {
+                                min_num_ints = meMin;
+                            }
+                            if (meMax > max_num_ints) {
+                                max_num_ints = meMax;
+                            }
                         }
                     }
                     // Now generate the plots
                     for (let [microenvironment, cellTypes] of map.entries()) {
-                        generateCellCellInteractionSummaryChordPlot(res, cellTypes.sort(), microenvironment, cnt, min_num_ints, max_num_ints);
-                        cnt++;
-                        if (cnt > 9) {
-                            // TODO: We currently only have up to nine slots for microenvironment-specific cci plots - to be reviewed
-                            break;
+                        if (selectedMicroenvironments == undefined || selectedMicroenvironments.includes(microenvironment)) {
+                            generateCellCellInteractionSummaryChordPlot(res, cellTypes.sort(), microenvironment, cnt, min_num_ints, max_num_ints);
+                            cnt++;
+                            if (cnt > 9) {
+                                // TODO: We currently only have up to nine slots for microenvironment-specific cci plots - to be reviewed
+                                break;
+                            }
                         }
                     }
                     // Generate plot across cell types also - in case the user wishes to see it
