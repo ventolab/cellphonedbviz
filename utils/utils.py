@@ -521,12 +521,15 @@ def filter_interactions_for_cci_search(result_dict,
     selected_cell_type_pairs, ctp2me = sort_cell_type_pairs(selected_cell_type_pairs, result_dict, separator)
 
     if maxCellTypePairsExceeded(result_dict):
-        if 'microenvironment2cell_types' in result_dict:
-            dd = result_dict['microenvironment2cell_types']
-            me = list(dd.keys())[0]
-            # The following is in an attempt to avoid exceeding max length of GET request - if microenvironments (me's) are present, the
-            # first me key in dd is populated into the page _instead_ of selected_cell_type_pairs
-            result_dict['selected_microenvironments'] = [me]
+        if not microenvironments:
+            if 'microenvironment2cell_types' in result_dict:
+                dd = result_dict['microenvironment2cell_types']
+                me = list(dd.keys())[0]
+                # The following is in an attempt to avoid exceeding max length of GET request - if microenvironments (me's) are present, the
+                # first me key in dd is populated into the page _instead_ of selected_cell_type_pairs
+                result_dict['selected_microenvironments'] = [me]
+    if not 'selected_microenvironments' in result_dict:
+        result_dict['selected_microenvironments'] = microenvironments
     result_dict['selected_cell_type_pairs'] = selected_cell_type_pairs
 
     # The following will be used to colour cell type pair labels on the plot's x-axis depending on

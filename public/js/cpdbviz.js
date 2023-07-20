@@ -1629,6 +1629,20 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         }
     }
 
+    // This section is done outside of storeTokens below as both microenvironments or cell type may have been removed by the user (and thus pre-selected automatically)
+    // before the plot is refreshed
+    if (selectedMicroenvironments != undefined && selectedMicroenvironments.length > 0 && $('.cci_search_selected_microenvironments').is(':empty')) {
+         // This is the case on first page load for v. large data sets
+         for (var i = 0; i < selectedMicroenvironments.length; i++) {
+             storeToken(selectedMicroenvironments[i], "cci_search_selected_microenvironments", "cci_search_microenvironment_input");
+        }
+    } else if ($('.cci_search_selected_celltypes').is(':empty')) {
+        for (var i = 0; i < selectedCellTypes.length; i++) {
+            storeToken(selectedCellTypes[i], "cci_search_selected_celltypes", "cci_search_celltype_input");
+        }
+    }
+
+
     if (storeTokens) {
         for (var i = 0; i < selectedGenes.length; i++) {
             storeToken(selectedGenes[i], "cci_search_selected_genes", "cci_search_gene_input");
@@ -1636,15 +1650,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         for (var i = 0; i < selectedInteractingPairs.length; i++) {
             storeToken(selectedInteractingPairs[i], "cci_search_selected_interactions", "cci_search_interaction_input");
         }
-        if (selectedMicroenvironments != undefined && selectedMicroenvironments.length > 0) {
-            // This is the case on first page load for v. large data sets
-            for (var i = 0; i < selectedMicroenvironments.length; i++) {
-                storeToken(selectedMicroenvironments[i], "cci_search_selected_microenvironments", "cci_search_microenvironment_input");
-            }
-        } else {
-            for (var i = 0; i < selectedCellTypes.length; i++) {
-                storeToken(selectedCellTypes[i], "cci_search_selected_celltypes", "cci_search_celltype_input");
-            }
+        if (selectedMicroenvironments == undefined || selectedMicroenvironments.length == 0) {
             for (var i = 0; i < selectedCellTypePairs.length; i++) {
                 storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
             }
