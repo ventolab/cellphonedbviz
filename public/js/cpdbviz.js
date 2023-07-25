@@ -1234,7 +1234,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
       for (var i = 0; i <= yVals.length - 1; i++) {
         // cellType2
         for (var j = 0; j <= xVals.length - 1; j++) {
-          var num_ints = filteredNumInteractions[j][i];
+          var num_ints = filteredNumInteractions[i][j];
           var cellType1 = yVals[i];
           var cellType2 = xVals[j];
           cciRenderRectangle(svg, j, i, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt, tooltipXPos, tooltipYPos, boxWidth);
