@@ -87,7 +87,7 @@ ${formatValue(d3.sum(matrix, row => row[d.index]))} incoming interactions`));
       // See: https://observablehq.com/@d3/sequential-scales
       .interpolator(d3.interpolateRdYlBu)
 
-    var legend_width=30
+    var legend_width=30,
     legend_height=100,
     legend_xPos= -width/1.7,
     title_xPos = legend_xPos * 0.5,
