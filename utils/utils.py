@@ -262,7 +262,7 @@ def preselect_cell_types_pairs(dict_cci_search: dict, separator: str, mes: set):
                         cell_types += cts
             return cell_types, cell_type_pairs
         else:
-            return [],[]
+            return dict_cci_search['all_cell_types'], dict_cci_search['all_cell_type_pairs']
     else:
         return dict_cci_search['all_cell_types'], dict_cci_search['all_cell_type_pairs']
 
