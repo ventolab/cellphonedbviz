@@ -100,12 +100,12 @@ function refreshCCISummaryChordPlots() {
                         }
                     }
                     // Generate plot across cell types also - in case the user wishes to see it
-                    generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0, min_num_ints, max_num_ints);
+                    generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types_for_sortedbyme'], "All cell types", 0, min_num_ints, max_num_ints);
                 } else {
-                    generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0, min_num_ints, max_num_ints);
+                    generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types_for_sortedbyme'], "All cell types", 0, min_num_ints, max_num_ints);
                 }
             } else {
-                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types'], "All cell types", 0, min_num_ints, max_num_ints);
+                generateCellCellInteractionSummaryChordPlot(res, res['all_cell_types_for_sortedbyme'], "All cell types", 0, min_num_ints, max_num_ints);
             }
         }
      });
