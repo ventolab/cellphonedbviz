@@ -153,6 +153,8 @@ def populate_analysis_means_data(dict_dd, df, separator):
     dict_cci_summary = dict_dd['cell_cell_interaction_summary']
     dict_cci_search = dict_dd['cell_cell_interaction_search']
     all_cell_types_combinations = get_cell_type_pairs(df, separator)
+
+    # Collect all cell types and their indexes for the purpose of per-microenvironment cci_summary plots
     all_cell_types = set([])
     for ct_pair in all_cell_types_combinations:
         all_cell_types.update(ct_pair.split(separator))
@@ -160,6 +162,24 @@ def populate_analysis_means_data(dict_dd, df, separator):
     ct2indx = dict([(ct, all_cell_types.index(ct)) for ct in all_cell_types])
     dict_cci_summary['all_cell_types'] = all_cell_types
     dict_cci_summary['ct2indx'] = ct2indx
+
+    # Collect all cell types and their indexes for the purpose of 'all cell types' cci_summary plots -
+    # in which cell type labels are grouped per microenvironment - if microenvironments were provided
+    if 'microenvironment2cell_types' in dict_cci_summary:
+        cell_types_for_sortedbyme = []
+        # Order cell types by microenvironment so that they appear clustered in the cci_summary plot
+        # Note that a cell type can occur in multiple microenvironments, but it is shown only once in cci_summary
+        # hence we include it in the first microenvironment we come across (and ignore it in the subsequent ones)
+        for me in dict_cci_summary['microenvironment2cell_types']:
+            for ct in dict_cci_summary['microenvironment2cell_types'][me]:
+                if ct not in cell_types_for_sortedbyme:
+                    cell_types_for_sortedbyme.append(ct)
+    else:
+        cell_types_for_sortedbyme = all_cell_types
+    dict_cci_summary['all_cell_types_for_sortedbyme'] = cell_types_for_sortedbyme
+    ct_sortedbyme2indx = dict([(ct, cell_types_for_sortedbyme.index(ct)) for ct in cell_types_for_sortedbyme])
+    dict_cci_summary['ct_sortedbyme2indx'] = ct_sortedbyme2indx
+
     # Data below is needed for autocomplete functionality
     dict_cci_search['all_cell_type_pairs'] = sorted(all_cell_types_combinations)
     # num_all_cell_type_pairs is used for warning the user that if they select all cell type pairs and
@@ -664,14 +684,21 @@ def filter_interactions_for_cci_summary(result_dict, file_name2df, classes):
         means_df = copy.deepcopy(means_df[means_df['interacting_pair'].isin(interacting_pairs)])
     size = len(result_dict['all_cell_types'])
     ct2indx = result_dict['ct2indx']
+    ct_sortedbyme2indx = result_dict['ct_sortedbyme2indx']
     all_cell_types_combinations = get_cell_type_pairs(means_df, separator)
     num_ints = np.zeros((size, size),dtype=np.uint32)
+    num_ints_cts_sortedbyme = np.zeros((size, size), dtype=np.uint32)
     for ct_pair in all_cell_types_combinations:
          ct1 = ct_pair.split(separator)[0]
          ct2 = ct_pair.split(separator)[1]
          s = means_df[ct_pair].dropna()
          num_ints[ct2indx[ct1], ct2indx[ct2]] = len(s[s>0])
+         num_ints_cts_sortedbyme[ct_sortedbyme2indx[ct1], ct_sortedbyme2indx[ct2]] = len(s[s>0])
     result_dict['num_ints'] = num_ints.tolist()
+    # The matrix below is use to plot 'all celltypes' cci_summary plots - if microenvironments were provided in config
+    # result_dict['num_ints_cts_sortedbyme'] reflects cell types grouped by microenvironment, whereas
+    # result_dict['num_ints'] reflects microenvironments sorted alphabetically.
+    result_dict['num_ints_cts_sortedbyme'] = num_ints_cts_sortedbyme.tolist()
     result_dict['min_num_ints'] = str(np.min(num_ints))
     result_dict['max_num_ints'] = str(np.max(num_ints))
 

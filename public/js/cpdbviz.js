@@ -1106,9 +1106,14 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
     }
 
  // Filter data['num_ints'] based on the selected cell types
- function filterNumInteractions(data, cellTypes, isHeatmap) {
-    numInteractions = data['num_ints'],
-    ct2indx = data['ct2indx'];
+ function filterNumInteractions(data, cellTypes, isHeatmap, plotCnt) {
+    if (plotCnt > 0) {
+        numInteractions = data['num_ints'],
+        ct2indx = data['ct2indx'];
+    } else {
+        numInteractions = data['num_ints_cts_sortedbyme'],
+        ct2indx = data['ct_sortedbyme2indx'];
+    }
     // Filter rows and columns of numInteractions by cellTypes
     // N.B. we don't recalculate min_ints, max_ints for filteredNumInteractions because
     // if we show one heatmap per microenvironment, we need colours comparable across all heatmaps
@@ -1186,7 +1191,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         tooltipXPos = legend_xPos,
         tooltipYPos = legend_yPos+180;
       }
-      filteredNumInteractions = filterNumInteractions(data, cellTypes, true);
+      filteredNumInteractions = filterNumInteractions(data, cellTypes, true, plotCnt);
 
       // Remove any previous plot
       $("#cci"+plotCnt).empty();
@@ -1463,7 +1468,7 @@ function refreshCCISummaryPlots() {
                     var min_num_ints = res['max_num_ints'];
                     var max_num_ints = res['min_num_ints'];
                     for (let [microenvironment, cellTypes] of map.entries()) {
-                        const num_ints_csv = filterNumInteractions(res, cellTypes, false);
+                        const num_ints_csv = filterNumInteractions(res, cellTypes, false, cnt);
                         const chordData = d3.csvParse(num_ints_csv, d3.autoType);
                         const num_ints = Array.from(new Set(chordData.flatMap(d => [parseInt(d.value)])));
                         const meMin = Math.min(...num_ints);
@@ -1492,7 +1497,7 @@ function refreshCCISummaryPlots() {
                     // Generate plot across cell types also - in case the user wishes to see it
                     // Note: The plot is generated if the number of cell types has not exceeded the maximum
                    if (!maxCellTypesExceeded(res['all_cell_types'])) {
-                       generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
+                       generateCellCellInteractionSummaryPlot(res, res['all_cell_types_for_sortedbyme'], "All cell types", 0);
                        if ($('#cci_summary_show_all_celltypes').is(':checked')) {
                            $("#cci0_div").show();
                        } else {
@@ -1505,7 +1510,7 @@ function refreshCCISummaryPlots() {
                     // Generate plot across cell types also - in case the user wishes to see it
                     // Note: The plot is generated if the number of cell types has not exceeded the maximum
                     if (!maxCellTypesExceeded(res['all_cell_types'])) {
-                        generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
+                        generateCellCellInteractionSummaryPlot(res, res['all_cell_types_for_sortedbyme'], "All cell types", 0);
                         // Hide microenvironment input
                         $("#cci_search_microenvironment_sel").hide();
                     } else {
@@ -1516,7 +1521,7 @@ function refreshCCISummaryPlots() {
                 // Generate plot across cell types
                 // Note: The plot is generated if the number of cell types has not exceeded the maximum
                 if (!maxCellTypesExceeded(res['all_cell_types'])) {
-                    generateCellCellInteractionSummaryPlot(res, res['all_cell_types'], "All cell types", 0);
+                    generateCellCellInteractionSummaryPlot(res, res['all_cell_types_for_sortedbyme'], "All cell types", 0);
                     // Hide microenvironment input
                     $("#cci_search_microenvironment_sel").hide();
                 } else {
