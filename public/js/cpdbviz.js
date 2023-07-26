@@ -214,7 +214,7 @@ function downloadAsPDF(divId, titleId, headerId) {
     options['useCSS'] = true;
     if (is_cci && div.is(":hidden")) {
          div = $("#" + divId + "_chord");
-         options['size'] = [svgWidth * 1.4, svgHeight * 1.8];
+         options['size'] = [svgWidth * 1.4, svgHeight * 1.9];
     }
     const svg = div.find("svg")[0];
     const title = document.getElementById(titleId).innerHTML;
@@ -1146,9 +1146,14 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
  function generateCellCellInteractionSummaryPlot(data, cellTypes, title, plotCnt) {
       const numCellTypes = cellTypes.length;
 
+      const microenvironments = data['microenvironments'];
+      const me2cts = data['microenvironment2cell_types'];
+      const ct2mes = data['cell_type2microenvironments'];
+      var me2Colour = {};
+      var ct2Colour = {};
       var xMargin = 200;
       var height = Math.max(600, 20 * numCellTypes / Math.log10(numCellTypes)) ;
-      var width = Math.max(800, 200 + 20 * numCellTypes / Math.log10(numCellTypes));
+      var width = Math.max(1000, 200 + 23 * numCellTypes / Math.log10(numCellTypes));
       var bottom_yMargin = 160,
         top_yMargin = 50,
         xMargin = 200,
@@ -1164,7 +1169,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         boxWidth = Math.round(380/yVals.length),
         legend_width=50
         legend_height=150,
-        legend_xPos= width-160,
+        legend_xPos= width-360,
         title_xPos = legend_xPos * 0.5,
         legend_yPos=top_yMargin+50,
         xAxisYOffset = 1.1 + 10/numCellTypes;
@@ -1190,7 +1195,37 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         yAxisYOffset = Math.max(-0.5*yVals.length + 3.6, -0.5*6 + 3.6),
         tooltipXPos = legend_xPos,
         tooltipYPos = legend_yPos+180;
+      } else {
+        // Map each cell type label to its microenvironment colour if provided; black if no microenvironments provided
+        // or cell type corresponds to multiple microenvironments
+        if (microenvironments) {
+              // See: https://observablehq.com/@d3/color-schemes
+              const colours = d3.schemeCategory10;
+              for (var i = 0; i < microenvironments.length; i++) {
+                  const me = microenvironments[i];
+                  if (me2cts[me] != undefined) {
+                    me2Colour[me] = colours[i % colours.length];
+                  }
+              }
+        }
+        for (var i = 0; i < cellTypes.length; i++) {
+            ct = cellTypes[i];
+            if (microenvironments) {
+                if (ct2mes[ct] != undefined && ct2mes[ct].length == 1) {
+                    me = ct2mes[ct][0];
+                    ct2Colour[ct] = me2Colour[me];
+                } else {
+                    // ct maps to multiple microenvironments - make it black
+                    me2Colour['multiple'] = 'black';
+                    ct2Colour[ct] = me2Colour['multiple'];
+                }
+            } else {
+                    // No microenvironments were provided, or they were but it's a microenvironment-specific plot => show all cell type labels in black
+                    ct2Colour[ct] = 'black';
+            }
+         }
       }
+
       filteredNumInteractions = filterNumInteractions(data, cellTypes, true, plotCnt);
 
       // Remove any previous plot
@@ -1233,8 +1268,8 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
           // See: https://observablehq.com/@d3/sequential-scales
           .interpolator(d3.interpolateRdYlBu)
 
-      cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale, yAxisYOffset);
-      cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin, xAxisYOffset);
+      cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, ct2Colour, yAxisYOffset, plotCnt);
+      cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin, ct2Colour, xAxisYOffset, plotCnt);
       // cellType1
       for (var i = 0; i <= yVals.length - 1; i++) {
         // cellType2
@@ -1246,7 +1281,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         }
       }
 
-      // Colour legend:
+      // Heatmap colour legend:
       // See: https://blog.scottlogic.com/2019/03/13/how-to-create-a-continuous-colour-range-legend-using-d3-and-d3fc.html
       // Band scale for x-axis
       domain=[min_ints, max_ints]
@@ -1318,9 +1353,40 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         .call(axisLabel)
         .select(".domain")
         .attr("visibility", "hidden");
+
+      // Categorical legend for cell type colours - by micro-environment
+      if (microenvironments && plotCnt == 0) {
+          const meLegend_xPos=legend_xPos-12;
+          var meLegend_yPos = legend_yPos + legend_height - 30;
+
+          const meLegenedWidth = 600;
+          const meLegendHeight = 500;
+          const meLegend = svg
+                .append("svg")
+                .attr("width", meLegenedWidth)
+                .attr("height", meLegendHeight)
+                .attr("x", meLegend_xPos)
+                .attr("y", meLegend_yPos);
+
+          // Microenvironments legend header
+          meLegend
+            .append("text").attr("x", 0).attr("y", 80).text("Microenvironments").style("font-size", "15px")
+            .attr("alignment-baseline","middle")
+
+          // Microenvironments legend content
+          const size = 12;
+          const meLegendStartYPos = 100;
+          var meLegendYPos = meLegendStartYPos;
+          for (var me in me2Colour) {
+              var colour = me2Colour[me];
+              meLegend.append("rect").attr("x",0).attr("y",meLegendYPos).attr("width", size).attr("height", size).style("fill", colour)
+              meLegend.append("text").attr("x", 20).attr("y", meLegendYPos+6).text(me).style("font-size", "15px").attr("alignment-baseline","middle");
+              meLegendYPos += 30;
+          }
+      }
  }
 
-function cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin, xAxisYOffset) {
+function cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin, ct2Colour, xAxisYOffset, plotCnt) {
   var xAxis = d3
   .axisBottom()
   .ticks(xVals.length)
@@ -1330,7 +1396,7 @@ function cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin, xAx
   .scale(xScale);
   svg
   .append("g")
-  .attr("class", "x-axis")
+  .attr("id", "cci_summary_x-axis" + plotCnt)
   .attr("transform", function() {
     return "translate(" + xMargin + "," + (height - bottom_yMargin) + ")";
   })
@@ -1341,9 +1407,19 @@ function cciRenderXAxis(svg, xVals, xScale, xMargin, height, bottom_yMargin, xAx
   .attr("dx", "-0.8em")
   .attr("dy", "-" + xAxisYOffset + "em")
   .attr("transform", "rotate(-90)");
+
+    // Colour cell types in different colour per microenvironment - for 'all cell types plot only'
+    if (plotCnt == 0) {
+        d3.selectAll("#cci_summary_x-axis" + plotCnt + " g.tick").each(function() {
+            d3.select(this).select("text").style("fill", function() {
+                var cell_type = this.textContent;
+                return ct2Colour[cell_type];
+            })
+        });
+    }
 }
 
-function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale, yAxisYOffset) {
+function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, ct2Colour, yAxisYOffset, plotCnt) {
   var yAxis = d3
   .axisLeft()
   .ticks(yVals.length)
@@ -1353,7 +1429,7 @@ function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale, yA
   .scale(yScale);
   svg
   .append("g")
-  .attr("class", "y-axis")
+  .attr("id", "cci_summary_y-axis" + plotCnt)
   .attr("transform", function() {
     return "translate(" + xMargin + "," + top_yMargin + ")";
   })
@@ -1362,6 +1438,16 @@ function cciRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, colorscale, yA
   .style("text-anchor", "end")
   .attr("dx", "-0.15em")
   .attr("dy", yAxisYOffset + "em");
+
+    // Colour cell types in different colour per microenvironment - for 'all cell types plot only'
+    if (plotCnt == 0) {
+        d3.selectAll("#cci_summary_y-axis" + plotCnt + " g.tick").each(function() {
+            d3.select(this).select("text").style("fill", function() {
+                var cell_type = this.textContent;
+                return ct2Colour[cell_type];
+            })
+        });
+    }
 }
 
 function cciRenderRectangle(svg, x, y, yVals, xMargin, top_yMargin, xVals, xScale, yScale, colorscale, num_ints, plotCnt, tooltip_xPos, tooltip_yPos, boxWidth) {
@@ -1413,10 +1499,10 @@ function refreshCCISummaryPlots() {
     $("#cci_summary_spinner").show();
 
     var projectId = getProjectId();
-    var ret = getSelectedTokens(["cci_summary_selected_classes"]);
-    var selectedClasses = ret[0];
-    ret = getSelectedTokens(["cci_summary_selected_microenvironments"]);
-    var selectedMicroenvironments = ret[0];
+    var ret = getSelectedTokens(["cci_summary_selected_classes", "cci_summary_selected_microenvironments"]);
+    var pos = 0;
+    var selectedClasses = ret[pos++];
+    var selectedMicroenvironments = ret[pos++];
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;

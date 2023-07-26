@@ -1,10 +1,44 @@
 import {Runtime, Library, Inspector} from "../external/js/runtime.unminified.noparamsdisplay.js";
 
-function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,formatValue,arc,title,minNumInts,maxNumInts)
+function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,ribbonColor,names,formatValue,arc,title,minNumInts,maxNumInts,plotCnt,
+                microenvironments, microenvironment2cell_types, cell_type2microenvironments)
 {
     if (maxNumInts == 0) {
         return;
     }
+
+    // Map each cell type label to its microenvironment colour if provided; black if no microenvironments provided
+    // or cell type corresponds to multiple microenvironments
+    var me2Colour = {};
+    var ct2Colour = {};
+    // See: https://observablehq.com/@d3/color-schemes
+    const colours = d3.schemeCategory10;
+    var me2Colour = {};
+    if (microenvironments) {
+      for (var i = 0; i < microenvironments.length; i++) {
+          const me = microenvironments[i];
+          if (microenvironment2cell_types[me] != undefined) {
+            me2Colour[me] = colours[i % colours.length];
+          }
+      }
+    }
+    for (var i = 0; i < names.length; i++) {
+        ct = names[i];
+        if (microenvironments && plotCnt == 0) {
+            if (cell_type2microenvironments[ct] != undefined && cell_type2microenvironments[ct].length == 1) {
+                me = cell_type2microenvironments[ct][0];
+                ct2Colour[ct] = me2Colour[me];
+            } else {
+                // ct maps to multiple microenvironments
+                me2Colour['multiple'] = 'black';
+                ct2Colour[ct] = me2Colour['multiple'];
+            }
+        } else {
+            // No microenvironments were provided, or they were but it's a microenvironment-specific plot => show all cell type labels in black
+            ct2Colour[ct] = 'black';
+        }
+    }
+
     const svg = d3.create("svg")
         .attr("width", width*1.6)
         .attr("height", height*1.6)
@@ -33,7 +67,7 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
     .data(chords)
     .join("path")
         .attr("d", ribbon)
-        .attr("fill", d => color(d.target.value))
+        .attr("fill", d => ribbonColor(d.target.value))
         .style("mix-blend-mode", "multiply")
     // The following acts as a tooltip over a ribbon
     .append("title")
@@ -70,6 +104,7 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
       `)
       .attr("text-anchor", d => d.angle > Math.PI ? "end" : null)
       .text(d => names[d.index])
+      .style("fill", d => ct2Colour[names[d.index]])
       )
 
         // The following acts as a tooltip over a an outer ring corresponding to a cell type
@@ -78,10 +113,10 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,color,names,
 ${formatValue(d3.sum(matrix[d.index]))} outgoing interactions
 ${formatValue(d3.sum(matrix, row => row[d.index]))} incoming interactions`));
 
-  // Display colour legend bar
+   // Display ribbon colour legend bar
     var min_ints = parseInt(minNumInts);
     var max_ints = parseInt(maxNumInts);
-    const colorscale = d3
+    const ribbonColorScale = d3
       .scaleSequential()
       .domain([max_ints, min_ints])
       // See: https://observablehq.com/@d3/sequential-scales
@@ -90,10 +125,16 @@ ${formatValue(d3.sum(matrix, row => row[d.index]))} incoming interactions`));
     var legend_width=30,
     legend_height=100,
     legend_xPos= -width/1.7,
-    title_xPos = legend_xPos * 0.5,
-    legend_yPos=-45;
+    title_xPos = legend_xPos * 0.5;
+    var legend_yPos;
+    if (plotCnt > 0) {
+        legend_yPos=-45;
+    } else {
+        // Make space for microenvironments categorical colour legend
+        legend_yPos=-165;
+    }
 
-  // Colour legend:
+  // Ribbon Colour legend:
   // See: https://blog.scottlogic.com/2019/03/13/how-to-create-a-continuous-colour-range-legend-using-d3-and-d3fc.html
   // Band scale for x-axis
 
@@ -128,13 +169,13 @@ ${formatValue(d3.sum(matrix, row => row[d.index]))} incoming interactions`));
     .baseValue((_, i) => (i > 0 ? expandedDomain[i - 1] : min_ints))
     .mainValue(d => d)
     .decorate(selection => {
-      selection.selectAll("path").style("fill", d => colorscale(d));
+      selection.selectAll("path").style("fill", d => ribbonColorScale(d));
     });
 
     // Add the colour legend header
     svg
-    .append("text").attr("x", legend_xPos - 7).attr("y", -65).text("Number of").style("font-size", "10px")
-    .append('tspan').attr("x", legend_xPos - 7).attr("y", -55).text("interactions")
+    .append("text").attr("x", legend_xPos - 7).attr("y", legend_yPos - 30).text("Number of").style("font-size", "10px")
+    .append('tspan').attr("x", legend_xPos - 7).attr("y", legend_yPos - 20).text("interactions")
     .attr("alignment-baseline","middle");
 
   // Draw the legend bar
@@ -166,9 +207,41 @@ ${formatValue(d3.sum(matrix, row => row[d.index]))} incoming interactions`));
     .call(axisLabel)
     .select(".domain")
     .attr("visibility", "hidden");
-  // Display colour legend bar - end
+  // Display ribbon colour legend bar - end
 
-    return svg.node();
+  // Display cell type labels colour legend - per microenvironment - for the 'all cell types' plot only
+  if (microenvironments && plotCnt == 0) {
+      // Legend for cell type colours - by micro-environment
+      const meLegend_xPos=legend_xPos-12;
+      var meLegend_yPos = legend_yPos + legend_height - 30;
+
+      const meLegenedWidth = 600;
+      const meLegendHeight = 500;
+      const meLegend = svg
+            .append("svg")
+            .attr("width", meLegenedWidth)
+            .attr("height", meLegendHeight)
+            .attr("x", meLegend_xPos)
+            .attr("y", meLegend_yPos);
+
+      // Microenvironments legend header
+      meLegend
+        .append("text").attr("x", 0).attr("y", 80).text("Microenvironments").style("font-size", "10px")
+        .attr("alignment-baseline","middle")
+
+      // Microenvironments legend content
+      const size = 12;
+      const meLegendStartYPos = 100;
+      var meLegendYPos = meLegendStartYPos;
+      for (var me in me2Colour) {
+          var colour = me2Colour[me];
+          meLegend.append("rect").attr("x",0).attr("y",meLegendYPos).attr("width", size).attr("height", size).style("fill", colour)
+          meLegend.append("text").attr("x", 20).attr("y", meLegendYPos+6).text(me).style("font-size", "10px").attr("alignment-baseline","middle");
+          meLegendYPos += 20;
+      }
+  }
+
+  return svg.node();
 }
 
 function _names(data){return(
@@ -207,7 +280,7 @@ function d3_rgbString (value) {
     return d3.rgb(value >> 16, value >> 8 & 0xff, value & 0xff);
 }
 
-function _color(d3,minNumInts, maxNumInts){
+function _ribbonColor(d3,minNumInts, maxNumInts){
   return(d3
   .scaleSequential()
   .domain([maxNumInts, minNumInts])
@@ -239,8 +312,9 @@ function _d3(require){return(
 require("d3@6")
 )}
 
-function define(main, observer, data, title, plotCnt, min_num_ints, max_num_ints) {
-     main.variable(observer("chart")).define("chart", ["d3","width","height","chord","matrix","DOM","outerRadius","ribbon","color","names","formatValue","arc","title","minNumInts","maxNumInts"], _chart);
+function define(main, observer, data, title, plotCnt, min_num_ints, max_num_ints, microenvironments, microenvironment2cell_types, cell_type2microenvironments) {
+     main.variable(observer("chart")).define("chart", ["d3","width","height","chord","matrix","DOM","outerRadius","ribbon",
+     "ribbonColor","names","formatValue","arc","title","minNumInts","maxNumInts","plotCnt","microenvironments","microenvironment2cell_types","cell_type2microenvironments"], _chart);
      main.variable(observer("data")).define("data", [], data);
      main.variable(observer("title")).define("title", [], title);
      main.variable(observer("names")).define("names", ["data"], _names);
@@ -248,7 +322,7 @@ function define(main, observer, data, title, plotCnt, min_num_ints, max_num_ints
      main.variable(observer("chord")).define("chord", ["d3","innerRadius"], _chord);
      main.variable(observer("arc")).define("arc", ["d3","innerRadius","outerRadius"], _arc);
      main.variable(observer("ribbon")).define("ribbon", ["d3","innerRadius"], _ribbon);
-     main.variable(observer("color")).define("color", ["d3","minNumInts","maxNumInts"], _color);
+     main.variable(observer("ribbonColor")).define("ribbonColor", ["d3","minNumInts","maxNumInts"], _ribbonColor);
      main.variable(observer("formatValue")).define("formatValue", _formatValue);
      // all cell types default
      var innerRadius = 200;
@@ -266,6 +340,10 @@ function define(main, observer, data, title, plotCnt, min_num_ints, max_num_ints
      main.variable(observer("height")).define("height", ["width"], size);
      main.variable(observer("minNumInts")).define("minNumInts", [], min_num_ints);
      main.variable(observer("maxNumInts")).define("maxNumInts", [], max_num_ints);
+     main.variable(observer("plotCnt")).define("plotCnt", [], plotCnt);
+     main.variable(observer("microenvironments")).define("microenvironments", [], microenvironments);
+     main.variable(observer("microenvironment2cell_types")).define("microenvironment2cell_types", [], microenvironment2cell_types);
+     main.variable(observer("cell_type2microenvironments")).define("cell_type2microenvironments", [], cell_type2microenvironments);
      main.variable(observer("d3")).define("d3", ["require"], _d3);
  }
 
@@ -282,5 +360,5 @@ function define(main, observer, data, title, plotCnt, min_num_ints, max_num_ints
     $(plotId).empty();
     const observer = Inspector.into(document.querySelector(plotId));
     const chordData = d3.csvParse(num_ints_csv, d3.autoType);
-    define(module, observer, chordData, title, plotCnt, min_num_ints, max_num_ints);
+    define(module, observer, chordData, title, plotCnt, min_num_ints, max_num_ints, data['microenvironments'], data['microenvironment2cell_types'], data['cell_type2microenvironments']);
  }

@@ -19,6 +19,7 @@ VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SIDENAV_PROPERTY_STYLE = "style=\"padding-left: 60px; font-size: 14px; margin: 20px 0px !important; \""
 SANKEY_EDGE_WEIGHT = 30
+INDENT="     "
 
 def get_projects() -> dict:
     dir_name2project_data = {}
@@ -32,13 +33,14 @@ def get_projects() -> dict:
             if dir_name in project_dirs:
                 dict = {}
                 dir_name2file_name2df[dir_name] = {}
-                print("Loading project: {}...".format(dir_name), flush=True)
+                print("\nLoading project: {}".format(dir_name), flush=True, end="")
                 with open('{}/config.yml'.format(root), 'r') as file:
                     config = yaml.safe_load(file)
                     dict['title'] = config['title']
                     for key in CONFIG_KEYS[3:]:
                         if key in config:
                             if key not in ['hash', 'cellphonedb']:
+                                print("\n{}Loading {} for project: {}".format(INDENT, key, dir_name), flush=True, end="")
                                 fpath = "{}/{}".format(root, config[key])
                                 df = pd.read_csv(fpath, sep='\t', low_memory=False)
                                 populate_data4viz(key, dict, df, config['separator'], dir_name2file_name2df[dir_name])
@@ -97,12 +99,14 @@ def populate_microenvironments_data(result_dict, df):
         dict_me['color_domain'] = sorted(list(set(df[me_col_name].values)))
         dict_sge['microenvironments'] = sorted(list(set(df[me_col_name].values)))
         dict_cci_search['microenvironments'] = dict_sge['microenvironments']
+        dict_cci_summary['microenvironments'] = dict_sge['microenvironments']
         dict_sge['microenvironment2cell_types'] = {}
         dict_cci_search['cell_type2microenvironments'] = {}
         for i, j in zip(df[me_col_name].values.tolist(), df[ct_col_name].values.tolist()):
             dict_sge['microenvironment2cell_types'].setdefault(i, []).append(j)
         for i, j in zip(df[ct_col_name].values.tolist(), df[me_col_name].values.tolist()):
             dict_cci_search['cell_type2microenvironments'].setdefault(i, []).append(j)
+        dict_cci_summary['cell_type2microenvironments'] = dict_cci_search['cell_type2microenvironments']
         dict_cci_summary['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
         dict_cci_search['microenvironment2cell_types'] = dict_sge['microenvironment2cell_types']
 
@@ -364,20 +368,34 @@ def populate_pvalues_data(result_dict, df, separator):
     dict_cci_search = result_dict['cell_cell_interaction_search']
     dict_pvals = {}
     all_cell_types_combinations = get_cell_type_pairs(df, separator)
+    cnt = 0
     for ct_pair in all_cell_types_combinations:
         # Filter out pvals = 1.0 - no point bloating the API call result
         df_filtered = df[df[ct_pair] < 1]
-        dict_pvals[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
+        if cnt % 100000 == 0:
+            print('.', flush=True, end="")
+        if df_filtered.empty:
+            dict_pvals[ct_pair] = {}
+        else:
+            dict_pvals[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
+        cnt += 1
     dict_cci_search['pvalues'] = dict_pvals
 
 def populate_relevant_interactions_data(result_dict, df, separator):
     dict_cci_search = result_dict['cell_cell_interaction_search']
     dict_ri_flags = {}
     all_cell_types_combinations = get_cell_type_pairs(df, separator)
+    cnt = 0
     for ct_pair in all_cell_types_combinations:
         # Filter out values of 0 (= irrelevant interactions) - no point bloating the API call result
         df_filtered = df[df[ct_pair] > 0]
-        dict_ri_flags[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
+        if cnt % 100000 == 0:
+            print('.', flush=True, end="")
+        if df_filtered.empty:
+            dict_ri_flags[ct_pair] = {}
+        else:
+            dict_ri_flags[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
+        cnt += 1
     dict_cci_search['relevant_interactions'] = dict_ri_flags
 
 def populate_degs_data(result_dict, df):
@@ -695,7 +713,7 @@ def filter_interactions_for_cci_summary(result_dict, file_name2df, classes):
          num_ints[ct2indx[ct1], ct2indx[ct2]] = len(s[s>0])
          num_ints_cts_sortedbyme[ct_sortedbyme2indx[ct1], ct_sortedbyme2indx[ct2]] = len(s[s>0])
     result_dict['num_ints'] = num_ints.tolist()
-    # The matrix below is use to plot 'all celltypes' cci_summary plots - if microenvironments were provided in config
+    # The matrix below is used to plot 'all celltypes' cci_summary plots - if microenvironments were provided in config
     # result_dict['num_ints_cts_sortedbyme'] reflects cell types grouped by microenvironment, whereas
     # result_dict['num_ints'] reflects microenvironments sorted alphabetically.
     result_dict['num_ints_cts_sortedbyme'] = num_ints_cts_sortedbyme.tolist()
