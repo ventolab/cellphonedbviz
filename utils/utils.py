@@ -148,9 +148,11 @@ def populate_celltype_composition_data(result_dict, df):
 
 def get_cell_type_pairs(df, separator):
     cell_type_pairs = []
+    first_separator_found = False
     for i, ctp in enumerate(list(df.columns)):
-        if separator in ctp:
+        if first_separator_found or separator in ctp:
             cell_type_pairs.append(ctp)
+            first_separator_found = True
     return cell_type_pairs
 
 def populate_analysis_means_data(dict_dd, df, separator):
@@ -171,13 +173,16 @@ def populate_analysis_means_data(dict_dd, df, separator):
     # in which cell type labels are grouped per microenvironment - if microenvironments were provided
     if 'microenvironment2cell_types' in dict_cci_summary:
         cell_types_for_sortedbyme = []
+        # The set is just used to speed up building cell_types_for_sortedbyme
+        cell_types_for_sortedbyme_set = set([])
         # Order cell types by microenvironment so that they appear clustered in the cci_summary plot
         # Note that a cell type can occur in multiple microenvironments, but it is shown only once in cci_summary
         # hence we include it in the first microenvironment we come across (and ignore it in the subsequent ones)
         for me in dict_cci_summary['microenvironment2cell_types']:
             for ct in dict_cci_summary['microenvironment2cell_types'][me]:
-                if ct not in cell_types_for_sortedbyme:
+                if ct not in cell_types_for_sortedbyme_set:
                     cell_types_for_sortedbyme.append(ct)
+                    cell_types_for_sortedbyme_set.add(ct)
     else:
         cell_types_for_sortedbyme = all_cell_types
     dict_cci_summary['all_cell_types_for_sortedbyme'] = cell_types_for_sortedbyme
@@ -229,7 +234,8 @@ def get_all_relevant_interactions(dict_cci_search: dict, selected_cell_type_pair
     relevant_interactions_set = set([])
     for ctp in selected_cell_type_pairs:
         if ctp in rel_ints_dict:
-            relevant_interactions_set.update(rel_ints_dict[ctp].keys())
+            if ctp in rel_ints_dict:
+                relevant_interactions_set.update(rel_ints_dict[ctp].keys())
     return relevant_interactions_set
 
 def preselect_interacting_pairs(dict_cci_search: dict, selected_cell_type_pairs, interacting_pairs_selection_logic: str):
@@ -371,12 +377,10 @@ def populate_pvalues_data(result_dict, df, separator):
     cnt = 0
     for ct_pair in all_cell_types_combinations:
         # Filter out pvals = 1.0 - no point bloating the API call result
-        df_filtered = df[df[ct_pair] < 1]
+        df_filtered = df[['interacting_pair', ct_pair]][df[ct_pair] < 1]
         if cnt % 100000 == 0:
             print('.', flush=True, end="")
-        if df_filtered.empty:
-            dict_pvals[ct_pair] = {}
-        else:
+        if not df_filtered.empty:
             dict_pvals[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
         cnt += 1
     dict_cci_search['pvalues'] = dict_pvals
@@ -388,12 +392,10 @@ def populate_relevant_interactions_data(result_dict, df, separator):
     cnt = 0
     for ct_pair in all_cell_types_combinations:
         # Filter out values of 0 (= irrelevant interactions) - no point bloating the API call result
-        df_filtered = df[df[ct_pair] > 0]
+        df_filtered = df[['interacting_pair', ct_pair]][df[ct_pair] > 0]
         if cnt % 100000 == 0:
             print('.', flush=True, end="")
-        if df_filtered.empty:
-            dict_ri_flags[ct_pair] = {}
-        else:
+        if not df_filtered.empty:
             dict_ri_flags[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
         cnt += 1
     dict_cci_search['relevant_interactions'] = dict_ri_flags
@@ -710,8 +712,9 @@ def filter_interactions_for_cci_summary(result_dict, file_name2df, classes):
          ct1 = ct_pair.split(separator)[0]
          ct2 = ct_pair.split(separator)[1]
          s = means_df[ct_pair].dropna()
-         num_ints[ct2indx[ct1], ct2indx[ct2]] = len(s[s>0])
-         num_ints_cts_sortedbyme[ct_sortedbyme2indx[ct1], ct_sortedbyme2indx[ct2]] = len(s[s>0])
+         num_ints4ctp = len(s[s>0])
+         num_ints[ct2indx[ct1], ct2indx[ct2]] = num_ints4ctp
+         num_ints_cts_sortedbyme[ct_sortedbyme2indx[ct1], ct_sortedbyme2indx[ct2]] = num_ints4ctp
     result_dict['num_ints'] = num_ints.tolist()
     # The matrix below is used to plot 'all celltypes' cci_summary plots - if microenvironments were provided in config
     # result_dict['num_ints_cts_sortedbyme'] reflects cell types grouped by microenvironment, whereas
