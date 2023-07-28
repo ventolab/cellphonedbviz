@@ -12,7 +12,8 @@ import copy
 base_path = os.path.dirname(os.path.realpath(__file__))
 DATA_ROOT = f"{base_path}/../data"
 CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','microenvironments', \
-               'analysis_means', 'relevant_interactions', 'deconvoluted_result','deconvoluted_percents','degs','pvalues', \
+               'analysis_means', 'relevant_interactions', 'interaction_scores', \
+               'deconvoluted_result','deconvoluted_percents','degs','pvalues', \
                'cellsign_active_interactions_deconvoluted', 'hash', 'cellphonedb']
 VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
           'cell_cell_interaction_summary','cell_cell_interaction_search']
@@ -71,6 +72,8 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
         populate_analysis_means_data(result_dict, df, separator)
     elif config_key == 'relevant_interactions':
         populate_relevant_interactions_data(result_dict, df, separator)
+    elif config_key == 'interaction_scores':
+        populate_interaction_scores_data(result_dict, df, separator)
     elif config_key == 'deconvoluted_result':
         populate_deconvoluted_data(result_dict, df, separator, percents=False)
     elif config_key == 'deconvoluted_percents':
@@ -400,6 +403,21 @@ def populate_relevant_interactions_data(result_dict, df, separator):
         cnt += 1
     dict_cci_search['relevant_interactions'] = dict_ri_flags
 
+def populate_interaction_scores_data(result_dict, df, separator):
+    dict_cci_summary = result_dict['cell_cell_interaction_summary']
+    dict_int_scores = {}
+    all_cell_types_combinations = get_cell_type_pairs(df, separator)
+    cnt = 0
+    for ct_pair in all_cell_types_combinations:
+        # Filter out scores of 0 - no point bloating the API call result
+        df_filtered = df[['interacting_pair', ct_pair]][df[ct_pair] > 0]
+        if cnt % 100000 == 0:
+            print('.', flush=True, end="")
+        if not df_filtered.empty:
+            dict_int_scores[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
+        cnt += 1
+    dict_cci_summary['interaction_scores'] = dict_int_scores
+
 def populate_degs_data(result_dict, df):
     dict_degs = result_dict['single_gene_expression']
     degs_cell_types = list(zip(df['gene'], df['cluster']))
@@ -693,9 +711,10 @@ def filter_interactions_for_cci_search(result_dict,
         if 'cellphonedb' in result_dict:
             result_dict['interacting_pair2properties_html'] = get_properties_html_for_interacting_pairs(result_dict)
 
-def filter_interactions_for_cci_summary(result_dict, file_name2df, classes):
+def filter_interactions_for_cci_summary(result_dict, file_name2df, classes, min_score):
     means_df = file_name2df['analysis_means']
     separator = result_dict['separator']
+
     # Filter means_df by interacting pairs belonging to a class in classes
     if classes:
         interacting_pairs = []
@@ -709,10 +728,15 @@ def filter_interactions_for_cci_summary(result_dict, file_name2df, classes):
     num_ints = np.zeros((size, size),dtype=np.uint32)
     num_ints_cts_sortedbyme = np.zeros((size, size), dtype=np.uint32)
     for ct_pair in all_cell_types_combinations:
+         if min_score == 0 or 'interaction_scores' not in result_dict:
+            s = means_df[ct_pair].dropna()
+            num_ints4ctp = len(s[s>0])
+         else:
+            interaction_scores = result_dict['interaction_scores']
+            s = interaction_scores[ct_pair].values()
+            num_ints4ctp = len([i for i in s if i >= min_score])
          ct1 = ct_pair.split(separator)[0]
          ct2 = ct_pair.split(separator)[1]
-         s = means_df[ct_pair].dropna()
-         num_ints4ctp = len(s[s>0])
          num_ints[ct2indx[ct1], ct2indx[ct2]] = num_ints4ctp
          num_ints_cts_sortedbyme[ct_sortedbyme2indx[ct1], ct_sortedbyme2indx[ct2]] = num_ints4ctp
     result_dict['num_ints'] = num_ints.tolist()

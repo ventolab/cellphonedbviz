@@ -55,6 +55,10 @@ function refreshCCISummaryChordPlots() {
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
     }
+    var selectedMinInteractionScore = $('#cci_summary_selected_min_score').text();
+    if (cci_summary_selected_min_score) {
+        url += "?min_score=" + selectedMinInteractionScore;
+    }
     $.ajax({
         url: url,
         contentType: "application/json",
@@ -301,18 +305,25 @@ function refreshCCISummaryChordPlots() {
                       </div>
                       <div style="padding-bottom: 20px;" class="cci_summary_selected_classes"></div>
                   </div>
-                  <div id="cci_summary_class_microenvironment_div" style="padding-left: 20px; padding-right: 20px" hidden>
+                  <div id="cci_summary_microenvironment_div" style="padding-left: 20px; padding-right: 20px" hidden>
                       <div class="input-field">
                         <input style="padding-top: 30px;" type="text" id="cci_summary_microenvironment_input" placeholder="">
                         <label style="padding-top: 10px;" for="cci_summary_microenvironment_input" class="black-text text-lighten-10 search-input-label">Select microenvironments to plot</label>
                       </div>
                       <div class="cci_summary_selected_microenvironments" style="padding-bottom: 10px;" ></div>
                   </div>
+                  <div id="cci_summary_score_div" style="padding-left: 20px; padding-right: 800px; padding-top: 10px" hidden>
+                      <div class="range-field">
+                        <label style="padding-top: 10px; font-size: 14px;" for="cci_summary_score_input" class="black-text text-lighten-10 input-label">Filter interactions by minimum score</label>
+                        <input type="range" value="0" id="cci_summary_score_input" min="0" max="100" placeholder=""/>
+                        <span>Minimum interaction score: <label id="cci_summary_selected_min_score" style="font-size: 14px;" class="black-text text-lighten-10">0</label></span>
+                      </div>
+                  </div>
                   <div id="cci_summary_buttons_div" style="padding-left: 20px; padding-right: 20px; padding-bottom: 20px; padding-top: 20px" hidden>
                       <button id="refresh_cci_summary_plots" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISummaryPlots();">Refresh plots
                             <i class="material-icons right">refresh</i>
                       </button>
-                      <button id="clear_cci_summary_filter" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISummaryFilters()">Clear filter&nbsp;
+                      <button id="clear_cci_summary_filter" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISummaryFilters()">Clear filters&nbsp;
                             <i class="material-icons right">clear_all</i>
                       </button>
                   </div>

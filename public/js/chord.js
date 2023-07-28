@@ -348,7 +348,7 @@ function define(main, observer, data, title, plotCnt, min_num_ints, max_num_ints
  }
 
  export default function generateCellCellInteractionSummaryChordPlot(data, cellTypes, title, plotCnt, min_num_ints, max_num_ints) {
-    const num_ints_csv = filterNumInteractions(data, cellTypes, false);
+    const num_ints_csv = filterNumInteractions(data, cellTypes, false, plotCnt);
     // See: https://observablehq.com/@observablehq/advanced-embeds
     // See: https://observablehq.com/@observablehq/stdlib
     // See: https://github.com/observablehq/inspector

@@ -28,6 +28,7 @@ def get_viz_data(project: str,
                  genes: str = None,
                  interacting_pairs: str = None,
                  classes: str = None,
+                 min_score: str = None,
                  cell_types: str = None,
                  cell_type_pairs: str = None,
                  microenvironments: str = None,
@@ -81,8 +82,9 @@ def get_viz_data(project: str,
             ret.pop('cellphonedb')
     elif viz == 'cell_cell_interaction_summary':
         selected_classes = get_jsonable(classes)
+        # selected_min_score = int(get_jsonable(min_score)[0])
         ret = copy.deepcopy(dir_name2project_data[project][viz])
-        utils.filter_interactions_for_cci_summary(ret, dir_name2file_name2df[project], selected_classes)
+        utils.filter_interactions_for_cci_summary(ret, dir_name2file_name2df[project], selected_classes, int(min_score))
     else:
         ret = dir_name2project_data[project][viz]
     return ret

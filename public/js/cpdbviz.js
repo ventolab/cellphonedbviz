@@ -42,6 +42,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // Enable sliders
+  var elems = document.querySelectorAll("input[type=range]");
+  M.Range.init(elems);
+  // Show min interaction score selection below the cci_summary_score_input slider
+  document.querySelector('#cci_summary_score_input').addEventListener("input", (event) => {
+        $('#cci_summary_selected_min_score').text(event.target.value);
+  });
+
   // Enable dropdowns
   var options = {constrainWidth: false};
   var elems = document.querySelectorAll('.dropdown-trigger');
@@ -1503,9 +1511,13 @@ function refreshCCISummaryPlots() {
     var pos = 0;
     var selectedClasses = ret[pos++];
     var selectedMicroenvironments = ret[pos++];
+    var selectedMinInteractionScore = $('#cci_summary_selected_min_score').text();
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
+    }
+    if (cci_summary_selected_min_score) {
+        url += "?min_score=" + selectedMinInteractionScore;
     }
     $.ajax({
         url: url,
@@ -1533,7 +1545,7 @@ function refreshCCISummaryPlots() {
                     // Populate placeholder to show the user available classes of interacting pairs
                     var all_microenvironments = Array.from(map.keys());
                     $("#cci_summary_microenvironment_input").attr("placeholder",all_microenvironments.toString());
-                    $("#cci_summary_class_microenvironment_div").show();
+                    $("#cci_summary_microenvironment_div").show();
                     enable_autocomplete('cci_summary_microenvironment_input', 'cci_summary_selected_microenvironments', all_microenvironments);
                     var cnt = 1;
                     var max = 9;
@@ -1622,6 +1634,9 @@ function refreshCCISummaryPlots() {
                 $("#cci_summary_class_filter_div").show();
                 $("#cci_summary_buttons_div").show();
             }
+            if (res.hasOwnProperty('interaction_scores')) {
+                $("#cci_summary_score_div").show();
+            }
             // Allow the user to switch between cci_summary heatmaps and chord plots
             num_cell_types = res['all_cell_types'].length;
             if (num_cell_types > 40) {
@@ -1645,6 +1660,8 @@ function clearSGEFilters() {
 function clearCCISummaryFilters() {
     $('.cci_summary_selected_classes').empty();
     $('.cci_summary_selected_microenvironments').empty();
+    $('#cci_summary_selected_min_score').text("0");
+    $('#cci_summary_score_input').val(0);
 }
 
 function clearCCISearchFilters() {
