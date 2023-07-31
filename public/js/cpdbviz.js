@@ -2332,9 +2332,9 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
         const participants = interacting_pair2participants[interactingPair];
         const property2val = interacting_pair2properties[interactingPair];
         // Classes are kept separate from the other properties because versions<5.0.0 of cellphonedb-data doesn't have interaction classifications
-        const classes = interacting_pair2classes[interactingPair];
         // Populate interaction classification info, if provided
         if (interacting_pair2classes != undefined && interacting_pair2classes.hasOwnProperty(interactingPair)) {
+            const classes = interacting_pair2classes[interactingPair];
             ret += "Interaction classification: <b>" + classes + "</b><br>";
         }
         var prevPartner;
