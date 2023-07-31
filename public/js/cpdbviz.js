@@ -1911,7 +1911,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     .attr("height", height + 150);
 
     // Insert title
-    var title = "Significant interactions across the selected cell type pairs and interactions";
+    var title = "Significant interactions across the selected cell type pairs";
     if (interacting_pairs_selection_logic === undefined) {
         // This covers the case when the user had selected interacting_pairs_selection_logic, and now they have clicked on 'Refresh plot' button -
         // We need to recover interacting_pairs_selection_logic the user previously selected
