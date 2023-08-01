@@ -14,7 +14,7 @@ DATA_ROOT = f"{base_path}/../data"
 CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','microenvironments', \
                'analysis_means', 'relevant_interactions', 'interaction_scores', \
                'deconvoluted_result','deconvoluted_percents','degs','pvalues', \
-               'cellsign_active_interactions_deconvoluted', 'hash', 'cellphonedb']
+               'cellsign_active_interactions_deconvoluted', 'hash', 'anatomogram','cellphonedb']
 VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
           'cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
@@ -40,7 +40,13 @@ def get_projects() -> dict:
                     dict['title'] = config['title']
                     for key in CONFIG_KEYS[3:]:
                         if key in config:
-                            if key not in ['hash', 'cellphonedb']:
+                            if key == 'anatomogram':
+                                fpath = "{}/{}".format(root, config[key])
+                                with open(fpath, 'rb') as f:
+                                    # NB. We're using celltype_composition only
+                                    # temporarily for testing anatomograms
+                                    dict['celltype_composition'][key] = f.read()
+                            elif key not in ['hash', 'cellphonedb']:
                                 print("\n{}Loading {} for project: {}".format(INDENT, key, dir_name), flush=True, end="")
                                 fpath = "{}/{}".format(root, config[key])
                                 df = pd.read_csv(fpath, sep='\t', low_memory=False)

@@ -2,11 +2,13 @@
 separator:                                    '|'
 title:                                        Gonads - CellphoneDB v5 DEG analysis results
 microenvironments:                            microenvironment.tsv
-deconvoluted_result:                          degs_analysis_deconvoluted_07_18_2023_141519.txt
-analysis_means:                               degs_analysis_means_07_18_2023_141519.txt
-relevant_interactions:                        degs_analysis_relevant_interactions_07_18_2023_141519.txt
+deconvoluted_result:                          degs_analysis_deconvoluted_08_01_2023_105213.txt
+analysis_means:                               degs_analysis_means_08_01_2023_105213.txt
+relevant_interactions:                        degs_analysis_relevant_interactions_08_01_2023_105213.txt
 degs:                                         DEGs.tsv
-deconvoluted_percents:                        degs_analysis_deconvoluted_percents_07_18_2023_141519.txt
-cellsign_active_interactions_deconvoluted:    degs_analysis_CellSign_active_interactions_deconvoluted_07_18_2023_141519.txt
+deconvoluted_percents:                        degs_analysis_deconvoluted_percents_08_01_2023_105213.txt
+cellsign_active_interactions_deconvoluted:    degs_analysis_CellSign_active_interactions_deconvoluted_08_01_2023_105213.txt
+interaction_scores:                           degs_analysis_interaction_scores_08_01_2023_105213.txt
+anatomogram:                                  homo_sapiens.female.svg
 cellphonedb:                                  cellphonedb.zip
 

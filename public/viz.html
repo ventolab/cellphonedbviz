@@ -57,7 +57,13 @@ function refreshCCISummaryChordPlots() {
     }
     var selectedMinInteractionScore = $('#cci_summary_selected_min_score').text();
     if (cci_summary_selected_min_score) {
-        url += "?min_score=" + selectedMinInteractionScore;
+        var prefix;
+        if (selectedClasses) {
+            prefix = "&";
+        } else {
+            prefix = "?";
+        }
+        url += prefix + "min_score=" + selectedMinInteractionScore;
     }
     $.ajax({
         url: url,
