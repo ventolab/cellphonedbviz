@@ -153,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function() {
 //            })
 //            .on("mouseout", function(){});
 
-
             // Hide progress spinner
             $("#sge_spinner").hide();
         }
@@ -933,7 +932,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
       } else {
           deg = false;
       }
-      sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, legend_xPos - 30, -20);
+      sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale);
     }
   }
 
@@ -1118,7 +1117,9 @@ function sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, c
       .attr("fill", colorscale(0));
   }
 
-function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos) {
+function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale) {
+    const tooltip_yPos = yScale(i) + 160;
+    const tooltip_xPos = xScale(j) + 300;
     var innerRadius;
     // outerRadius is used for deg cell type-gene tuples only
     var outerRadius;
@@ -2066,7 +2067,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
           cellsign_active_interactions[interaction].hasOwnProperty(cellTypePair)) {
             activeInteractionInfo = cellsign_active_interactions[interaction][cellTypePair];
       }
-      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues, showZScores, activeInteractionInfo);
+      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, pvalues, showZScores, activeInteractionInfo);
     }
   }
 
@@ -2475,7 +2476,9 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
     }
 }
 
-function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, tooltip_xPos, tooltip_yPos, pvalues, showZScores, activeInteractionInfo) {
+function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, pvalues, showZScores, activeInteractionInfo) {
+    const tooltip_xPos = xScale(j) + 240;
+    const tooltip_yPos = yScale(i) + 240;
     var radius;
     var pvalBucket;
     if (pvalues) {
