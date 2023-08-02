@@ -621,7 +621,7 @@ function generateMicroenvironmentsPlot(data, anatomogram_labels) {
     // Insert title
     const title = "Cell Type - Microenvironment";
     svg.append("text")
-        .attr("x", (right_xMargin + width) / 2)
+        .attr("x", (right_xMargin + width) / 3)
         .attr("y", 12)
         .style("font-size", "16px")
         .attr("font-weight", 400)
@@ -886,7 +886,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     // The title in #sge_header div is used for naming of the PDF file when the plot is downloaded
     $("#sge_header").text(title);
     svg.append("text")
-        .attr("x", - xMargin + width / 2)
+        .attr("x", - xMargin + width * 3 / 4)
         .attr("y", 20)
         .style("font-size", "16px")
         .attr("font-weight", 400)
