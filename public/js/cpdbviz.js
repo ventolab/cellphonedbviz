@@ -1249,7 +1249,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         xAxisYOffset = 1.1 + 10/numCellTypes;
         yAxisYOffset = 0.7 + 10/numCellTypes;
         tooltipXPos = legend_xPos;
-        tooltipYPos = legend_yPos+240;
+        tooltipYPos = 0;
 
       if (plotCnt > 0) {
         $("#cci_summary_show_all_celltypes_div").show();
