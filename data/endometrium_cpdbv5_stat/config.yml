@@ -1,0 +1,12 @@
+# CellphoneDB results visualisation config
+separator:                  '|'
+title:                      Endometrial Atlas - CellphoneDB statistical analysis results
+celltype_composition:       celltype_composition.tsv
+microenvironments:          microenvironments.tsv
+deconvoluted_result:        statistical_analysis_deconvoluted_08_14_2023_105255.txt
+analysis_means:             statistical_analysis_means_08_14_2023_105255.txt
+relevant_interactions:      statistical_analysis_significant_means_08_14_2023_105255.txt
+pvalues:                    statistical_analysis_pvalues_08_14_2023_105255.txt
+deconvoluted_percents:      statistical_analysis_deconvoluted_percents_08_14_2023_105255.txt
+interaction_scores:         statistical_analysis_interaction_scores_08_14_2023_105255.txt 
+cellphonedb:                cellphonedb.zip

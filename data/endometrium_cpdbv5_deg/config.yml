@@ -1,0 +1,12 @@
+# CellphoneDB results visualisation config
+separator:                  '|'
+title:                      Endometrial Atlas - CellphoneDB DEG analysis results
+celltype_composition:       celltype_composition.tsv
+microenvironments:          microenvironments.tsv
+deconvoluted_result:        degs_analysis_deconvoluted_08_14_2023_111234.txt
+analysis_means:             degs_analysis_means_08_14_2023_111234.txt
+relevant_interactions:      degs_analysis_relevant_interactions_08_14_2023_111234.txt
+degs:                       degs_in_epithelials.tsv
+deconvoluted_percents:      degs_analysis_deconvoluted_percents_08_14_2023_111234.txt
+interaction_scores:         degs_analysis_interaction_scores_08_14_2023_111234.txt
+cellphonedb:                cellphonedb.zip

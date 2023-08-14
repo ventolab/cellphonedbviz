@@ -1,0 +1,20 @@
+Menstrual stage	Cell type	Lineage
+Proliferative	SOX9	Epithelial
+Proliferative	SOX9_prolif	Epithelial
+Proliferative	Ciliated	Epithelial
+Proliferative	Preciliated	Epithelial
+Proliferative	SOX9_LGR5	Epithelial
+Secretory	SOX9	Epithelial
+Secretory	Glandular	Epithelial
+Secretory	Glandular_secretory	Epithelial
+Secretory	Ciliated	Epithelial
+Secretory	Lumenal_1	Epithelial
+Secretory	Lumenal_2	Epithelial
+Proliferative	Lymphoid	Immune
+Proliferative	Myeloid	Immune
+Secretory	Lymphoid	Immune
+Secretory	Myeloid	Immune
+Proliferative	Fibroblast_C7	Mesenchymal
+Proliferative	Fibroblast_eS	Mesenchymal
+Secretory	Fibroblast_C7	Mesenchymal
+Secretory	Fibroblast_dS	Mesenchymal

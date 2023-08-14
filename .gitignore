@@ -1,5 +1,3 @@
-data/**/*.txt
-data/**/*.tsv
 **/.DS_Store
 .idea
 **/__pycache__
