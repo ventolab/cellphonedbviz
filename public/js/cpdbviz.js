@@ -1909,8 +1909,12 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     var width = Math.max(1400, 45 * num_ctps / Math.log10(num_ctps));
     bottom_yMargin = 250,
     top_yMargin = 60,
-    xMargin = Math.max(longest_ip_label.length * 7.3, longest_ct_label.length * 3.4),
-    yVals = data['interacting_pairs_means'],
+    xMargin = Math.max(longest_ip_label.length * 7.3, longest_ct_label.length * 3.4);
+    if (interacting_pair2classes) {
+        // Leave space on the LHS for the Interaction classes legend
+        xMargin += 150;
+    }
+    var yVals = data['interacting_pairs_means'],
     yMin = -1,
     xMin = -1,
     yMax = yVals.length - 1,
@@ -2208,10 +2212,10 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
   if (interacting_pair2classes) {
       // Legend for interacting pair colours (on Y axis) - by class
-      const classLegend_xPos= 0;
+      const classLegend_xPos= 10;
       const classLegenedWidth = 450;
       const classLegendHeight = 500;
-      const classLegend_yPos = height - 320;
+      const classLegend_yPos = -20;
       const classLegend = svg
             .append("svg")
             .attr("width", classLegenedWidth)
