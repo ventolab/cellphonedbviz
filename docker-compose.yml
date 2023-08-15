@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+  backend:
+    build: .
+    image: cellphonedbviz-website
+    container_name: cellphonedbviz-website
+    command: "uvicorn --host 0.0.0.0 --port 8001 --log-level debug 'main:app'"
+    ports:
+      - "8001:8001"
+    restart: always
+
+
