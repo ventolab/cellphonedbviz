@@ -214,47 +214,7 @@ function downloadAsPDF(divId, titleId, headerId) {
     var div = $("#" + divId);
     const is_cci = divId.search(/cci\d/ != -1);
     // See: https://cdn.jsdelivr.net/npm/pdfkit@0.10.0/js/pdfkit.standalone.js
-    const svgWidth = parseInt(div.find('svg').attr('width'));    // Generate cell-cell interaction search plot
-    $.ajax({
-        url: './api/data/'+projectId+'/cell_cell_interaction_search',
-        contentType: "application/json",
-        dataType: 'json',
-        success: function(res) {
-            generateCellCellInteractionSearchPlot(res, storeTokens=true);
-            // Populate num_all_cell_type_pairs div with the total number of cell type pairs in the experiment - the value in that
-            // field will be used to warn the user that if they select all cell type pairs and all relevant interacting pairs
-            // their browser run out of memory and crash.
-            $('#num_all_cell_type_pairs').text(res['num_all_cell_type_pairs']);
-            // Enable gene and cell type input autocompletes for gene expression plot
-            enable_autocomplete('cci_search_celltype_input', 'cci_search_selected_celltypes', res['all_cell_types']);
-            enable_autocomplete('cci_search_celltype_pair_input', 'cci_search_selected_celltype_pairs', res['all_cell_type_pairs']);
-            enable_autocomplete('cci_search_gene_input', 'cci_search_selected_genes', res['all_genes']);
-            enable_autocomplete('cci_search_interaction_input', 'cci_search_selected_interactions', res['all_interacting_pairs']);
-            if (res.hasOwnProperty('microenvironments')) {
-                enable_autocomplete('cci_search_microenvironment_input', 'cci_search_selected_microenvironments', res['microenvironments']);
-                // Initialise 'Filter cell types by micro-environment in 'cell-cell interaction search' plot select dropdown
-                enable_me2ct_select(res['microenvironment2cell_types'], res['all_cell_types'],
-                                        'cci_search_selected_microenvironments','cci_search_selected_celltypes', 'cci_search_celltype_input');
-                // Populate placeholder to show the user available microenvironments
-                $("#cci_search_microenvironment_input")
-                    .attr("placeholder",res['microenvironments'].toString());
-            }
-            // Allow the user to switch between mean expressions and z-scores being shown in the plot
-            enable_cci_search_switch();
-            // Allow the user to sort interacting pair either by the highest mean on top or alphabetically
-            enable_cci_search_sort_ips_switch();
-            // Enable side navs - used for displaying interacting pair participant information
-            enable_side_navs();
-            $("#cci_search_spinner").hide();
-            if (res.hasOwnProperty('all_classes')) {
-                 enable_autocomplete('cci_search_class_input', 'cci_search_selected_classes', res['all_classes']);
-                 // Populate placeholder to show the user available classes of interacting pairs
-                 $("#cci_search_class_input")
-                     .attr("placeholder",res['all_classes'].toString());
-                 $("#cci_search_class_filter_div").show();
-            }
-        }
-    });
+    const svgWidth = parseInt(div.find('svg').attr('width'));
     const svgHeight = parseInt(div.find('svg').attr('height'));
     options['size'] = [svgWidth, svgHeight];
     options['assumePt'] = true;
