@@ -1,8 +1,6 @@
 **/.DS_Store
 .idea
 **/__pycache__
-data/endometrium_cpdbv4_deg/
-data/endometrium_cpdbv4_stat/
 data/endothelial_mural/
 data/harmonized_endometrial_atlas/
 data/hormone_cell_atlas_hypothalamus/
