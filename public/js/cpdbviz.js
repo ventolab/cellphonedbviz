@@ -17,14 +17,14 @@ document.addEventListener('DOMContentLoaded', function() {
   var projectId = getProjectId();
   // Redirect to error page if no project id was provided
   if (!projectId) {
-      window.location.href = "/error.html?msg="+encodeURIComponent("Error: Please provide project identifier, e.g. index.html?projectid=myprojectid");
+      window.location.href = "error.html?msg="+encodeURIComponent("Error: Please provide project identifier, e.g. index.html?projectid=myprojectid");
   } else {
       // Redirect to error page if projectid is invalid
       const validate_projectid = async () => {
          const response = await fetch('./api/validate/' + projectId);
          const json = await response.json();
          if (!json) {
-            window.location.href = "/error.html?msg="+encodeURIComponent("Sorry, project '" + projectId + "' does not exist.");
+            window.location.href = "error.html?msg="+encodeURIComponent("Sorry, project '" + projectId + "' does not exist.");
          }
       }
       validate_projectid();
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
      const response = await fetch('./api/validate/auth/' + projectId + '?auth=' + hash);
      const json = await response.json();
      if (!json) {
-        window.location.href = "/error.html?msg="+encodeURIComponent("Sorry, you don't have access to this page.");
+        window.location.href = "error.html?msg="+encodeURIComponent("Sorry, you don't have access to this page.");
      }
   }
   validate_auth();
