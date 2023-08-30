@@ -1187,7 +1187,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
       var ct2Colour = {};
       var xMargin = 200;
       var height = Math.max(600, 20 * numCellTypes / Math.log10(numCellTypes)) ;
-      var width = Math.max(1000, 200 + 23 * numCellTypes / Math.log10(numCellTypes));
+      var width = Math.max(1000, 200 + 25 * numCellTypes / Math.log10(numCellTypes));
       var bottom_yMargin = 160,
         top_yMargin = 50,
         xMargin = 200,
@@ -1203,7 +1203,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         boxWidth = Math.round(380/yVals.length),
         legend_width=50
         legend_height=150,
-        legend_xPos= width-360,
+        legend_xPos= width-360*Math.max(1,numCellTypes/105),
         title_xPos = legend_xPos * 0.5,
         legend_yPos=top_yMargin+50,
         xAxisYOffset = 1.1 + 10/numCellTypes;
