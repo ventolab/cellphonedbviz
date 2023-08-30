@@ -418,7 +418,7 @@ function getSelectedTokens(divClassList) {
         divClass = divClassList[i];
         var vals = $("."+divClass).map((_,el) => el.innerText.replace(/(\n)*close(\n)*/g,",").replace(/,$/,"")).get()[0];
         if (vals) {
-            selectedTokens[i] = vals.split(",");
+            selectedTokens[i] = encodeURIComponent(vals).split(",");
         }
     }
     return selectedTokens;
