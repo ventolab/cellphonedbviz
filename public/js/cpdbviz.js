@@ -1714,6 +1714,10 @@ function clearCCISearchCellTypeFilters() {
     $('.cci_search_selected_celltype_pairs').empty();
 }
 
+function clearCCISearchInteractionFilters() {
+    $('.cci_search_selected_interactions').empty();
+}
+
 function getPValBucket(pVal) {
     var ret;
     if (pVal === undefined) {
