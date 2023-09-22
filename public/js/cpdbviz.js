@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 $('#cci_search_select_all_celltypes').addClass('disabled');
             }
             // Allow the user to switch between mean expressions and z-scores being shown in the plot
-            enable_cci_search_switch();
+            enable_cci_search_radio();
             // Allow the user to sort interacting pair either by the highest mean on top or alphabetically
             enable_cci_search_sort_ips_switch();
             // Enable side navs - used for displaying interacting pair participant information
@@ -203,6 +203,10 @@ document.addEventListener('DOMContentLoaded', function() {
                  $("#cci_search_class_input")
                      .attr("placeholder",res['all_classes'].toString());
                  $("#cci_search_class_filter_div").show();
+            }
+            if (res.hasOwnProperty('interaction_scores')) {
+                // Don't allow the user to select the scores radio button unless interaction_scores were provided in config
+                $("#rb_scores").show();
             }
         }
       });
@@ -255,8 +259,9 @@ function enable_cci_summary_show_all_celltypes() {
       });
 }
 
-function enable_cci_search_switch() {
-    $('#cci_search_switch').on('change', function() {
+function enable_cci_search_radio() {
+    $('input[name=cci_search_radio]').on('change', function() {
+        $("#cci_search_spinner").show();
         refreshCCISearchPlot();
       });
 }
@@ -1742,7 +1747,7 @@ function validateCCISearchInput(data) {
 
 function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pairs_selection_logic) {
 
-    const showZScores = $('#cci_search_switch').is(':checked');
+    const valuesToShow = $('input[name=cci_search_radio]:checked').val();
     // DEBUG console.log(data);
     const selectedGenes = data['selected_genes'];
     const selectedInteractingPairs = data['selected_interacting_pairs'];
@@ -1922,6 +1927,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     xMax= xVals.length - 1,
     mean_values = data['values'],
     pvalues=data['filtered_pvalues'],
+    interaction_scores=data['filtered_interaction_scores'],
     relevant_interactions=data['filtered_relevant_interactions'];
 
     const tooltip_xPos = 510;
@@ -1929,7 +1935,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
   // min_value, max_value needed for color scale
   max_val=data['max_value'];
-  if (showZScores) {
+  if (valuesToShow == "zscores") {
       min_val = data['min_value'];
   } else {
       // N.B. We don't take data['min_value'] as min_value because the bar legend misbehaves when min_expr > 0
@@ -1984,7 +1990,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
       .domain([yMax, yMin])
       .range([0, yAxisLength]);
   var  colorscale;
-  if (showZScores) {
+  if (valuesToShow == "zscores") {
        // Make z-score colour legend symmetric
        const max_abs_zscore = Math.max(Math.abs(min_val), max_val);
        min_val = -1 * max_abs_zscore;
@@ -2031,7 +2037,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
           cellsign_active_interactions[interaction].hasOwnProperty(cellTypePair)) {
             activeInteractionInfo = cellsign_active_interactions[interaction][cellTypePair];
       }
-      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, pvalues, showZScores, activeInteractionInfo);
+      cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, pvalues, valuesToShow, activeInteractionInfo);
     }
   }
 
@@ -2077,8 +2083,10 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
     // Add the colour legend header
     var legendLabel = "Mean expression";
-    if (showZScores) {
+    if (valuesToShow == "zscores") {
         legendLabel += " z-score";
+    } else if (valuesToShow == "scores") {
+        legendLabel = "Score";
     }
     svg
     .append("text").attr("x", barLegend_xPos-12).attr("y", top_yMargin+10).text(legendLabel).style("font-size", "15px")
@@ -2440,7 +2448,7 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
     }
 }
 
-function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, pvalues, showZScores, activeInteractionInfo) {
+function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, pvalues, valuesToShow, activeInteractionInfo) {
     const tooltip_xPos = xScale(j) + 240;
     const tooltip_yPos = yScale(i) + 240;
     var radius;
@@ -2454,8 +2462,10 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
         radius = 2;
     }
     var valLabel = "Expression";
-    if (showZScores) {
+    if (valuesToShow == "zscores") {
        valLabel = "Z-score";
+    } else if (valuesToShow == "scores") {
+       valLabel = "Score";
     }
     var tooltipContent = interaction + "<br>Cell type pair: " + cellTypePair + "<br>" + valLabel + ": " + value;
     if (pvalues) {
@@ -2534,7 +2544,7 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     var projectId = getProjectId();
 
     const sort_interacting_pairs_alphabetically = $('#cci_search_sort_ips_switch').is(':checked');
-    const showZScores = $('#cci_search_switch').is(':checked');
+    const valuesToShow = $('input[name=cci_search_radio]:checked').val();
     var ret = getSelectedTokens([
         "cci_search_selected_genes", "cci_search_selected_celltypes",
         "cci_search_selected_celltype_pairs", "cci_search_selected_interactions",
@@ -2579,10 +2589,7 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
         url += "?";
     }
     // In refresh mode, we don't pre-select cell type pairs - if the user did not enter any
-    url += "refresh_plot=True";
-    if (showZScores) {
-        url += "&show_zscores=True";
-    }
+    url += "refresh_plot=True&values_to_show=" + valuesToShow;
     if (interacting_pairs_selection_logic != undefined) {
         url += "&interacting_pairs_selection_logic=" + interacting_pairs_selection_logic;
     }
@@ -2613,6 +2620,7 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
                     // console.log(jqXHR, jqXHR.status, textStatus);
                 }
                 $("#cci_search_sel_ips_logic_spinner").hide();
+                $("#cci_search_spinner").hide();
             }
      });
 }

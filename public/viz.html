@@ -639,14 +639,20 @@ function refreshCCISummaryChordPlots() {
                      <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
                            <i id="interacting_pair_help" class="material-icons left tooltipped" data-tooltip="">info_outline</i>
                       </span>
-                      <div class="switch" style="padding-top: 20px;">
-                        <label>
-                          <span class="black-text text-lighten+10 switch-label">Show:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                          <span class="black-text text-lighten-10 switch-label">mean expressions</span>
-                          <input id="cci_search_switch" type="checkbox">
-                          <span class="lever"></span>
-                          <span class="black-text text-lighten-10 switch-label">z-scores</span>
-                        </label>
+                      <div style="padding-top: 20px;">
+                          <span class="black-text text-lighten+10 switch-label">Show: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                          <label>
+                              <input name="cci_search_radio" value="means" type="radio" class="with-gap" checked>
+                              <span class="black-text text-lighten-10 switch-label">mean expressions</span>
+                          </label>
+                          <label>
+                              <input name="cci_search_radio" value="zscores" type="radio" class="with-gap">
+                              <span class="black-text text-lighten-10 switch-label">z-scores</span>
+                          </label>
+                          <label id="rb_scores" hidden>
+                              <input name="cci_search_radio" value="scores" type="radio" class="with-gap">
+                              <span class="black-text text-lighten-10 switch-label">scores</span>
+                          </label>
                       </div>
                       <div class="switch" style="padding-top: 20px;">
                         <label>

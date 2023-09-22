@@ -28,7 +28,7 @@ def get_viz_data(project: str,
                  cell_type_pairs: str = None,
                  microenvironments: str = None,
                  refresh_plot: bool = False,
-                 show_zscores: bool = False,
+                 values_to_show: str = 'means',
                  interacting_pairs_selection_logic: str = None,
                  sort_interacting_pairs_alphabetically: bool = False
                  ):
@@ -68,7 +68,7 @@ def get_viz_data(project: str,
             ret.pop('all_interacting_pairs')
         utils.filter_interactions_for_cci_search(ret, dir_name2file_name2df[project],
                                   selected_genes, selected_interacting_pairs, selected_classes, selected_cell_types,
-                                  selected_cell_type_pairs, selected_microenvironments, refresh_plot, show_zscores,
+                                  selected_cell_type_pairs, selected_microenvironments, refresh_plot, values_to_show,
                                   interacting_pairs_selection_logic, sort_interacting_pairs_alphabetically)
         # 'analysis_means' is used for pre-selecting interacting pairs - it is not needed by the front end
         ret.pop('analysis_means')

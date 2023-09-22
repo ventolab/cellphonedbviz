@@ -411,6 +411,7 @@ def populate_relevant_interactions_data(result_dict, df, separator):
 
 def populate_interaction_scores_data(result_dict, df, separator):
     dict_cci_summary = result_dict['cell_cell_interaction_summary']
+    dict_cci_search = result_dict['cell_cell_interaction_search']
     dict_int_scores = {}
     all_cell_types_combinations = get_cell_type_pairs(df, separator)
     cnt = 0
@@ -423,6 +424,7 @@ def populate_interaction_scores_data(result_dict, df, separator):
             dict_int_scores[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
         cnt += 1
     dict_cci_summary['interaction_scores'] = dict_int_scores
+    dict_cci_search['interaction_scores'] = dict_int_scores
 
 def populate_degs_data(result_dict, df):
     dict_degs = result_dict['single_gene_expression']
@@ -537,7 +539,7 @@ def filter_interactions_for_cci_search(result_dict,
                         cell_type_pairs,
                         microenvironments,
                         refresh_plot,
-                        show_zscores,
+                        values_to_show,
                         interacting_pairs_selection_logic,
                         sort_interacting_pairs_alphabetically):
     means_df = file_name2df['analysis_means']
@@ -678,13 +680,31 @@ def filter_interactions_for_cci_search(result_dict,
         zscores_df = stats.zscore(result_means_df, axis=1)
         zscores_arr = np.nan_to_num(zscores_df.values, copy=False, nan=0.0)
         zscores_arr = np.round(zscores_arr, 3)
-        if show_zscores:
+        if values_to_show == 'scores':
+            if 'interaction_scores' in result_dict:
+                filtered_interaction_scores_arr = means_np_arr.copy().tolist()
+                for i, row in enumerate(filtered_interaction_scores_arr):
+                    for j, _ in enumerate(row):
+                        cell_type = selected_cell_type_pairs[j]
+                        interacting_pair = result_dict['interacting_pairs_means'][i]
+                        if cell_type in result_dict['interaction_scores'] and interacting_pair in \
+                                result_dict['interaction_scores'][cell_type]:
+                            filtered_interaction_scores_arr[i][j] = \
+                            result_dict['interaction_scores'][cell_type][interacting_pair]
+                        else:
+                            # interaction_scores = 0.0 have been filtered out to reduce API output
+                            filtered_interaction_scores_arr[i][j] = 0
+            result_dict['values'] = filtered_interaction_scores_arr
+            result_dict['min_value'] = 0
+            result_dict['max_value'] = 100
+        elif values_to_show == 'zscores':
             result_dict['values'] = zscores_arr.tolist()
             if zscores_arr.size > 0:
                 # Some significant interactions were found
                 result_dict['min_value'] = zscores_arr.min(axis=None)
                 result_dict['max_value'] = zscores_arr.max(axis=None)
         else:
+            # show means (by default)
             result_dict['values'] = means_np_arr.tolist()
             if means_np_arr.size > 0:
                 # Some significant interactions were found
