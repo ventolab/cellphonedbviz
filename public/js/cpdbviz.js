@@ -403,7 +403,14 @@ function enable_autocomplete(input_field_id, target_div_class, vals) {
         sortFunction : sortBy,
         limit: 5,
         onAutocomplete: function(val) {
-            storeToken(val, target_div_class, input_field_id)
+            if (val.match(/\*$/)) {
+                // If val is a pseudo-regex string (e.g. WNT*), expand it into all matching gene names
+                regex = new RegExp(val.replace('*','.*'), 'g');
+                regex_filtered_vals = vals.join('\n').match(regex);
+                regex_filtered_vals.forEach( e => { if (!e.match(/\*$/)) { storeToken(e, target_div_class, input_field_id) }});
+            } else {
+                storeToken(val, target_div_class, input_field_id)
+            }
         }
     }
     var elems = document.querySelectorAll('#'+input_field_id);

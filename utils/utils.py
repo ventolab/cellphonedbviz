@@ -285,6 +285,14 @@ def preselect_cell_types_pairs(dict_cci_search: dict, separator: str, mes: set):
     else:
         return dict_cci_search['all_cell_types'], dict_cci_search['all_cell_type_pairs']
 
+def add_naive_regexes(all_genes: set) -> set:
+    ret = set()
+    for n in [3, 4]:
+        ret.update(set([g[0:n]+"*" for g in all_genes]))
+    ret.update(all_genes)
+    return ret
+
+
 def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = None, selected_cell_types = None, refresh_plot = False, percents = False):
     dict_sge = dict_dd['single_gene_expression']
     dict_cci_search = dict_dd['cell_cell_interaction_search']
@@ -293,6 +301,8 @@ def populate_deconvoluted_data(dict_dd, df, separator = None, selected_genes = N
 
     # Note: all_genes is needed for autocomplete - for the user to include genes in the plot
     all_genes = set(df['gene_name'].values)
+    # Add simplified regular expression terms (e.g. WNT*) - to allow the user to select gene families
+    all_genes = add_naive_regexes(all_genes)
     all_cell_types = list(df.columns[7:])
     # Data below is needed for autocomplete functionality
     dict_sge['all_genes'] = all_genes

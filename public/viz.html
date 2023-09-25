@@ -245,7 +245,11 @@ function refreshCCISummaryChordPlots() {
                                   <div style="padding-top: 20px;"></div>
                                   <div class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="sge_gene_input" placeholder="Gene name">
-                                    <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10 search-input-label">Add genes to the plot</label>
+                                    <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10 search-input-label">Add genes to the plot&nbsp;&nbsp;
+                                        <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                                            <i id="sge_gene_input_help" class="material-icons left tooltipped" data-tooltip="Select all genes in a family by selecting e.g. WNT* or TNFR* from the dropdown">info_outline</i>
+                                        </span>
+                                    </label>
                                   </div>
                                   <div class="sge_selected_genes"></div>
                               </div>
@@ -566,7 +570,12 @@ function refreshCCISummaryChordPlots() {
                                   <div style="padding-bottom: 20px;" class="cci_search_selected_classes"></div>
                                   <div class="input-field">
                                     <input style="padding-top: 30px;" type="text" id="cci_search_gene_input" placeholder="Gene">
-                                    <label style="padding-top: 30px;" for="cci_search_gene_input" class="black-text text-lighten-10 search-input-label">Filter by genes</label>
+                                    <label style="padding-top: 30px;" for="cci_search_gene_input" class="black-text text-lighten-10 search-input-label">Filter by genes&nbsp;&nbsp;
+                                        <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                                            <i id="cci_search_gene_input_help" class="material-icons left tooltipped" data-tooltip="Select all genes in a family by selecting e.g. WNT* or TNFR* from the dropdown">info_outline</i>
+                                        </span>
+                                    </label>
+
                                   </div>
                                   <div class="cci_search_selected_genes"></div>
                                   <div class="input-field">
