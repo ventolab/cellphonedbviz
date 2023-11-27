@@ -576,8 +576,8 @@ function generateMicroenvironmentsPlot(data, anatomogram_labels) {
         xMax= xVals.length - 1,
         mapping = data['raw_data'];
 
-     var height = Math.max(500, 45 * yVals.length / Math.log10(yVals.length));
-     var width = Math.max(1000, 45 * xVals.length / Math.log10(xVals.length));
+     var height = Math.max(500, 45 * yVals.length / Math.log10(Math.max(yVals.length, 2)));
+     var width = Math.max(1000, 45 * xVals.length / Math.log10(Math.max(xVals.length, 2)));
 
     colorDomain = data['color_domain'];
     // NB. spme_header is hard-coded in html
