@@ -655,8 +655,8 @@ function highlightCellTypesForMicroenvironment(d, mapping, colourDomain, colorsc
    var cts = [];
    for (var i = 0; i <= mapping.length - 1; i++) {
       vals = mapping[i];
-      ct = vals[0];
-      me = vals[1];
+      var ct = vals[0];
+      var me = vals[1];
       if (me == d) {
         cts.push(ct);
       }
@@ -1255,7 +1255,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
               }
         }
         for (var i = 0; i < cellTypes.length; i++) {
-            ct = cellTypes[i];
+            var ct = cellTypes[i];
             if (microenvironments) {
                 if (ct2mes[ct] != undefined && ct2mes[ct].length == 1) {
                     me = ct2mes[ct][0];

@@ -23,7 +23,7 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,ribbonColor,
       }
     }
     for (var i = 0; i < names.length; i++) {
-        ct = names[i];
+        var ct = names[i];
         if (microenvironments && plotCnt == 0) {
             if (cell_type2microenvironments[ct] != undefined && cell_type2microenvironments[ct].length == 1) {
                 me = cell_type2microenvironments[ct][0];
