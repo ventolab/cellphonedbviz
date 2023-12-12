@@ -1626,7 +1626,7 @@ function refreshCCISummaryPlots() {
                     res['max_num_ints'] = max_num_ints;
                     // Now generate the per-microenvironment plots
                     for (let [microenvironment, cellTypes] of map.entries()) {
-                        if (selectedMicroenvironments == undefined || selectedMicroenvironments.includes(microenvironment)) {
+                        if (selectedMicroenvironments == undefined || decodeURI(selectedMicroenvironments).includes(microenvironment)) {
                             generateCellCellInteractionSummaryPlot(res, cellTypes.sort(), microenvironment, cnt);
                             storeToken(microenvironment, "cci_summary_selected_microenvironments", "cci_summary_microenvironment_input");
                             cnt++;
