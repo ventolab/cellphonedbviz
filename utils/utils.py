@@ -768,8 +768,12 @@ def filter_interactions_for_cci_summary(result_dict, file_name2df, classes, min_
             s = means_df[ct_pair].dropna()
             num_ints4ctp = len(s[s>0])
          else:
-            interaction_scores = result_dict['interaction_scores']
-            s = interaction_scores[ct_pair].values()
+            interaction_scores_for_ct_pair = result_dict['interaction_scores'][ct_pair].copy()
+            if interacting_pairs:
+                # if classes were selected, retain the interacting pairs that belong to those classes only
+                interaction_scores_for_ct_pair = {ip: interaction_scores_for_ct_pair[ip] for ip in interacting_pairs if ip in interaction_scores_for_ct_pair}
+            s = interaction_scores_for_ct_pair.values()
+
             num_ints4ctp = len([i for i in s if i >= min_score])
          ct1 = ct_pair.split(separator)[0]
          ct2 = ct_pair.split(separator)[1]
