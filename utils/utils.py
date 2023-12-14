@@ -16,6 +16,7 @@ CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','m
                'deconvoluted_result','deconvoluted_percents','degs','pvalues', \
                'cellsign_active_interactions_deconvoluted', 'hash', 'anatomogram','cellphonedb']
 VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
+          'cell_cell_interaction_ataglance',
           'cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
 SIDENAV_PROPERTY_STYLE = "style=\"padding-left: 60px; font-size: 14px; margin: 20px 0px !important; \""
@@ -404,6 +405,75 @@ def populate_pvalues_data(result_dict, df, separator):
         cnt += 1
     dict_cci_search['pvalues'] = dict_pvals
 
+"""
+By aggregate mean expression, retrieve top 5 interacting pair classes, and for those retrieve top 10 cell type pairs 
+and top 10 interacting pairs.
+"""
+def populate_ataglance_data(result_dict, dict_ri_flags):
+    dict_cci_search = result_dict['cell_cell_interaction_search']
+    if 'interacting_pair2classes' in dict_cci_search:
+        analysis_means = dict_cci_search['analysis_means']
+        ip2class = dict_cci_search['interacting_pair2classes']
+        aux_list = []
+        for ct_pair in dict_ri_flags:
+            for ip in dict_ri_flags[ct_pair]:
+                if ip in ip2class:
+                    ip_class = ip2class[ip]
+                else:
+                    ip_class = 'Not provided'
+                # Note the need for sum() below as in v5.0.0 of cellphonedb-data exist interacting pair duplicates,
+                # e.g. GALP_GALR1
+                mean = analysis_means.loc[ip, ct_pair].sum()
+                aux_list.append([ip, ip_class, ct_pair, mean])
+
+        aux_df = pd.DataFrame(aux_list, columns=['ip', 'ip_class', 'ct_pair', 'mean'])
+
+        # Sort ip class-ct pair tuples by mean in desc order
+        aux_df.set_index(['ip'], inplace=True)
+        ipclass_ctp_df = sort_df_by_mean(aux_df, ['ip_class', 'ct_pair'])
+        ipclass_ctp_df.reset_index(drop=False, inplace=True)
+        ipclass_ctp_df['mean'] = ipclass_ctp_df['mean']
+
+        # Sort ip class-ip tuples by mean in desc order
+        aux_df.reset_index(drop=False, inplace=True)
+        aux_df.set_index(['ct_pair'], inplace=True)
+        ip_ipclass_df = sort_df_by_mean(aux_df, ['ip', 'ip_class'])
+        ip_ipclass_df['mean'] = ip_ipclass_df['mean']
+
+        # Sort ip class by mean in desc order
+        ip_ipclass_df.reset_index(drop=False, inplace=True)
+        aux_df.reset_index(drop=False, inplace=True)
+        aux_df.drop(columns=['ct_pair', 'ip'], inplace=True)
+        ipclass_df = sort_df_by_mean(aux_df, ['ip_class'])
+
+        # Pick top 5 ip classes
+        top5_ip_classes = ipclass_df.index.tolist()[0:5]
+
+        # Out of the above top 5 classes, pick top N=20 cell type pairs and top N=20 interacting pairs
+        ret = []
+        topN_ctps_df = ipclass_ctp_df[ipclass_ctp_df['ip_class'].isin(top5_ip_classes)].head(20)
+        topN_ips_dr = ip_ipclass_df.loc[ip_ipclass_df['ip_class'].isin(top5_ip_classes)].head(20)
+        # The loop below adds 'empty' links where real links don't exist - to make sure that ip_class node always ends up in
+        # the moddle columns of the sankey plot
+        for cnt, ip_class in enumerate(top5_ip_classes):
+            if ip_class in topN_ctps_df['ip_class'].tolist() or ip_class in topN_ips_dr['ip_class'].tolist():
+                empty_entry = ' ' * cnt
+                if ip_class not in topN_ctps_df['ip_class'].tolist():
+                    ret.append([ip_class, empty_entry, 0.0001])
+                if ip_class not in topN_ips_dr['ip_class'].tolist():
+                    ret.append([empty_entry, ip_class, 0.0001])
+
+        ret += topN_ctps_df.values.tolist()
+        ret += topN_ips_dr.values.tolist()
+        csv_str = '\n'.join([','.join(map(str, x)) for x in ret])
+        result_dict['cell_cell_interaction_ataglance']['sankey_data'] = csv_str
+        print(result_dict['cell_cell_interaction_ataglance']['sankey_data'])
+
+def sort_df_by_mean(df, cols):
+    return df.groupby(cols) \
+        .sum() \
+        .sort_values(['mean'], ascending=False)
+
 def populate_relevant_interactions_data(result_dict, df, separator):
     dict_cci_search = result_dict['cell_cell_interaction_search']
     dict_ri_flags = {}
@@ -418,6 +488,9 @@ def populate_relevant_interactions_data(result_dict, df, separator):
             dict_ri_flags[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
         cnt += 1
     dict_cci_search['relevant_interactions'] = dict_ri_flags
+    populate_ataglance_data(result_dict, dict_ri_flags)
+
+
 
 def populate_interaction_scores_data(result_dict, df, separator):
     dict_cci_summary = result_dict['cell_cell_interaction_summary']
