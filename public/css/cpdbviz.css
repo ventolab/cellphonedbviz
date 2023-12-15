@@ -75,3 +75,27 @@ nav ul li a, h5 {
  .switch label .lever:after {
     background-color: #F1F1F1 !important;
  }
+
+
+/* Specificity at a glance (Sankey) plot - start */
+.node rect {
+  cursor: move;
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+}
+
+.node text {
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .2;
+}
+
+.link:hover {
+  stroke-opacity: .5;
+}
+/* Specificity at a glance (Sankey) plot - end */

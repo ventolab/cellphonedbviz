@@ -475,8 +475,8 @@ def populate_specificity_ataglance_data(result_dict, dict_ri_flags):
                         aux_df['mean'].sum()])
 
         csv_str = '\n'.join([','.join(map(str, x)) for x in ret])
-        result_dict['cell_cell_interaction_ataglance']['sankey_data'] = csv_str
-        print(result_dict['cell_cell_interaction_specificity_ataglance']['sankey_data'])
+        result_dict['cell_cell_interaction_specificity_ataglance']['sankey_data'] = csv_str
+        # DEBUG print(result_dict['cell_cell_interaction_specificity_ataglance']['sankey_data'])
 
 def sort_df_by_mean(df, cols):
     return df.groupby(cols) \

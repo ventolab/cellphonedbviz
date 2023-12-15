@@ -158,6 +158,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
      });
 
+     // Generate 'CCI Specificity at a glance' plot on first page load
+     refreshCCISpecificityAtAGlancePlot();
+
      // Generate CCISummary plots on first page load
      refreshCCISummaryPlots();
 
@@ -1538,6 +1541,12 @@ function disableCCISummarySwitches() {
 
 function maxCellTypesExceeded(all_cell_types) {
     return all_cell_types.length >= 150;
+}
+
+function refreshCCISpecificityAtAGlancePlot() {
+    var title = "Top 5 (plus the remainder) cell types and top 5 interacting pairs (plus the remainder) - across top 5 interacting pair classes, all by average expression";
+    $("#cci_specificity_header").text(title);
+    // TODO: TBC
 }
 
 function refreshCCISummaryPlots() {
