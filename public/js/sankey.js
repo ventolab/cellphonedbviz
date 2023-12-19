@@ -33,9 +33,10 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
       this.bubbleColor = '#000';
       this.bubbleLabelColor = '#fff';
       this.opacity = '0.5';
+      this.label_opacity = '0.8';
       this.opacity_highlight = '0.1';
-      this.default_font_size = '10px';
-      this.highlighted_font_size = '13px';
+      this.default_font_size = '12px';
+      this.highlighted_font_size = '14px';
       this.top_margin = 30;
     }
 
@@ -58,7 +59,10 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
       if (datum[0] === 0) {
         return;
       }
-      new_line = new FlowLine(this, datum[0], datum[1], datum[2]);
+      var flow_value = datum[1];
+      // flow_thickness serves to make edge thickness more discernible
+      var flow_thickness = Math.log(1 + flow_value)*60
+      new_line = new FlowLine(this, datum[0], flow_value, flow_thickness, datum[2]);
       this.lines[this.lineName(datum[0], datum[2])] = new_line;
       return this.line_array.push(new_line);
     };
@@ -289,11 +293,11 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
   })();
 
   FlowLine = (function() {
-    function FlowLine(sankey, left_box_name, flow, right_box_name) {
+    function FlowLine(sankey, left_box_name, flow_value, flow_thickness, right_box_name) {
       this.sankey = sankey;
       this.hover_stop = __bind(this.hover_stop, this);
       this.hover_start = __bind(this.hover_start, this);
-      this.setFlow(flow);
+      this.setFlow(flow_value, flow_thickness);
       this.colour = void 0;
       this.ox = 0;
       this.oy = 0;
@@ -305,13 +309,14 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
       this.right_box.left_lines.push(this);
     }
 
-    FlowLine.prototype.setFlow = function(flow) {
-      this.flow = flow;
-      return this.size = this.sankey.convert_flow_values_callback(this.flow);
+    FlowLine.prototype.setFlow = function(flow_value, flow_thickness) {
+      this.flow_thickness = flow_thickness;
+      this.flow_value = flow_value;
+      return this.size = this.sankey.convert_flow_values_callback(this.flow_thickness);
     };
 
     FlowLine.prototype.labelText = function() {
-      return this.sankey.convert_flow_labels_callback(this.flow);
+      return this.sankey.convert_flow_labels_callback(this.flow_value);
     };
 
     FlowLine.prototype.path = function() {
@@ -343,11 +348,13 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
     FlowLine.prototype.draw = function(r) {
       this.outer_line = r.path(this.path()).attr({
         'stroke-width': this.size,
-        'stroke': this.colour
+        'stroke': this.colour,
+        'opacity': this.sankey.opacity
       });
       this.inner_line = r.path(this.path()).attr({
         'stroke-width': this.innerWidth(),
-        'stroke': this.innerColor()
+        'stroke': this.innerColor(),
+        'opacity': this.sankey.opacity
       });
       r.set().push(this.inner_line, this.outer_line).hover(this.hover_start, this.hover_stop);
       this.left_label = r.text(this.ox + 1, this.oy - (this.size / 2) - 5, this.labelText()).attr({
@@ -376,11 +383,13 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
       }
       this.outer_line.attr({
         path: this.path(),
-        'stroke-width': this.size
+        'stroke-width': this.size,
+        'opacity': this.sankey.opacity
       });
       this.inner_line.attr({
         path: this.path(),
-        'stroke-width': this.innerWidth()
+        'stroke-width': this.innerWidth(),
+        'opacity': this.sankey.opacity
       });
       this.left_label.attr({
         text: this.labelText(),
@@ -476,7 +485,7 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
       this.hover_end = __bind(this.hover_end, this);
       this.hover_start = __bind(this.hover_start, this);
       this.label_text = this.sankey.convert_box_description_labels_callback(name);
-      this.line_colour = "orange";
+      this.line_colour = "#a13d2d";
       this.left_lines = [];
       this.right_lines = [];
       this.x = 0;
@@ -587,15 +596,22 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
     TransformationBox.prototype.labelAttributes = function() {
       if (this.is_left_box()) {
         return {
-          'text-anchor': 'end'
+          'text-anchor': 'end',
+          'font-size': this.sankey.default_font_size,
+          'opacity' : this.sankey.label_opacity
         };
       }
       if (this.is_right_box()) {
         return {
-          'text-anchor': 'start'
+          'text-anchor': 'start',
+          'font-size': this.sankey.default_font_size,
+          'opacity' : this.sankey.label_opacity
         };
       }
-      return {};
+      return {
+        'font-size': this.sankey.default_font_size,
+        'opacity' : this.sankey.label_opacity
+      };
     };
 
     TransformationBox.prototype.numberLabelPositionX = function() {
@@ -644,7 +660,13 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
         'fill': "#E8E2FF",
         "stroke": "#D4CBF2"
       });
-      this.label = r.text(this.labelPositionX(), this.labelPositionY(), this.descriptionLabelText()).attr(this.labelAttributes());
+      // The Y position adjustment below is specific to 'Specificity at a glance' plot only,
+      // where interacting pair classes are the only labels with " by " in their name
+      var adjustedYPos = this.labelPositionY();
+      if (this.descriptionLabelText().includes(" by ")) {
+        adjustedYPos = adjustedYPos - 15;
+      }
+      this.label = r.text(this.labelPositionX(), adjustedYPos, this.descriptionLabelText()).attr(this.labelAttributes());
       if (this.bubbleValue != null) {
         this.bubble_circle = r.circle(this.x + box_width, this.y, this.bubbleSize()).attr({
           'fill': this.bubbleColourForValue(),
@@ -800,7 +822,7 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
         'opacity': this.sankey.opacity
       });
       this.label.attr({
-        'opacity': this.sankey.opacity
+        'opacity': this.sankey.label_opacity
       });
       if (this.bubble_circle != null) {
         this.bubble_circle.attr({

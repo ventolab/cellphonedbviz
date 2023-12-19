@@ -30,7 +30,6 @@
         <script type="text/javascript" src="./external/js/d3-scale-chromatic.v3.min.js"></script>
         <script type="text/javascript" src="./external/js/raphael.min.js"></script>
         <script src="./js/sankey.js" type="text/javascript"></script>
-        <script src="./js/sankey.specificityplot.js" type="text/javascript"></script>
         <script src="./js/cpdbviz.js" type="text/javascript"></script>
         <!-- Libraries below are needed to saving plots as PDFs    -->
         <script type="text/javascript" src="./external/js/pdfkit.standalone.js"></script>
@@ -166,7 +165,7 @@ function refreshCCISummaryChordPlots() {
                         <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                     </button>
                       <div id="ctcomp_header" hidden></div>
-                      <div id="ctcomp" style="width:1200px;height:550px"></div>
+                      <div id="ctcomp" style="width:1500px;height:1500px"></div>
                   </div>
                 </div>
               </div>
@@ -301,8 +300,16 @@ function refreshCCISummaryChordPlots() {
                     <button id="cci_specificity_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci_specificity','cci_specificity_title','cci_specificity_header')">
                         <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                     </button>
-                      <div id="cci_specificity_header"></div>
-                      <div id="cci_specificity" style="width:1000px;height:1500px"></div>
+                    <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                        <i id="specificity_ataglance_help" class="material-icons left tooltipped"
+                           data-tooltip="Click on an interacting pair class (middle column) to see
+                           the averaged means of the corresponding interacting pairs and cell type pairs">info_outline</i>
+                    </span>
+                      <div id="cci_specificity_header" class="center"><img src="img/cci_specificity_legend.png" alt="Cell-cell Communication Specificity - At at glance - legend"></img></div>
+                      <div id="cci_specificity_legend" class="center">Plot interpretation guidance:
+                          Higher averaged means across fewer interacting/cell type pairs may be indicative of a more
+                      specific activity of the corresponding interaction class/pathway.</div>
+                      <div id="cci_specificity" style="width:2000px;height:800px"></div>
                   </div>
                 </div>
               </div>

@@ -158,8 +158,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
      });
 
-     // Generate 'CCI Specificity at a glance' plot on first page load
-     refreshCCISpecificityAtAGlancePlot();
+    // Generate 'CCI Specificity at a glance' plot on first page load
+    $.ajax({
+        url: './api/data/'+projectId+'/cell_cell_interaction_specificity_ataglance',
+        contentType: "application/json",
+        dataType: 'json',
+        success: function(res) {
+          refreshCCISpecificityAtAGlancePlot(res);
+        }
+    });
+
 
      // Generate CCISummary plots on first page load
      refreshCCISummaryPlots();
@@ -1543,10 +1551,58 @@ function maxCellTypesExceeded(all_cell_types) {
     return all_cell_types.length >= 150;
 }
 
-function refreshCCISpecificityAtAGlancePlot() {
-    var title = "Top 5 (plus the remainder) cell types and top 5 interacting pairs (plus the remainder) - across top 5 interacting pair classes, all by average expression";
-    $("#cci_specificity_header").text(title);
-    // TODO: TBC
+function refreshCCISpecificityAtAGlancePlot(data) {
+    if (!data.hasOwnProperty('all_elems')) {
+        $("#cci_specificity_section").hide();
+        return;
+     }
+
+     var edges = data['edges'];
+     var numStacks = data['num_stacks'];
+      var sankey = new Sankey('cci_specificity');
+      sankey.stack(0,data['list0'],data['y_space0'],data['y_box0']);
+      sankey.stack(1,data['list1'],data['y_space1'],data['y_box1']);
+      sankey.stack(2,data['list2'],data['y_space2'],data['y_box2']);
+      sankey.stack(3,data['list3'],data['y_space3'],data['y_box3']);
+      sankey.stack(4,data['list4'],data['y_space4'],data['y_box4']);
+      sankey.stack(5,data['list5'],data['y_space5'],data['y_box5']);
+      var elem2colour = {};
+      // See: https://observablehq.com/@d3/color-schemes
+      // const colours = d3.schemeTableau10.reverse();
+      // NB. Two different colour schemes are concatenated in order to provide
+      // the colour resolution sufficient for the number of items on the sankey plot.
+      // The colours are also shuffled - allowing the user to keep refreshing the page
+      // until they see the colours they like on the cell composition plot.
+      const unshuffled_colours = d3.schemePaired.concat(d3.Pastel2);
+      let colours = unshuffled_colours
+        .map(value => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value)
+
+      var elems = data['all_elems'];
+      for (var i = 0; i < elems.length; i++) {
+        elem = elems[i];
+        elem2colour[elem] = colours[i % colours.length];
+      }
+      // Colours
+      sankey.setColors(elem2colour);
+      sankey.right_margin = 100;
+      sankey.left_margin = -100 * numStacks + 700;
+      sankey.box_width = 30;
+      // Box height
+      sankey.convert_flow_values_callback = function(flow) {
+        return flow * 0.05;
+      };
+      sankey.convert_flow_labels_callback = function(flow) {
+        // Switched off edge labels:
+        return Math.round(flow);
+      };
+      sankey.convert_box_value_labels_callback = function(flow) {
+        // Switched off edge labels: return (""+Math.round(flow))
+        return "";
+      };
+      sankey.setData(edges);
+      sankey.draw();
 }
 
 function refreshCCISummaryPlots() {

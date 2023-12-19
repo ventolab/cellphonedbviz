@@ -18,9 +18,9 @@ CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','m
 VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
           'cell_cell_interaction_specificity_ataglance',
           'cell_cell_interaction_summary','cell_cell_interaction_search']
-MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION= 6
+MAX_NUM_STACKS_IN_SANKEY_PLOTS = 6
 SIDENAV_PROPERTY_STYLE = "style=\"padding-left: 60px; font-size: 14px; margin: 20px 0px !important; \""
-SANKEY_EDGE_WEIGHT = 30
+CELLTYPE_COMPOSITION_SANKEY_EDGE_WEIGHT = 1
 INDENT="     "
 
 def get_projects() -> dict:
@@ -135,12 +135,12 @@ def populate_celltype_composition_data(result_dict, df):
         stack_idx = 0
         for item in row:
             if not stacks:
-                stacks = [set([]) for x in range(MAX_NUM_STACKS_IN_CELLTYPE_COMPOSITION)]
+                stacks = [set([]) for x in range(MAX_NUM_STACKS_IN_SANKEY_PLOTS)]
             stacks[stack_idx].add(item)
             all_elems.add(item)
             stack_idx += 1
             if prev_item is not None:
-                edges.add((prev_item, SANKEY_EDGE_WEIGHT, item))
+                edges.add((prev_item, CELLTYPE_COMPOSITION_SANKEY_EDGE_WEIGHT, item))
             prev_item = item
     # dict_cc['num_stacks'] is used for working out the left margin of Cell composition plot
     dict_cc['num_stacks'] = stack_idx
@@ -406,10 +406,16 @@ def populate_pvalues_data(result_dict, df, separator):
     dict_cci_search['pvalues'] = dict_pvals
 
 """
-By aggregate mean expression, retrieve top 5 interacting pair classes, and for those retrieve top 10 cell type pairs 
-and top 10 interacting pairs.
+By aggregate mean expression, retrieve top 5 interacting pair classes, and for those retrieve top 5 cell type pairs 
+and top 5 interacting pairs.
 """
+
 def populate_specificity_ataglance_data(result_dict, dict_ri_flags):
+    dict_specaag = result_dict['cell_cell_interaction_specificity_ataglance']
+    dict_specaag['edges'] = []
+    for i in list(range(MAX_NUM_STACKS_IN_SANKEY_PLOTS)):
+        dict_specaag["list{}".format(i)] = []
+
     dict_cci_search = result_dict['cell_cell_interaction_search']
     if 'interacting_pair2classes' in dict_cci_search:
         analysis_means = dict_cci_search['analysis_means']
@@ -448,6 +454,7 @@ def populate_specificity_ataglance_data(result_dict, dict_ri_flags):
 
         # Pick top 5 ip classes, by average expression
         top5_ip_classes = ipclass_df.index.tolist()[0:5]
+        dict_specaag['list1'] = top5_ip_classes
 
         # For each ip_class in top5_ip_classes:
         # - pick top 5 ips and top 5 ctps
@@ -455,28 +462,53 @@ def populate_specificity_ataglance_data(result_dict, dict_ri_flags):
         # Note: ret attempts to highlight expression specificity (of interacting pairs
         # and cell type pairs), and since dict_ri_flags contains relevant interactions only,
         # what is highlighted is cell-cell interaction specificity
-        ret = []
+        edges = dict_specaag['edges']
+        all_elems = set([])
+        dict_specaag['num_stacks'] = 3
         for ip_class in top5_ip_classes:
-            aux_df = ipclass_ctp_df.loc[ipclass_ctp_df['ip_class'] == ip_class]
-            ret += aux_df.head(5).values.tolist()
-            aux_df = aux_df.tail(max(aux_df.shape[0] - 5, 0))
-            rem_cnt = aux_df.shape[0]
-            if rem_cnt > 0:
-                ret.append([ip_class,
-                        "Remaining {} cell type pairs".format(rem_cnt),
-                        aux_df['mean'].sum()])
-            aux_df = ip_ipclass_df.loc[ip_ipclass_df['ip_class'] == ip_class]
-            ret += aux_df.head(5).values.tolist()
-            aux_df = aux_df.tail(max(aux_df.shape[0] - 5, 0))
-            rem_cnt = aux_df.shape[0]
-            if rem_cnt > 0:
-                ret.append(["Remaining {} interacting pairs".format(rem_cnt),
-                        ip_class,
-                        aux_df['mean'].sum()])
+            all_elems.add(ip_class)
 
-        csv_str = '\n'.join([','.join(map(str, x)) for x in ret])
-        result_dict['cell_cell_interaction_specificity_ataglance']['sankey_data'] = csv_str
-        # DEBUG print(result_dict['cell_cell_interaction_specificity_ataglance']['sankey_data'])
+            aux_df = ipclass_ctp_df.loc[ipclass_ctp_df['ip_class'] == ip_class]
+            for l in aux_df.head(5).values.tolist():
+                ct = l[1]
+                total_mean = l[2]
+                edges.append([ip_class, total_mean, ct])
+                all_elems.add(ct)
+                dict_specaag['list2'].append(ct)
+            aux_df = aux_df.tail(max(aux_df.shape[0] - 5, 0))
+            rem_cnt = aux_df.shape[0]
+            if rem_cnt > 0:
+                rem_elem = "Remaining {} cell type pairs".format(rem_cnt)
+                edges.append([ip_class, aux_df['mean'].sum(), rem_elem])
+                all_elems.add(rem_elem)
+                dict_specaag['list2'].append(rem_elem)
+
+            aux_df = ip_ipclass_df.loc[ip_ipclass_df['ip_class'] == ip_class]
+            for l in aux_df.head(5).values.tolist():
+                ip = l[0]
+                total_mean = l[2]
+                edges.append([ip, total_mean, ip_class])
+                all_elems.add(ip)
+                dict_specaag['list0'].append(ip)
+            aux_df = aux_df.tail(max(aux_df.shape[0] - 5, 0))
+            rem_cnt = aux_df.shape[0]
+            if rem_cnt > 0:
+                rem_elem = "Remaining {} interacting pairs".format(rem_cnt)
+                edges.append([rem_elem, aux_df['mean'].sum(), ip_class])
+                all_elems.add(rem_elem)
+                dict_specaag['list0'].append(rem_elem)
+
+        dict_specaag['all_elems'] = list(sorted(all_elems))
+
+        for i in list(range(MAX_NUM_STACKS_IN_SANKEY_PLOTS)):
+            items = dict_specaag['list{}'.format(i)]
+            if items:
+                y_space = int(650 / len(items))
+                y_box = int(300 / len(items))
+            else:
+                y_space, y_box = 0, 0
+            dict_specaag['y_space{}'.format(i)] = y_space
+            dict_specaag['y_box{}'.format(i)] = y_box
 
 def sort_df_by_mean(df, cols):
     return df.groupby(cols) \
