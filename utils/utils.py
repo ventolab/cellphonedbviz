@@ -438,13 +438,11 @@ def populate_specificity_ataglance_data(result_dict, dict_ri_flags):
         aux_df.set_index(['ip'], inplace=True)
         ipclass_ctp_df = sort_df_by_mean(aux_df, ['ip_class', 'ct_pair'])
         ipclass_ctp_df.reset_index(drop=False, inplace=True)
-        ipclass_ctp_df['mean'] = ipclass_ctp_df['mean']
 
         # Sort ip class-ip tuples by mean in desc order
         aux_df.reset_index(drop=False, inplace=True)
         aux_df.set_index(['ct_pair'], inplace=True)
         ip_ipclass_df = sort_df_by_mean(aux_df, ['ip', 'ip_class'])
-        ip_ipclass_df['mean'] = ip_ipclass_df['mean']
 
         # Sort ip class by mean in desc order
         ip_ipclass_df.reset_index(drop=False, inplace=True)
