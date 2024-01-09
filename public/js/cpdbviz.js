@@ -1605,28 +1605,35 @@ function refreshCCISpecificityAtAGlancePlot(data) {
       sankey.draw();
 }
 
+function getQuerySeparator(previous) {
+    if (previous) {
+        return "&";
+    } else {
+        return "?";
+    }
+}
+
 function refreshCCISummaryPlots() {
     $("#cci_summary_error").hide();
     $("#cci_summary_spinner").show();
 
     var projectId = getProjectId();
-    var ret = getSelectedTokens(["cci_summary_selected_classes", "cci_summary_selected_microenvironments"]);
+    var ret = getSelectedTokens(["cci_summary_selected_classes", "cci_summary_selected_microenvironments", "cci_summary_selected_modalities"]);
     var pos = 0;
     var selectedClasses = ret[pos++];
     var selectedMicroenvironments = ret[pos++];
+    var selectedModalities = ret[pos++];
     var selectedMinInteractionScore = $('#cci_summary_selected_min_score').text();
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
     }
+    if (selectedModalities) {
+        url += getQuerySeparator(selectedClasses) + "modalities=" + selectedModalities;
+    }
     var prefix;
     if (cci_summary_selected_min_score) {
-        if (selectedClasses) {
-            prefix = "&";
-        } else {
-            prefix = "?";
-        }
-        url += prefix + "min_score=" + selectedMinInteractionScore;
+        url += getQuerySeparator(selectedClasses || selectedModalities) + "min_score=" + selectedMinInteractionScore;
     }
     $.ajax({
         url: url,
@@ -1743,6 +1750,16 @@ function refreshCCISummaryPlots() {
                 $("#cci_summary_class_filter_div").show();
                 $("#cci_summary_buttons_div").show();
             }
+            if (res.hasOwnProperty('all_modalities')) {
+                enable_autocomplete('cci_summary_modality_input', 'cci_summary_selected_modalities', res['all_modalities']);
+               // Populate placeholder to show the user available classes of interacting pairs
+                $("#cci_summary_modality_input")
+                    .attr("placeholder",res['all_modalities'].toString());
+                $("#cci_summary_modality_filter_div").show();
+                $("#cci_summary_buttons_div").show();
+            }
+
+
             if (res.hasOwnProperty('interaction_scores')) {
                 $("#cci_summary_score_div").show();
             }
@@ -1831,6 +1848,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     const selectedCellTypePairs = data['selected_cell_type_pairs'];
     const selectedCTP2Me = data['selected_cell_type_pairs2microenvironment'];
     const selectedIP2Class = data['selected_interacting_pair2class'];
+    const selectedIP2Modality = data['selected_interacting_pair2modality'];
     const microenvironments = data['microenvironments']
     const selectedMicroenvironments = data['selected_microenvironments']
     const cellsign_active_interactions = data['cellsign_active_interactions']
@@ -1839,6 +1857,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     const interacting_pair2properties = data['interacting_pair2properties'];
     // interacting_pair2classes is retrieved from analysis_means file - is available in versions>=v5.0.0 of cellphonedb-data
     const interacting_pair2classes = data['interacting_pair2classes'];
+    // interacting_pair2modalities is retrieved from analysis_means file - is available in versions>=v5.1.0 of cellphonedb-data
+    const interacting_pair2modalities = data['interacting_pair2modalities'];
     // interacting_pair2properties_html from CellphoneDB database file - it it was provided in the config file
     const interacting_pair2properties_html = data['interacting_pair2properties_html'];
     if (interacting_pair2properties_html != undefined) {
@@ -1913,7 +1933,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     }
 
     // See: https://observablehq.com/@d3/color-schemes
-    const colours = d3.schemeCategory10;
+    const colours = d3.schemeCategory10.concat(d3.schemeSet2)
     var me2Colour = {};
     var mes = Array.from(new Set(Object.values(selectedCTP2Me)));
     for (var i = 0; i < mes.length; i++) {
@@ -1952,6 +1972,9 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         }
     }
 
+    // This is needed for the legend that maps acronyms (displayed next to interacting pair labels) to their corresponding modality
+    var modality2Acronym = { 'Cell-Cell Contact' : 'CCC', 'ECM-Receptor' : 'ECMR', 'Small Molecule-Mediated' : 'SMM', 'Secreted Signaling' : 'SS' };
+
     var classes4Legend = [];
     var ip2Colour = {}
     for (var i = 0; i < selectedInteractingPairs.length; i++) {
@@ -1964,6 +1987,22 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
           ip2Colour[ip] = class2Colour[ipClass];
           if (!classes4Legend.includes(ipClass)) {
             classes4Legend.push(ipClass);
+          }
+      }
+    }
+
+    var modalities4Legend = [];
+    var ip2ModalityAcronym = {}
+    for (var i = 0; i < selectedInteractingPairs.length; i++) {
+      const ip = selectedInteractingPairs[i];
+      if (selectedIP2Modality == undefined) {
+          // No modality information is present in analysis means file - don't show any acronyms
+          ip2ModalityAcronym[ip] = '';
+      } else {
+          const ipModality = selectedIP2Modality[ip];
+          ip2ModalityAcronym[ip] = modality2Acronym[ipModality];
+          if (!modalities4Legend.includes(ipModality)) {
+            modalities4Legend.push(ipModality);
           }
       }
     }
@@ -1991,9 +2030,9 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     bottom_yMargin = 250,
     top_yMargin = 60,
     xMargin = Math.max(longest_ip_label.length * 7.3, longest_ct_label.length * 3.4);
-    if (interacting_pair2classes) {
+    if (interacting_pair2classes || interacting_pair2modalities) {
         // Leave space on the LHS for the Interaction classes legend
-        xMargin += 150;
+        xMargin += 180;
     }
     var yVals = data['interacting_pairs_means'],
     yMin = -1,
@@ -2086,7 +2125,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
   cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos,
                        interacting_pair2participants, interacting_pair2properties, interacting_pair2properties_html,
-                       interacting_pair2classes, ip2Colour);
+                       interacting_pair2classes, ip2Colour, ip2ModalityAcronym);
   cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour);
   const barLegend_xPos=width-300;
   const barLegend_yPos=top_yMargin+30;
@@ -2165,7 +2204,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         legendLabel = "Score";
     }
     svg
-    .append("text").attr("x", barLegend_xPos-12).attr("y", top_yMargin+10).text(legendLabel).style("font-size", "15px")
+    .append("text").attr("x", barLegend_xPos-12).attr("y", top_yMargin+10).text(legendLabel).style("font-size", "15px").style("font-weight", "bold")
 //    .append('tspan').attr("x", barLegend_xPos-12).attr("y", top_yMargin+30).text("z-score")
     .attr("alignment-baseline","middle");
 
@@ -2225,7 +2264,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
       // Dot size legend header
       dotSizeLegend
-        .append("text").attr("x", 5).attr("y", 80).text("-log").style("font-size", "15px")
+        .append("text").attr("x", 5).attr("y", 80).text("-log").style("font-size", "15px").style("font-weight", "bold")
         .append('tspan').text('10').style('font-size', '.7rem').attr('dx', '.1em').attr('dy', '.9em')
         .append('tspan').text("P").style("font-size", "15px").attr('dx', '-.1em').attr('dy', '-.9em')
         .attr("alignment-baseline","middle")
@@ -2278,7 +2317,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
       // Microenvironments legend header
       meLegend
-        .append("text").attr("x", 5).attr("y", 80).text("Microenvironments").style("font-size", "15px")
+        .append("text").attr("x", 5).attr("y", 80).text("Microenvironments").style("font-size", "15px").style("font-weight", "bold")
         .attr("alignment-baseline","middle")
 
       // Microenvironments legend content
@@ -2294,12 +2333,52 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
       }
   }
 
+    var modalityLegendHeight = 0;
+    if (interacting_pair2modalities) {
+      // Legend for modality acronyms
+      const modalityLegend_xPos= 10;
+      const modalityLegenedWidth = 450;
+      modalityLegendHeight = 250;
+      const modalityLegend_yPos = -20;
+      const modalityLegend = svg
+            .append("svg")
+            .attr("width", modalityLegenedWidth)
+            .attr("height", modalityLegendHeight)
+            .attr("x", modalityLegend_xPos)
+            .attr("y", modalityLegend_yPos);
+
+      // Modality legend header
+      modalityLegend
+        .append("text").attr("x", 5).attr("y", 80).text("Interaction modalities").style("font-size", "15px").style("font-weight", "bold")
+        .attr("alignment-baseline","middle")
+
+      // Modality legend content
+      const size = 12;
+      const modalityLegendStartYPos = 110;
+      var modalityLegendYPos = modalityLegendStartYPos;
+      for (var i = 0; i <= modalities4Legend.length - 1; i++) {
+          var ipModality = modalities4Legend[i];
+          if (ipModality.length > 20) {
+            shortenedIPModality = ipModality.substring(0,20)+"..";
+          } else {
+            shortenedIPModality = ipModality;
+          }
+          var acronym = modality2Acronym[ipModality];
+          modalityLegend.append("text").attr("y",modalityLegendYPos).text(acronym).style("font-size", "15px").attr("alignment-baseline","middle");
+          modalityLegend.append("text").attr("x",50).attr("y", modalityLegendYPos).text(shortenedIPModality).style("font-size", "15px").attr("alignment-baseline","middle");
+          modalityLegendYPos += 30;
+      }
+  }
+
   if (interacting_pair2classes) {
       // Legend for interacting pair colours (on Y axis) - by class
       const classLegend_xPos= 10;
       const classLegenedWidth = 450;
-      const classLegendHeight = 500;
-      const classLegend_yPos = -20;
+      const classLegendHeight = 700;
+      var classLegend_yPos = -20;
+      if (modalityLegendHeight > 0) {
+        classLegend_yPos = modalityLegendHeight - 100;
+      }
       const classLegend = svg
             .append("svg")
             .attr("width", classLegenedWidth)
@@ -2309,7 +2388,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
       // Classes legend header
       classLegend
-        .append("text").attr("x", 5).attr("y", 80).text("Interaction classes").style("font-size", "15px")
+        .append("text").attr("x", 5).attr("y", 80).text("Interaction classes").style("font-size", "15px").style("font-weight", "bold")
         .attr("alignment-baseline","middle")
 
       // Classes legend content
@@ -2329,6 +2408,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
           classLegendYPos += 30;
       }
   }
+
 }
 
 function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, bottom_yMargin, ctp2Colour) {
@@ -2373,7 +2453,7 @@ function cciSearchRenderXAxis(svg, xVals, xScale, xMargin, height, top_yMargin, 
 
 function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, colorscale, tooltip_xPos, tooltip_yPos,
                               interacting_pair2participants, interacting_pair2properties, interacting_pair2properties_html,
-                              interacting_pair2classes, ip2Colour) {
+                              interacting_pair2classes, ip2Colour, ip2ModalityAcronym) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -2457,6 +2537,10 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
             const classes = interacting_pair2classes[interactingPair];
             ret += "Interaction classification: <b>" + classes + "</b><br>";
         }
+        if (interacting_pair2modalities != undefined && interacting_pair2modalities.hasOwnProperty(interactingPair)) {
+            const modalities = interacting_pair2modalities[interactingPair];
+            ret += "Interaction modality: <b>" + modalities + "</b><br>";
+        }
         var prevPartner;
         var complexName;
         var letter;
@@ -2500,24 +2584,34 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
          d3.selectAll("#cci_search_y-axis g.tick").each(function() {
             d3.select(this)
             .on("click", function(d) {
-                var instance = M.Sidenav.getInstance($('#sidenav_' + this.textContent));
+                // split() below is needed in the case the modality was appended to this.textContent (see below)
+                var instance = M.Sidenav.getInstance($('#sidenav_' + this.textContent.split(" ")[0]));
                 instance.open();
             })
             .select("text").style("cursor", function() {
                 return "pointer";
             }).style("fill", function() {
                 var ip = this.textContent;
+                // Append modality acronym to the interacting pair label
+                if (this.textContent && ip2ModalityAcronym[ip]) {
+                    this.textContent = this.textContent + " - " + ip2ModalityAcronym[ip];
+                }
                 return ip2Colour[ip];
             })
         });
      } else {
          d3.selectAll("#cci_search_y-axis g.tick").each(function() {
             d3.select(this)
-            .on("mouseover", function(){ tooltip.html(getTooltipContent(this.textContent)); return tooltip.style("visibility", "visible");})
+            // split() below is needed in the case the modality was appended to this.textContent (see below)
+            .on("mouseover", function(){ tooltip.html(getTooltipContent(this.textContent.split(" ")[0])); return tooltip.style("visibility", "visible");})
             .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
             .on("mouseout", function(){return tooltip.style("visibility", "hidden")})
             .select("text").style("fill", function() {
                 var ip = this.textContent;
+                // Append modality acronym to the interacting pair label
+                if (this.textContent && ip2ModalityAcronym[ip]) {
+                    this.textContent = this.textContent + " - " + ip2ModalityAcronym[ip];
+                }
                 return ip2Colour[ip];
             })
         });

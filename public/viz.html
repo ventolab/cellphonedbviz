@@ -165,7 +165,7 @@ function refreshCCISummaryChordPlots() {
                         <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                     </button>
                       <div id="ctcomp_header" hidden></div>
-                      <div id="ctcomp" style="width:1500px;height:1500px"></div>
+                      <div id="ctcomp" style="width:1500px;height:700px"></div>
                   </div>
                 </div>
               </div>
@@ -344,6 +344,13 @@ function refreshCCISummaryChordPlots() {
                         <label style="padding-top: 30px;" for="cci_summary_class_input" class="black-text text-lighten-10 search-input-label">Filter interactions by class</label>
                       </div>
                       <div style="padding-bottom: 20px;" class="cci_summary_selected_classes"></div>
+                  </div>
+                  <div id="cci_summary_modality_filter_div" style="padding-left: 20px; padding-right: 20px" hidden>
+                      <div class="input-field">
+                        <input style="padding-top: 30px;" type="text" id="cci_summary_modality_input" placeholder="">
+                        <label style="padding-top: 30px;" for="cci_summary_modality_input" class="black-text text-lighten-10 search-input-label">Filter interactions by modality</label>
+                      </div>
+                      <div style="padding-bottom: 20px;" class="cci_summary_selected_modalities"></div>
                   </div>
                   <div id="cci_summary_microenvironment_div" style="padding-left: 20px; padding-right: 20px" hidden>
                       <div class="input-field">

@@ -239,6 +239,23 @@ def populate_analysis_means_data(dict_dd, df, separator):
         dict_cci_summary['all_classes'] = all_classes
         dict_cci_search['all_classes'] = all_classes
 
+    # Data used for filtering cci_summary and cci_search plots by modality of interacting pair
+    if 'modality' in df.columns:
+        modality2interacting_pairs = {}
+        # interacting_pair2classes is used for populating sidenav with interaction info
+        interacting_pair2modalities = {}
+        for i, j in zip(df['modality'].values.tolist(), df['interacting_pair'].values.tolist()):
+            if str(i) != "nan":
+                # Only store if class (i) was provided for interacting pair j
+                modality2interacting_pairs.setdefault(i, set([])).add(j)
+                interacting_pair2modalities[j] = i
+        dict_cci_summary['modality2interacting_pairs'] = modality2interacting_pairs
+        dict_cci_search['modality2interacting_pairs'] = modality2interacting_pairs
+        dict_cci_search['interacting_pair2modalities'] = interacting_pair2modalities
+        all_modalities = sorted(modality2interacting_pairs.keys())
+        dict_cci_summary['all_modalities'] = all_modalities
+        dict_cci_search['all_modalities'] = all_modalities
+
 def get_all_relevant_interactions(dict_cci_search: dict, selected_cell_type_pairs):
     rel_ints_dict = dict_cci_search['relevant_interactions']
     relevant_interactions_set = set([])
@@ -624,6 +641,12 @@ def get_properties_html_for_interacting_pairs(result_dict: dict) -> dict:
             html += "<li><a class=\"subheader black-text\">Interaction classification</a></li>" + \
                     "<a {}>{}</a><br> ".format(SIDENAV_PROPERTY_STYLE, classes)
             html += "<li><div class=\"divider\"></div></li>"
+        if 'interacting_pair2modalities' in result_dict and ip in result_dict['interacting_pair2modalities']:
+            modalities = result_dict['interacting_pair2modalities'][ip]
+            html += "<li><a class=\"subheader black-text\">Interaction modality</a></li>" + \
+                    "<a {}>{}</a><br> ".format(SIDENAV_PROPERTY_STYLE, modalities)
+            html += "<li><div class=\"divider\"></div></li>"
+
         complex_name2proteins = {}
         partners = [None, None]
         partner_letters = "ab"
@@ -778,8 +801,21 @@ def filter_interactions_for_cci_search(result_dict,
                     classes = "none"
                 selected_interacting_pair2class[ip] = classes
             result_dict['selected_interacting_pair2class'] = selected_interacting_pair2class
-        interactions.update( \
-            means_df[means_df['interacting_pair'].isin(interacting_pairs)]['id_cp_interaction'].tolist())
+
+        if 'interacting_pair2modalities' in result_dict:
+            selected_interacting_pair2modality = {}
+            for ip in interacting_pairs:
+                if ip in result_dict['interacting_pair2modalities']:
+                    modalities = result_dict['interacting_pair2modalities'][ip]
+                    if "," in modalities:
+                        # TODO: Confirm if multiple modalities will be stored in comma-separated list
+                        modalities = "multiple"
+                else:
+                    modalities = "none"
+                selected_interacting_pair2modality[ip] = modalities
+            result_dict['selected_interacting_pair2modality'] = selected_interacting_pair2modality
+
+        interactions.update(means_df[means_df['interacting_pair'].isin(interacting_pairs)]['id_cp_interaction'].tolist())
     if interactions:
         result_means_df = means_df[means_df['id_cp_interaction'].isin(interactions)]
         # Filter out cell_type_pairs/columns in cols_filter for which no interaction in interactions set is significant
@@ -859,15 +895,31 @@ def filter_interactions_for_cci_search(result_dict,
         if 'cellphonedb' in result_dict:
             result_dict['interacting_pair2properties_html'] = get_properties_html_for_interacting_pairs(result_dict)
 
-def filter_interactions_for_cci_summary(result_dict, file_name2df, classes, min_score):
+def filter_interactions_for_cci_summary(result_dict, file_name2df, classes, modalities, min_score):
     means_df = file_name2df['analysis_means']
     separator = result_dict['separator']
 
     # Filter means_df by interacting pairs belonging to a class in classes
+    interacting_pairs = None
+    c_ips = []
     if classes:
-        interacting_pairs = []
         for c in classes:
-            interacting_pairs.extend(result_dict['class2interacting_pairs'][c])
+            c_ips.extend(result_dict['class2interacting_pairs'][c])
+    if modalities:
+        # Note that query is for classes and modalities is a logical AND one
+        m_ips = []
+        for m in modalities:
+            m_ips.extend(result_dict['modality2interacting_pairs'][m])
+        if len(c_ips) > 0:
+            interacting_pairs = list(set(c_ips).intersection(m_ips))
+        elif len(m_ips) > 0:
+            interacting_pairs = list(set(m_ips))
+    elif len(c_ips) > 0:
+        interacting_pairs = list(set(c_ips))
+
+    if interacting_pairs is not None:
+        # interacting_pairs could not None and yet be an empty list if the sets of interacting pairs for the
+        # selected classes and modalities don't overlap
         means_df = copy.deepcopy(means_df[means_df['interacting_pair'].isin(interacting_pairs)])
     size = len(result_dict['all_cell_types'])
     ct2indx = result_dict['ct2indx']
