@@ -91,7 +91,7 @@ def populate_data4viz(config_key, result_dict, df, separator, file_name2df):
         populate_pvalues_data(result_dict, df, separator)
     elif config_key == 'cellsign_active_interactions_deconvoluted':
         populate_cellsign_active_interactions_deconvoluted(result_dict, df)
-    if config_key in ['deconvoluted_result', 'analysis_means','deconvoluted_percents']:
+    if config_key in ['deconvoluted_result', 'analysis_means','deconvoluted_percents', 'relevant_interactions']:
         file_name2df[config_key] = df
 
 def populate_microenvironments_data(result_dict, df):
@@ -895,9 +895,13 @@ def filter_interactions_for_cci_search(result_dict,
         if 'cellphonedb' in result_dict:
             result_dict['interacting_pair2properties_html'] = get_properties_html_for_interacting_pairs(result_dict)
 
-def filter_interactions_for_cci_summary(result_dict, file_name2df, classes, modalities, min_score):
-    means_df = file_name2df['analysis_means']
+def filter_interactions_for_cci_summary(result_dict, file_name2df, classes, modalities,
+                                        min_score, significant_interactions_only):
     separator = result_dict['separator']
+    if significant_interactions_only:
+        means_df = file_name2df['relevant_interactions']
+    else:
+        means_df = file_name2df['analysis_means']
 
     # Filter means_df by interacting pairs belonging to a class in classes
     interacting_pairs = None
@@ -918,7 +922,7 @@ def filter_interactions_for_cci_summary(result_dict, file_name2df, classes, moda
         interacting_pairs = list(set(c_ips))
 
     if interacting_pairs is not None:
-        # interacting_pairs could not None and yet be an empty list if the sets of interacting pairs for the
+        # interacting_pairs could be not None and yet be an empty list if the sets of interacting pairs for the
         # selected classes and modalities don't overlap
         means_df = copy.deepcopy(means_df[means_df['interacting_pair'].isin(interacting_pairs)])
     size = len(result_dict['all_cell_types'])

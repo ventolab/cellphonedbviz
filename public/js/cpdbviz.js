@@ -1234,6 +1234,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         tooltipXPos = legend_xPos;
         tooltipYPos = 0;
 
+      $("#cci_summary_show_significant_interactions_only_div").show();
       if (plotCnt > 0) {
         $("#cci_summary_show_all_celltypes_div").show();
         enable_cci_summary_show_all_celltypes();
@@ -1624,6 +1625,12 @@ function refreshCCISummaryPlots() {
     var selectedMicroenvironments = ret[pos++];
     var selectedModalities = ret[pos++];
     var selectedMinInteractionScore = $('#cci_summary_selected_min_score').text();
+
+    var significant_interactions_only = false;
+    if ($('#cci_summary_show_significant_interactions_only').is(':checked')) {
+        significant_interactions_only = true;
+    }
+
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
@@ -1635,6 +1642,10 @@ function refreshCCISummaryPlots() {
     if (cci_summary_selected_min_score) {
         url += getQuerySeparator(selectedClasses || selectedModalities) + "min_score=" + selectedMinInteractionScore;
     }
+    if (significant_interactions_only) {
+        url += getQuerySeparator(selectedMinInteractionScore) + "significant_interactions_only=" + significant_interactions_only;
+    }
+
     $.ajax({
         url: url,
         contentType: "application/json",
