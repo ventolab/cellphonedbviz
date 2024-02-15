@@ -23,6 +23,8 @@ SIDENAV_PROPERTY_STYLE = "style=\"padding-left: 60px; font-size: 14px; margin: 2
 CELLTYPE_COMPOSITION_SANKEY_EDGE_WEIGHT = 1
 INDENT="     "
 
+TOP_N = 3
+
 def get_projects() -> dict:
     dir_name2project_data = {}
     dir_name2file_name2df = {}
@@ -423,8 +425,8 @@ def populate_pvalues_data(result_dict, df, separator):
     dict_cci_search['pvalues'] = dict_pvals
 
 """
-By aggregate mean expression, retrieve top 5 interacting pair classes, and for those retrieve top 5 cell type pairs 
-and top 5 interacting pairs.
+By aggregate mean expression, retrieve top TOP_N interaction classes, and for those retrieve top TOP_N  
+interacting pairs (ips), and then for each ip select TOP_N cell type pairs.
 """
 
 def populate_specificity_ataglance_data(result_dict, dict_ri_flags):
@@ -451,12 +453,12 @@ def populate_specificity_ataglance_data(result_dict, dict_ri_flags):
 
         aux_df = pd.DataFrame(aux_list, columns=['ip', 'ip_class', 'ct_pair', 'mean'])
 
-        # Sort ip class-ct pair tuples by mean in desc order
-        aux_df.set_index(['ip'], inplace=True)
-        ipclass_ctp_df = sort_df_by_mean(aux_df, ['ip_class', 'ct_pair'])
-        ipclass_ctp_df.reset_index(drop=False, inplace=True)
+        # Sort ip-ct pair tuples by mean in desc order
+        aux_df.set_index(['ip_class'], inplace=True)
+        ip_ctp_df = sort_df_by_mean(aux_df, ['ip', 'ct_pair'])
+        ip_ctp_df.reset_index(drop=False, inplace=True)
 
-        # Sort ip class-ip tuples by mean in desc order
+        # Sort ip-ipclass tuples by mean in desc order
         aux_df.reset_index(drop=False, inplace=True)
         aux_df.set_index(['ct_pair'], inplace=True)
         ip_ipclass_df = sort_df_by_mean(aux_df, ['ip', 'ip_class'])
@@ -467,51 +469,53 @@ def populate_specificity_ataglance_data(result_dict, dict_ri_flags):
         aux_df.drop(columns=['ct_pair', 'ip'], inplace=True)
         ipclass_df = sort_df_by_mean(aux_df, ['ip_class'])
 
-        # Pick top 5 ip classes, by average expression
-        top5_ip_classes = ipclass_df.index.tolist()[0:5]
-        dict_specaag['list1'] = top5_ip_classes
+        # Pick TOP_N ip interaction classes, by average expression
+        topN_ip_classes = ipclass_df.index.tolist()[0:TOP_N]
+        dict_specaag['list0'] = topN_ip_classes
 
-        # For each ip_class in top5_ip_classes:
-        # - pick top 5 ips and top 5 ctps
-        # - create one node for the remaining N ips and the remaining M ctps
+        # For each ip_class in topN_ip_classes pick top TOP_N ips, and then for each of
+        # the chosen ips, pick TOP_N ctps. Create one node for the remaining X ips and,
+        # for each ip, the remaining Y ctps
         # Note: ret attempts to highlight expression specificity (of interacting pairs
         # and cell type pairs), and since dict_ri_flags contains relevant interactions only,
         # what is highlighted is cell-cell interaction specificity
         edges = dict_specaag['edges']
         all_elems = set([])
         dict_specaag['num_stacks'] = 3
-        for ip_class in top5_ip_classes:
+        for ip_class in topN_ip_classes:
             all_elems.add(ip_class)
-
-            aux_df = ipclass_ctp_df.loc[ipclass_ctp_df['ip_class'] == ip_class]
-            for l in aux_df.head(5).values.tolist():
-                ct = l[1]
-                total_mean = l[2]
-                edges.append([ip_class, total_mean, ct])
-                all_elems.add(ct)
-                dict_specaag['list2'].append(ct)
-            aux_df = aux_df.tail(max(aux_df.shape[0] - 5, 0))
-            rem_cnt = aux_df.shape[0]
-            if rem_cnt > 0:
-                rem_elem = "Remaining {} cell type pairs".format(rem_cnt)
-                edges.append([ip_class, aux_df['mean'].sum(), rem_elem])
-                all_elems.add(rem_elem)
-                dict_specaag['list2'].append(rem_elem)
-
+            topN_ips = []
             aux_df = ip_ipclass_df.loc[ip_ipclass_df['ip_class'] == ip_class]
-            for l in aux_df.head(5).values.tolist():
+            for l in aux_df.head(TOP_N).values.tolist():
                 ip = l[0]
                 total_mean = l[2]
-                edges.append([ip, total_mean, ip_class])
+                edges.append([ip_class, total_mean, ip])
                 all_elems.add(ip)
-                dict_specaag['list0'].append(ip)
-            aux_df = aux_df.tail(max(aux_df.shape[0] - 5, 0))
+                topN_ips.append(ip)
+                dict_specaag['list1'].append(ip)
+            aux_df = aux_df.tail(max(aux_df.shape[0] - TOP_N, 0))
             rem_cnt = aux_df.shape[0]
             if rem_cnt > 0:
                 rem_elem = "Remaining {} interacting pairs".format(rem_cnt)
-                edges.append([rem_elem, aux_df['mean'].sum(), ip_class])
+                edges.append([ip_class, aux_df['mean'].sum(), rem_elem])
                 all_elems.add(rem_elem)
-                dict_specaag['list0'].append(rem_elem)
+                dict_specaag['list1'].append(rem_elem)
+
+            for ip in topN_ips:
+                aux_df = ip_ctp_df.loc[ip_ctp_df['ip'] == ip]
+                for l in aux_df.head(TOP_N).values.tolist():
+                    ct = l[1]
+                    total_mean = l[2]
+                    edges.append([ip, total_mean, ct])
+                    all_elems.add(ct)
+                    dict_specaag['list2'].append(ct)
+                aux_df = aux_df.tail(max(aux_df.shape[0] - TOP_N, 0))
+                rem_cnt = aux_df.shape[0]
+                if rem_cnt > 0:
+                    rem_elem = "Remaining {} cell type pairs".format(rem_cnt)
+                    edges.append([ip, aux_df['mean'].sum(), rem_elem])
+                    all_elems.add(rem_elem)
+                    dict_specaag['list2'].append(rem_elem)
 
         dict_specaag['all_elems'] = list(sorted(all_elems))
 
