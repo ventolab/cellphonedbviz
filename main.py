@@ -31,8 +31,7 @@ def get_viz_data(project: str,
                  refresh_plot: bool = False,
                  values_to_show: str = 'means',
                  interacting_pairs_selection_logic: str = None,
-                 sort_interacting_pairs_alphabetically: bool = False,
-                 significant_interactions_only: bool = False
+                 sort_interacting_pairs_alphabetically: bool = False
                  ):
     if viz == 'single_gene_expression':
         selected_genes = get_jsonable(genes)
@@ -82,6 +81,7 @@ def get_viz_data(project: str,
         selected_classes = get_jsonable(classes)
         selected_modalities = get_jsonable(modalities)
         ret = copy.deepcopy(dir_name2project_data[project][viz])
+        significant_interactions_only = True
         utils.filter_interactions_for_cci_summary(
             ret, dir_name2file_name2df[project], selected_classes,
             selected_modalities, int(min_score), significant_interactions_only)
