@@ -2086,13 +2086,14 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         .attr("font-family", "Arial")
         .text(title);
 
-    var ip_info = " on an interaction pair on Y axis for more information.";
+    var ip_info = " on an interaction pair on Y axis and on each circle in the plot for more information.";
     if (interacting_pair2properties_html != undefined) {
         ip_info = "Click" + ip_info;
     } else {
         ip_info = "Mouse over " + ip_info;
     }
-    $("#interacting_pair_help").attr("data-tooltip", ip_info);
+    var ip_help_content = $("#interacting_pair_help").attr("data-tooltip");
+    $("#interacting_pair_help").attr("data-tooltip", ip_help_content + ip_info);
 
   var yAxisLength = height - top_yMargin - bottom_yMargin,
       xAxisLength = width - xMargin - 350;
