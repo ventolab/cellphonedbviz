@@ -502,6 +502,7 @@ function generateCellCompositionPlot(data) {
         $("#ctcomp_title").hide();
         $("#ctcomp").hide();
         $("#ctcomp_save_button").hide();
+        $("#celltype_composition_help").hide();
         // Hide the corresponding option from ToC dropdown
         $("#toc_ctcomp").hide();
         return;
@@ -570,6 +571,7 @@ function generateMicroenvironmentsPlot(data, anatomogram_labels) {
         $("#spme_header").hide();
         $("#spme").hide();
         $("#spme_save_button").hide();
+        $("#spme_help").hide();
         // Hide the corresponding option from ToC dropdown
         $("#toc_spme").hide();
         return;
@@ -830,7 +832,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
 
     // Show error message and return if data input is invalid
     errMsg = validateSGEInput(data);
-    if (errMsg != undefined) {
+    if (typeof errMsg !== 'undefined') {
         d3.select("#sge")
           .style("color", "purple")
           .text(errMsg);
@@ -1261,7 +1263,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
               const colours = d3.schemeCategory10;
               for (var i = 0; i < microenvironments.length; i++) {
                   const me = microenvironments[i];
-                  if (me2cts[me] != undefined) {
+                  if (typeof me2cts[me] != 'undefined') {
                     me2Colour[me] = colours[i % colours.length];
                   }
               }
@@ -1269,7 +1271,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         for (var i = 0; i < cellTypes.length; i++) {
             var ct = cellTypes[i];
             if (microenvironments) {
-                if (ct2mes[ct] != undefined && ct2mes[ct].length == 1) {
+                if (typeof ct2mes[ct] !== 'undefined' && ct2mes[ct].length == 1) {
                     me = ct2mes[ct][0];
                     ct2Colour[ct] = me2Colour[me];
                 } else {
@@ -1553,8 +1555,11 @@ function maxCellTypesExceeded(all_cell_types) {
 }
 
 function refreshCCISpecificityAtAGlancePlot(data) {
-    if (!data.hasOwnProperty('all_elems')) {
+    if (!data.hasOwnProperty('all_elems') || typeof data['all_elems'] === 'undefined') {
         $("#cci_specificity_section").hide();
+        // Hide the corresponding option from ToC dropdown
+        $("#toc_cci_specificity").hide();
+        // &&&&
         return;
      }
 
@@ -1643,13 +1648,13 @@ function refreshCCISummaryPlots() {
         success: function(res) {
            if (res.hasOwnProperty('microenvironment2cell_types')) {
                 if (maxCellTypesExceeded(res['all_cell_types'])) {
-                        if (selectedMicroenvironments != undefined && selectedMicroenvironments.length > 1) {
+                        if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 1) {
                         $("#cci_summary_error").text("Due to a very large number of cell types in the analysis, the number of interactions can be plotted for one microenvironment only. Please restrict your microenvironments filter to just one and try again.")
                         $("#cci_summary_error").show();
                         $("#cci_summary_spinner").hide();
                         return;
                     }
-                } else if (selectedMicroenvironments != undefined && selectedMicroenvironments.length > 9) {
+                } else if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 9) {
                     $("#cci_summary_error").text("The number of interactions can be plotted for maximum of nine microenvironments. Please restrict your microenvironments filter to the maximum or less and try again.")
                     $("#cci_summary_error").show();
                     $("#cci_summary_spinner").hide();
@@ -1699,7 +1704,7 @@ function refreshCCISummaryPlots() {
                     res['max_num_ints'] = max_num_ints;
                     // Now generate the per-microenvironment plots
                     for (let [microenvironment, cellTypes] of map.entries()) {
-                        if (selectedMicroenvironments == undefined || decodeURI(selectedMicroenvironments).includes(microenvironment)) {
+                        if (typeof selectedMicroenvironments == 'undefined' || decodeURI(selectedMicroenvironments).includes(microenvironment)) {
                             generateCellCellInteractionSummaryPlot(res, cellTypes.sort(), microenvironment, cnt);
                             storeToken(microenvironment, "cci_summary_selected_microenvironments", "cci_summary_microenvironment_input");
                             cnt++;
@@ -1810,7 +1815,7 @@ function clearCCISearchInteractionFilters() {
 
 function getPValBucket(pVal) {
     var ret;
-    if (pVal === undefined) {
+    if (typeof pVal === 'undefined') {
         pVal = 1;
     }
     if (pVal > 0) {
@@ -1862,7 +1867,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     const interacting_pair2modalities = data['interacting_pair2modalities'];
     // interacting_pair2properties_html from CellphoneDB database file - it it was provided in the config file
     const interacting_pair2properties_html = data['interacting_pair2properties_html'];
-    if (interacting_pair2properties_html != undefined) {
+    if (typeof interacting_pair2properties_html != 'undefined') {
         // CellphoneDB database file name was provided in config file - we have richer participants info to show (in sidenav) than
         // interacting_pair2properties (retrieved from analysis means file and shown as a tooltip) - insert sidenav content
         // into #cci_search_sidenav_content div
@@ -1873,7 +1878,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
     // This section is done outside of storeTokens below as both microenvironments or cell type may have been removed by the user (and thus pre-selected automatically)
     // before the plot is refreshed
-    if (selectedMicroenvironments != undefined && selectedMicroenvironments.length > 0 && $('.cci_search_selected_microenvironments').is(':empty')) {
+    if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 0 && $('.cci_search_selected_microenvironments').is(':empty')) {
          // This is the case on first page load for v. large data sets
          for (var i = 0; i < selectedMicroenvironments.length; i++) {
              storeToken(selectedMicroenvironments[i], "cci_search_selected_microenvironments", "cci_search_microenvironment_input");
@@ -1892,12 +1897,12 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         for (var i = 0; i < selectedInteractingPairs.length; i++) {
             storeToken(selectedInteractingPairs[i], "cci_search_selected_interactions", "cci_search_interaction_input");
         }
-        if (selectedMicroenvironments == undefined || selectedMicroenvironments.length == 0) {
+        if (typeof selectedMicroenvironments === 'undefined' || selectedMicroenvironments.length == 0) {
             for (var i = 0; i < selectedCellTypePairs.length; i++) {
                 storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
             }
         }
-    } else if (interacting_pairs_selection_logic != undefined) {
+    } else if (typeof interacting_pairs_selection_logic !== 'undefined') {
         // The user selected a new interacting_pairs_selection_logic - clear previously selected interacting pairs and
         // repopulate from selectedInteractingPairs
         $('.cci_search_selected_interactions').empty();
@@ -1926,7 +1931,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
     // Show error message and return if data input is invalid
     errMsg = validateCCISearchInput(data);
-    if (errMsg != undefined) {
+    if (typeof errMsg !== 'undefined') {
         d3.select("#cci_search")
           .style("color", "purple")
           .text(errMsg);
@@ -1960,7 +1965,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     }
 
     var class2Colour = {};
-    if (selectedIP2Class != undefined) {
+    if (typeof selectedIP2Class !== 'undefined') {
         var classes = Array.from(new Set(Object.values(selectedIP2Class)));
         for (var i = 0; i < classes.length; i++) {
           const ipClass = classes[i];
@@ -1980,7 +1985,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     var ip2Colour = {}
     for (var i = 0; i < selectedInteractingPairs.length; i++) {
       const ip = selectedInteractingPairs[i];
-      if (selectedIP2Class == undefined) {
+      if (typeof selectedIP2Class === 'undefined') {
           // No classification information is present in analysis means file - show all ips in the default teal colour
           ip2Colour[ip] = "#008080"; // teal
       } else {
@@ -1996,7 +2001,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     var ip2ModalityAcronym = {}
     for (var i = 0; i < selectedInteractingPairs.length; i++) {
       const ip = selectedInteractingPairs[i];
-      if (selectedIP2Modality == undefined) {
+      if (typeof selectedIP2Modality == 'undefined') {
           // No modality information is present in analysis means file - don't show any acronyms
           ip2ModalityAcronym[ip] = '';
       } else {
@@ -2070,7 +2075,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
 
     // Insert title
     var title = "Significant interactions across the selected cell type pairs";
-    if (interacting_pairs_selection_logic === undefined) {
+    if (typeof interacting_pairs_selection_logic === 'undefined') {
         // This covers the case when the user had selected interacting_pairs_selection_logic, and now they have clicked on 'Refresh plot' button -
         // We need to recover interacting_pairs_selection_logic the user previously selected
         interacting_pairs_selection_logic = $('#interacting_pairs_selection_logic').text();
@@ -2087,7 +2092,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         .text(title);
 
     var ip_info = " on an interaction pair on Y axis and on each circle in the plot for more information.";
-    if (interacting_pair2properties_html != undefined) {
+    if (typeof interacting_pair2properties_html !== 'undefined') {
         ip_info = "Click" + ip_info;
     } else {
         ip_info = "Mouse over " + ip_info;
@@ -2149,8 +2154,8 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
       var cellTypePair = data['cell_type_pairs_means'][j];
       var interaction = data['interacting_pairs_means'][i];
       activeInteractionInfo = undefined;
-      if (cellsign_active_interactions != undefined &&
-          cellsign_active_interactions[interaction] != undefined &&
+      if (typeof cellsign_active_interactions !== 'undefined' &&
+          typeof cellsign_active_interactions[interaction] !== 'undefined' &&
           cellsign_active_interactions[interaction].hasOwnProperty(cellTypePair)) {
             activeInteractionInfo = cellsign_active_interactions[interaction][cellTypePair];
       }
@@ -2535,11 +2540,11 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
         const property2val = interacting_pair2properties[interactingPair];
         // Classes are kept separate from the other properties because versions<5.0.0 of cellphonedb-data doesn't have interaction classifications
         // Populate interaction classification info, if provided
-        if (interacting_pair2classes != undefined && interacting_pair2classes.hasOwnProperty(interactingPair)) {
+        if (typeof interacting_pair2classes !== 'undefined' && interacting_pair2classes.hasOwnProperty(interactingPair)) {
             const classes = interacting_pair2classes[interactingPair];
             ret += "Interaction classification: <b>" + classes + "</b><br>";
         }
-        if (interacting_pair2modalities != undefined && interacting_pair2modalities.hasOwnProperty(interactingPair)) {
+        if (typeof interacting_pair2modalities !== 'undefined' && interacting_pair2modalities.hasOwnProperty(interactingPair)) {
             const modalities = interacting_pair2modalities[interactingPair];
             ret += "Interaction modality: <b>" + modalities + "</b><br>";
         }
@@ -2557,14 +2562,14 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
             } else {
                 curPartner = geneName;
             }
-            if (prevPartner == undefined || curPartner != prevPartner) {
+            if (typeof prevPartner === 'undefined' || curPartner != prevPartner) {
                 ret += "Partner " + letter + ": <b>" + curPartner + "</b><br>";
             }
             ret += gap + gap + " - Gene name: <b>" + geneName + "</b>"
                  + gap + "Uniprot: <b>" + uniprotAcc + "</b>"
                  + gap + "Protein name: <b>" + proteinName + "</b><br>";
             var properties = getParticipantProperties(property2val, letter);
-            if (prevPartner == undefined || curPartner != prevPartner) {
+            if (typeof prevPartner === 'undefined' || curPartner != prevPartner) {
                 if (properties != '') {
                      ret += gap + gap + "Properties: " + properties + "<br>";
                      properties = '';
@@ -2582,7 +2587,7 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
         return ret;
      }
 
-     if (interacting_pair2properties_html != undefined) {
+     if (typeof interacting_pair2properties_html !== 'undefined') {
          d3.selectAll("#cci_search_y-axis g.tick").each(function() {
             d3.select(this)
             .on("click", function(d) {
@@ -2647,17 +2652,17 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
             tooltipContent += ">=";
         }
         tooltipContent += pvalBucket;
-    } else if (relIntFlag && activeInteractionInfo != undefined) {
+    } else if (relIntFlag && typeof activeInteractionInfo !== 'undefined') {
         tooltipContent = "<b>Relevant and active</b> interaction " + tooltipContent;
     } else if (relIntFlag) {
         tooltipContent = "<b>Relevant</b> interaction: " + tooltipContent;
-    } else if (activeInteractionInfo != undefined) {
+    } else if (typeof activeInteractionInfo !== 'undefined') {
         tooltipContent = "<b>Active</b> interaction: " + tooltipContent;
     } else {
         tooltipContent = "Interaction: " + tooltipContent;
     }
     // Assemble in activeTFsCellTypesStr and add to tooltipContent information about all active TFs/active cell types
-    if (activeInteractionInfo != undefined) {
+    if (typeof activeInteractionInfo !== 'undefined') {
         var activeTFsCellTypesStr = "";
         for (var k = 0; k < activeInteractionInfo.length; k++) {
             if (activeTFsCellTypesStr.length > 0) {
@@ -2685,7 +2690,7 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
     .attr("id", "cci_search_tooltip")
     .html(tooltipContent);
 
-    if (activeInteractionInfo != undefined) {
+    if (typeof activeInteractionInfo != 'undefined') {
       outerRadius = radius + 3;
       svg
       .append("circle")
@@ -2739,7 +2744,7 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
             url += "genes=" + selectedGenes + "&";
         }
         if (selectedInteractions) {
-            if (interacting_pairs_selection_logic != undefined) {
+            if (typeof interacting_pairs_selection_logic !== 'undefined') {
                 // There's no point increasing the length of the GET request unnecessarily with the current selection
                 // of interacting pairs if all we need the API call to do is overwrite them with with interacting_pairs_selection_logic
                 // This is particularly important if selectedInteractions contain all interacting pairs - then the maximum length of GET request
@@ -2762,7 +2767,7 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     }
     // In refresh mode, we don't pre-select cell type pairs - if the user did not enter any
     url += "refresh_plot=True&values_to_show=" + valuesToShow;
-    if (interacting_pairs_selection_logic != undefined) {
+    if (typeof interacting_pairs_selection_logic !== 'undefined') {
         url += "&interacting_pairs_selection_logic=" + interacting_pairs_selection_logic;
     }
     url += "&sort_interacting_pairs_alphabetically=" + sort_interacting_pairs_alphabetically;

@@ -148,7 +148,7 @@ function refreshCCISummaryChordPlots() {
           <li><a href="#sge_title">Single gene expression</a></li>
           <li class="divider"></li>
              <div class="toc-header left">CellphoneDB predictions</div>
-          <li><a href="#cci_specificity_title">Cell-cell Communication Specificity - At a glance</a></li>
+          <li id="toc_cci_specificity"><a href="#cci_specificity_title">Cell-cell Communication Specificity - At a glance</a></li>
           <li><a href="#cci_summary_title">Cell-cell Communication - Summary</a></li>
           <li><a href="#cci_search_title">Cell-cell Communication - Search</a></li>
         </ul>
@@ -164,8 +164,8 @@ function refreshCCISummaryChordPlots() {
                     <button id="ctcomp_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('ctcomp','ctcomp_title','ctcomp_header')">
                         <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                     </button>
-                      <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                        <i id="celltype_composition_help" class="material-icons left tooltipped"
+                      <span id="celltype_composition_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                        <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the mapping between different cell type characteristics specified in the file under the configuration key: 'celltype_composition'">info_outline</i>
                       </span>
                       <div id="ctcomp_header" hidden></div>
@@ -183,8 +183,8 @@ function refreshCCISummaryChordPlots() {
                     <button id="spme_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('spme','spme_title','spme_header')">
                         <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                     </button>
-                      <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                        <i id="spme_help" class="material-icons left tooltipped"
+                      <span id="spme_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                        <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the mapping between cell types and microenvironments specified in the file under the configuration key: 'microenvironments'">info_outline</i>
                       </span>
                     <div id="spme_header" hidden>Cell Type - Microenvironment</div>
@@ -288,8 +288,8 @@ function refreshCCISummaryChordPlots() {
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('sge','sge_title','sge_header')">
                              <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                           </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="sge_help" class="material-icons left tooltipped"
+                          <span id="sge_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                                data-tooltip="The plot shows mean expressions of the genes/complexes and cell types/microenvironments selected in the filter. The data comes from files specified in the configuration keys: 'deconvoluted_result', 'deconvoluted_percents' and 'microenvironments'.">info_outline</i>
                           </span>
                           <div id="sge_header" hidden></div>
@@ -312,8 +312,8 @@ function refreshCCISummaryChordPlots() {
                     <button id="cci_specificity_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci_specificity','cci_specificity_title','cci_specificity_header')">
                         <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                     </button>
-                    <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                        <i id="specificity_ataglance_help" class="material-icons left tooltipped"
+                    <span id="specificity_ataglance_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                        <i class="material-icons left tooltipped"
                            data-tooltip="This plot helps to highlight interactions that may be specific to (groups of) cell type pairs.
                            <p />It shows the top 3 interaction classes (ICs, by average expression across all cell types and interacting pairs),
                            <br>and for each IC the top 3 interacting pairs plus the reminder (IPs, by average expression across all cell types),
@@ -417,8 +417,8 @@ function refreshCCISummaryChordPlots() {
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci0','cci_summary_title','cci0_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                         </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="cci_summary_all_celltypes_help" class="material-icons left tooltipped"
+                          <span id="cci_summary_all_celltypes_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the number of significant interactions between each cell type pair.
                            <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions'
                            (and 'microenvironments' and 'interaction_scores' if applicable)">info_outline</i>
@@ -440,8 +440,8 @@ function refreshCCISummaryChordPlots() {
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci1','cci_summary_title','cci1_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                         </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="cci_summary_me1_help" class="material-icons left tooltipped"
+                          <span id="cci_summary_me1_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
                            <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
                            (and 'interaction_scores' if applicable)">info_outline</i>
@@ -461,8 +461,8 @@ function refreshCCISummaryChordPlots() {
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci2','cci_summary_title','cci2_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                         </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="cci_summary_me2_help" class="material-icons left tooltipped"
+                          <span id="cci_summary_me2_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
                            <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
                            (and 'interaction_scores' if applicable)">info_outline</i>
@@ -482,8 +482,8 @@ function refreshCCISummaryChordPlots() {
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci3','cci_summary_title','cci3_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                         </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="cci_summary_me3_help" class="material-icons left tooltipped"
+                          <span id="cci_summary_me3_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
                            <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
                            (and 'interaction_scores' if applicable)">info_outline</i>
@@ -506,8 +506,8 @@ function refreshCCISummaryChordPlots() {
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci4','cci_summary_title','cci4_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                         </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="cci_summary_me4_help" class="material-icons left tooltipped"
+                          <span id="cci_summary_me4_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
                            <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
                            (and 'interaction_scores' if applicable)">info_outline</i>
@@ -527,8 +527,8 @@ function refreshCCISummaryChordPlots() {
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci5','cci_summary_title','cci5_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                         </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="cci_summary_me5_help" class="material-icons left tooltipped"
+                          <span id="cci_summary_me5_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
                            <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
                            (and 'interaction_scores' if applicable)">info_outline</i>
@@ -548,8 +548,8 @@ function refreshCCISummaryChordPlots() {
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci6','cci_summary_title','cci6_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                         </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="cci_summary_me6_help" class="material-icons left tooltipped"
+                          <span id="cci_summary_me6_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
                            <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
                            (and 'interaction_scores' if applicable)">info_outline</i>
@@ -571,8 +571,8 @@ function refreshCCISummaryChordPlots() {
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci7','cci_summary_title','cci7_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                         </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="cci_summary_me7_help" class="material-icons left tooltipped"
+                          <span id="cci_summary_me7_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
                            <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
                            (and 'interaction_scores' if applicable)">info_outline</i>
@@ -592,8 +592,8 @@ function refreshCCISummaryChordPlots() {
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci8','cci_summary_title','cci8_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                         </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="cci_summary_me8_help" class="material-icons left tooltipped"
+                          <span id="cci_summary_me8_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
                            <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
                            (and 'interaction_scores' if applicable)">info_outline</i>
@@ -613,8 +613,8 @@ function refreshCCISummaryChordPlots() {
                         <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci9','cci_summary_title','cci9_header')">
                            <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                         </button>
-                          <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i id="cci_summary_me9_help" class="material-icons left tooltipped"
+                          <span id="cci_summary_me9_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
                            data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
                            <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
                            (and 'interaction_scores' if applicable)">info_outline</i>
