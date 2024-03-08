@@ -66,8 +66,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Enable tooltips
   elems = document.querySelectorAll('.tooltipped');
-  options = {}
+  options = {};
   instances = M.Tooltip.init(elems, options);
+
+  // Enable collapsible
+  elems = document.querySelectorAll('.collapsible');
+  options = {};
+  instances = M.Collapsible.init(elems, options);
+
+
 
    // Populate page title
    $.ajax({
@@ -243,6 +250,7 @@ function downloadAsPDF(divId, titleId, headerId) {
     const title = document.getElementById(titleId).innerHTML;
     const header = document.getElementById(headerId).innerHTML;
     const fileName = (title + "-" + header).replace(/ /g, '_').toLowerCase();
+
     downloadPDF(svg, fileName, options);
 }
 
@@ -1559,12 +1567,11 @@ function refreshCCISpecificityAtAGlancePlot(data) {
         $("#cci_specificity_section").hide();
         // Hide the corresponding option from ToC dropdown
         $("#toc_cci_specificity").hide();
-        // &&&&
         return;
      }
 
-     var edges = data['edges'];
-     var numStacks = data['num_stacks'];
+      var edges = data['edges'];
+      var numStacks = data['num_stacks'];
       var sankey = new Sankey('cci_specificity');
       sankey.stack(0,data['list0'],data['y_space0'],data['y_box0']);
       sankey.stack(1,data['list1'],data['y_space1'],data['y_box1']);
@@ -1608,6 +1615,15 @@ function refreshCCISpecificityAtAGlancePlot(data) {
         return "";
       };
       sankey.setData(edges);
+
+      // Insert title
+      var title = "From left to right: top 3 interaction classes, and for each - top 3 interacting pairs (plus reminder, if any), and for each - top 3 cell type pairs (plus reminder, if any)";
+      $("#cci_search_header").text(title);
+      sankey.r.text(sankey.left_margin + 250, 10, title).attr({
+        'font-size': '16px',
+        'font-weight': '100'
+      });
+
       sankey.draw();
 }
 
@@ -2074,7 +2090,13 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
     .attr("height", height + 150);
 
     // Insert title
-    var title = "Significant interactions across the selected cell type pairs";
+    var prefix = "S";
+    if (storeTokens) {
+        prefix = "Top 10 s";
+    } else if (interacting_pairs_selection_logic) {
+        prefix = "Top " + interacting_pairs_selection_logic + "s";
+    }
+    var title = prefix + "ignificant interactions across the selected cell type pairs";
     if (typeof interacting_pairs_selection_logic === 'undefined') {
         // This covers the case when the user had selected interacting_pairs_selection_logic, and now they have clicked on 'Refresh plot' button -
         // We need to recover interacting_pairs_selection_logic the user previously selected

@@ -76,6 +76,10 @@ nav ul li a, h5 {
     background-color: #F1F1F1 !important;
  }
 
+#cci_specificity_explanatory_graphic {
+    width:50% !important;
+}
+
 
 /* Specificity at a glance (Sankey) plot - start */
 .node rect {
