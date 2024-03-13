@@ -1,14 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-   // NB. anatomogram_labels is used for testing anatomograms only
-   const anatomogram_labels = ["UBERON_0001013","UBERON_0000948","UBERON_0001135","UBERON_0000955","UBERON_0000029","UBERON_0001134","UBERON_0001044","UBERON_0003889","UBERON_0000995",
-    "UBERON_0001021"
-    ,"UBERON_0000977","UBERON_0003126",
-    "UBERON_0002048","UBERON_0000341","UBERON_0001052","UBERON_0001706","UBERON_0001728","UBERON_0000167","UBERON_0001723","UBERON_0002372",
-    "UBERON_0000970","UBERON_0000966","UBERON_0002037","UBERON_0002245","UBERON_0000451","UBERON_0001870","UBERON_0000004","UBERON_0001871",
-    "UBERON_0000956","UBERON_0001876","UBERON_0002113","UBERON_0001225","UBERON_0001621","UBERON_0001736","UBERON_0002134","UBERON_0002046","UBERON_0000014"];    // TODO: Highlight in anatomogram EFO id that corresponds to the position of this.textContent in yVals
-
-
   // Show progress spinners
   $("#sge_spinner").show();
   $("#cci_summary_spinner").show();
@@ -94,17 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
         dataType: 'json',
         success: function(res) {
           generateCellCompositionPlot(res);
-
-          // Populate anatomogram
-          if (!res.hasOwnProperty('all_elems')) {
-                $("#ctcomp").append(res['anatomogram']);
-                var elem = $("#ctcomp svg").attr("width", 300).attr("height", 500);
-                // Highlight all anatomogram labels in light gray: #dadada
-                for (var i = 0; i < anatomogram_labels.length; i++) {
-                    const anatomogram_label = anatomogram_labels[i];
-                    var elem = $('#ctcomp svg #LAYER_EFO #' + anatomogram_label + ' path').css({ fill: '#dadada' });
-                }
-          }
         }
     });
 
@@ -114,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
             contentType: "application/json",
             dataType: 'json',
             success: function(res) {
-                generateMicroenvironmentsPlot(res, anatomogram_labels);
+                generateMicroenvironmentsPlot(res);
             }
     });
 
@@ -140,25 +120,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Hide microenvironment input
                 $("#sge_microenvironment_sel").hide();
             }
-
-//            // TODO: This is a placeholder for a possible functionality where events can be triggered by
-//            // a mouse hover over specific area of anatomogram
-//            d3.selectAll("#ctcomp svg #LAYER_EFO #UBERON_0001013")
-//            .on("mousemove", function(event) {
-//                // Display element title
-//                // See: https://developer.mozilla.org/en-US/docs/Web/API/Element
-//                var parentNodesChildren = event.srcElement.parentNode.children;
-//                var title;
-//                for (var i = 0; i < parentNodesChildren.length; i++) {
-//                    var child = parentNodesChildren[i];
-//                    if (child.tagName == "title") {
-//                        title = child.innerHTML;
-//                        break;
-//                    }
-//                }
-//                console.log(title);
-//            })
-//            .on("mouseout", function(){});
 
             // Hide progress spinner
             $("#sge_spinner").hide();
@@ -499,11 +460,6 @@ function storeToken(newVal, target_div_class, input_field_id) {
 }
 
 function generateCellCompositionPlot(data) {
-     // TODO: This code is just for testing of anatomogram functionality
-     if (!data.hasOwnProperty('all_elems') && data.hasOwnProperty('anatomogram')) {
-        // Don't hide #ctcomp - it is needed for anatomogram test
-        return;
-     }
 
      if (!data.hasOwnProperty('all_elems')) {
         // N.B. 'all_elems' is set only if celltype_composition is set in config
@@ -571,7 +527,7 @@ function generateCellCompositionPlot(data) {
       sankey.draw();
 }
 
-function generateMicroenvironmentsPlot(data, anatomogram_labels) {
+function generateMicroenvironmentsPlot(data) {
 
     if (!data.hasOwnProperty('color_domain')) {
         // N.B. 'color_domain' is set only if microenvironments is provided in config
@@ -636,7 +592,7 @@ function generateMicroenvironmentsPlot(data, anatomogram_labels) {
           .domain(colorDomain)
           .range(d3.schemeTableau10);
 
-      spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, xAxisLength, colorscale, anatomogram_labels);
+      spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, xAxisLength, colorscale);
       spmeRenderXAxis(svg, xVals, xScale, left_xMargin, height, top_yMargin, bottom_yMargin);
       for (var i = 0; i <= mapping.length - 1; i++) {
         vals = mapping[i];
@@ -742,7 +698,7 @@ function spmeRenderXAxis(svg, xVals, xScale, left_xMargin, height, top_yMargin, 
       .attr("y2", -(height - top_yMargin - bottom_yMargin));
 }
 
-function spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, xAxisLength, colorscale, anatomogram_labels) {
+function spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, xAxisLength, colorscale) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -767,24 +723,6 @@ function spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, xAxisLen
       .attr("x2", xAxisLength)
       .attr("y2", 0)
       .attr("fill", colorscale(0));
-
-    // TODO: The code below is just for testing highlighting of different areas of anatomogram based on
-    // which Y-axis label (cell type) the user mouses over.
-    d3.selectAll("#spme_y-axis g.tick").each(function() {
-      d3.select(this)
-      .on("mouseover", function(){
-            const anatomogram_label = anatomogram_labels[yVals.indexOf(this.textContent)];
-            var elem = $('#ctcomp svg #LAYER_EFO #' + anatomogram_label + ' path').css({ fill: 'red' });
-            })
-      .on("mousemove", function(event){
-            const anatomogram_label = anatomogram_labels[yVals.indexOf(this.textContent)];
-            var elem = $('#ctcomp svg #LAYER_EFO #' + anatomogram_label + ' path').css({ fill: 'red' });
-      })
-      .on("mouseout", function(){
-            const anatomogram_label = anatomogram_labels[yVals.indexOf(this.textContent)];
-            var elem = $('#ctcomp svg #LAYER_EFO #' + anatomogram_label + ' path').css({ fill: '#dadada' });
-       });
-    });
 }
 
 function spmeRenderPoint(svg, x, y, colorPos, left_xMargin, top_yMargin, xScale, yScale, colorscale) {
