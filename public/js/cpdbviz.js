@@ -592,8 +592,8 @@ function generateMicroenvironmentsPlot(data) {
           .domain(colorDomain)
           .range(d3.schemeTableau10);
 
-      spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, xAxisLength, colorscale);
-      spmeRenderXAxis(svg, xVals, xScale, left_xMargin, height, top_yMargin, bottom_yMargin);
+      spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, bottom_yMargin, xAxisLength, colorscale);
+      spmeRenderXAxis(svg, xVals, xScale, left_xMargin, right_xMargin, height, top_yMargin, bottom_yMargin);
       for (var i = 0; i <= mapping.length - 1; i++) {
         vals = mapping[i];
         yPos = yVals.indexOf(vals[0]);
@@ -666,7 +666,7 @@ function setDeafultColourForAllCellTypes() {
     });
 }
 
-function spmeRenderXAxis(svg, xVals, xScale, left_xMargin, height, top_yMargin, bottom_yMargin) {
+function spmeRenderXAxis(svg, xVals, xScale, left_xMargin, right_xMargin, height, top_yMargin, bottom_yMargin) {
     var xAxis = d3
       .axisBottom()
       .ticks(xVals.length)
@@ -685,10 +685,18 @@ function spmeRenderXAxis(svg, xVals, xScale, left_xMargin, height, top_yMargin, 
       .call(xAxis)
       .selectAll("text")
       .style("text-anchor", "end")
+      .style("font-size", "14px")
       .attr("dx", "-.8em")
       .attr("dy", ".15em")
       .attr("transform", "rotate(-45)");
 
+    // Add the text label for the x axis
+    svg
+      .append("text")
+      .attr("transform", "translate(" + (left_xMargin + right_xMargin / 2) + "," + (height - bottom_yMargin + 90) + ")")
+      .style("text-anchor", "middle")
+      .text("Microenvironment");
+  
     d3.selectAll("#spme_x-axis g.tick")
       .append("line")
       .classed("grid-line", true)
@@ -698,7 +706,7 @@ function spmeRenderXAxis(svg, xVals, xScale, left_xMargin, height, top_yMargin, 
       .attr("y2", -(height - top_yMargin - bottom_yMargin));
 }
 
-function spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, xAxisLength, colorscale) {
+function spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, bottom_yMargin, xAxisLength, colorscale) {
     var yAxis = d3
       .axisLeft()
       .ticks(yVals.length)
@@ -713,7 +721,17 @@ function spmeRenderYAxis(svg, yVals, yScale, left_xMargin, top_yMargin, xAxisLen
       .attr("transform", function() {
         return "translate(" + left_xMargin + "," + top_yMargin + ")";
       })
+      .style("font-size", "14px")
       .call(yAxis);
+
+    svg
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", left_xMargin - 240)
+      .attr("x",(top_yMargin - bottom_yMargin))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Cell Type");
 
     d3.selectAll("#spme_y-axis g.tick")
       .append("line")
