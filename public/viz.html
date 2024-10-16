@@ -152,12 +152,12 @@ function refreshCCISummaryChordPlots() {
              <div class="toc-header left">Input dataset: overview</div>
           <li id="toc_ctcomp"><a name="#ctcomp_title" >Cell composition</a></li>
           <li id="toc_spme"><a href="#spme_title">Spatial microenvironments</a></li>
-          <li><a href="#sge_title">Single gene expression</a></li>
           <li class="divider"></li>
              <div class="toc-header left">CellphoneDB predictions</div>
           <li id="toc_cci_specificity"><a href="#cci_specificity_title">Cell-cell Communication Specificity - At a glance</a></li>
           <li><a href="#cci_summary_title">Cell-cell Communication - Summary</a></li>
           <li><a href="#cci_search_title">Cell-cell Communication - Search</a></li>
+          <li><a href="#sge_title">Single gene expression</a></li>
         </ul>
 
         <div class="col s12">
@@ -202,113 +202,6 @@ function refreshCCISummaryChordPlots() {
 
             </div>
           </div> <!-- <div class="row"> -->
-        </div> <!-- <div class="col s12"> -->
-
-        <div class="col s12">
-          <div class="card">
-             <div class="card-content col s12">
-                <span id="sge_title" class="card card-title center blue-text">Single gene expression</span>
-              </div>
-              <div class="row">
-                 <div id="search_results" hidden>
-                   <div class="card">
-                     <div class="card-content black-text col s12">
-                       <div id="search_results_table"  class="col s12">
-                         <span id="search_results_title" class="card-title"></span>
-                         <div hidden id="search_results_csv"></div>
-                         <div class="divider"></div>
-                           <span style="color: blue"><i>Click on an interaction partner name for more information.</i></span>
-                           <p></p>
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-
-
-                  <div style="padding-left: 35px" class="col s12 m3 l3">
-                      <ul class="collapsible">
-                        <li>
-                          <div class="collapsible-header center search-header"><i class="material-icons">expand_more</i>Manage filters</div>
-                          <div class="collapsible-body">
-
-                            <div id="num_all_cell_type_pairs" hidden></div>
-                            <div class="row">
-                              <div class="col s12">
-                                <div class="row">
-                                  <div>
-                                      <div class="section center">
-                                        <button id="refresh_sge_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshSGEPlot()">Refresh plot
-                                            <i class="material-icons right">refresh</i>
-                                        </button>
-                                        <button id="clear_sge_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearSGEFilters()">Clear filters&nbsp;
-                                            <i class="material-icons right">clear_all</i>
-                                        </button>
-                                      </div>
-                                      <div id="sge_microenvironment_sel" class="input-field">
-                                        <input style="padding-top: 30px;" type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
-                                        <label style="padding-top: 10px;" for="sge_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
-                                      </div>
-                                      <div class="sge_selected_microenvironments"></div>
-                                      <div style="padding-top: 20px;"></div>
-                                      <div class="input-field">
-                                        <input style="padding-top: 30px;" type="text" id="sge_celltype_input" placeholder="Cell type">
-                                        <label style="padding-top: 30px;" for="sge_celltype_input" class="black-text text-lighten-10 search-input-label">Add cell types to the plot</label>
-                                      </div>
-                                      <div class="sge_selected_celltypes"></div>
-                                      <div style="padding-top: 10px;">
-                                          <button id="sge_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('single_gene_expression')">Select all cell types
-                                              <i class="material-icons right">done_all</i>
-                                          </button>
-                                      </div>
-                                      <div style="padding-top: 20px;"></div>
-                                      <div class="input-field">
-                                        <input style="padding-top: 30px;" type="text" id="sge_gene_input" placeholder="Gene name">
-                                        <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10 search-input-label">Add genes to the plot&nbsp;&nbsp;
-                                            <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                                                <i id="sge_gene_input_help" class="material-icons left tooltipped" data-tooltip="Select all genes in a family by selecting e.g. WNT* or TNFR* from the dropdown">info_outline</i>
-                                            </span>
-                                        </label>
-                                      </div>
-                                      <div class="sge_selected_genes"></div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </li>
-                      </ul>
-                  </div>
-
-                  <div class="col s12 m9 l9 push-s1">
-                    <div id="sge_spinner" class="container center" hidden>
-                      <div class="preloader-wrapper active center">
-                        <div class="spinner-layer spinner-red-only">
-                          <div class="circle-clipper left">
-                            <div class="circle"></div>
-                          </div><div class="gap-patch">
-                            <div class="circle"></div>
-                          </div><div class="circle-clipper right">
-                            <div class="circle"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-content black-text col s12">
-                          <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('sge','sge_title','sge_header')">
-                             <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                          </button>
-                          <span id="sge_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                               data-tooltip="The plot shows mean expressions of the genes/complexes and cell types/microenvironments selected in the filter. The data comes from files specified in the configuration keys: 'deconvoluted_result', 'deconvoluted_percents' and 'microenvironments'.">info_outline</i>
-                          </span>
-                          <div id="sge_header" hidden></div>
-                            <div id="sge" style="width:1000px"></div>
-                        </div>
-                    </div>
-                  </div>
-              </div> <!-- <div class="row"> -->
-          </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
 
         <div id="cci_specificity_section" class="col s12">
@@ -829,6 +722,112 @@ function refreshCCISummaryChordPlots() {
                   </div>
                 </div>
 <!--              </div> &lt;!&ndash; <div class="row"> &ndash;&gt;-->
+          </div> <!-- <div class="card"> -->
+        </div> <!-- <div class="col s12"> -->
+        <div class="col s12">
+          <div class="card">
+              <div class="card-content col s12">
+                <span id="sge_title" class="card card-title center blue-text">Single gene expression</span>
+              </div>
+              <div class="row">
+                  <div id="search_results" hidden>
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <div id="search_results_table"  class="col s12">
+                          <span id="search_results_title" class="card-title"></span>
+                          <div hidden id="search_results_csv"></div>
+                          <div class="divider"></div>
+                            <span style="color: blue"><i>Click on an interaction partner name for more information.</i></span>
+                            <p></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <div style="padding-left: 35px" class="col s12 m3 l3">
+                      <ul class="collapsible">
+                        <li>
+                          <div class="collapsible-header center search-header"><i class="material-icons">expand_more</i>Manage filters</div>
+                          <div class="collapsible-body">
+
+                            <div id="num_all_cell_type_pairs" hidden></div>
+                            <div class="row">
+                              <div class="col s12">
+                                <div class="row">
+                                  <div>
+                                      <div class="section center">
+                                        <button id="refresh_sge_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshSGEPlot()">Refresh plot
+                                            <i class="material-icons right">refresh</i>
+                                        </button>
+                                        <button id="clear_sge_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearSGEFilters()">Clear filters&nbsp;
+                                            <i class="material-icons right">clear_all</i>
+                                        </button>
+                                      </div>
+                                      <div id="sge_microenvironment_sel" class="input-field">
+                                        <input style="padding-top: 30px;" type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
+                                        <label style="padding-top: 10px;" for="sge_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
+                                      </div>
+                                      <div class="sge_selected_microenvironments"></div>
+                                      <div style="padding-top: 20px;"></div>
+                                      <div class="input-field">
+                                        <input style="padding-top: 30px;" type="text" id="sge_celltype_input" placeholder="Cell type">
+                                        <label style="padding-top: 30px;" for="sge_celltype_input" class="black-text text-lighten-10 search-input-label">Add cell types to the plot</label>
+                                      </div>
+                                      <div class="sge_selected_celltypes"></div>
+                                      <div style="padding-top: 10px;">
+                                          <button id="sge_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('single_gene_expression')">Select all cell types
+                                              <i class="material-icons right">done_all</i>
+                                          </button>
+                                      </div>
+                                      <div style="padding-top: 20px;"></div>
+                                      <div class="input-field">
+                                        <input style="padding-top: 30px;" type="text" id="sge_gene_input" placeholder="Gene name">
+                                        <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10 search-input-label">Add genes to the plot&nbsp;&nbsp;
+                                            <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                                                <i id="sge_gene_input_help" class="material-icons left tooltipped" data-tooltip="Select all genes in a family by selecting e.g. WNT* or TNFR* from the dropdown">info_outline</i>
+                                            </span>
+                                        </label>
+                                      </div>
+                                      <div class="sge_selected_genes"></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                  </div>
+
+                  <div class="col s12 m9 l9 push-s1">
+                    <div id="sge_spinner" class="container center" hidden>
+                      <div class="preloader-wrapper active center">
+                        <div class="spinner-layer spinner-red-only">
+                          <div class="circle-clipper left">
+                            <div class="circle"></div>
+                          </div><div class="gap-patch">
+                            <div class="circle"></div>
+                          </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content black-text col s12">
+                          <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('sge','sge_title','sge_header')">
+                              <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                          </button>
+                          <span id="sge_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                                data-tooltip="The plot shows mean expressions of the genes/complexes and cell types/microenvironments selected in the filter. The data comes from files specified in the configuration keys: 'deconvoluted_result', 'deconvoluted_percents' and 'microenvironments'.">info_outline</i>
+                          </span>
+                          <div id="sge_header" hidden></div>
+                            <div id="sge" style="width:1000px"></div>
+                        </div>
+                    </div>
+                  </div>
+              </div> <!-- <div class="row"> -->
           </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
 
