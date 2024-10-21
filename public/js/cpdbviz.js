@@ -2764,11 +2764,14 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
      });
 }
 
+
+
+
 /*Global constants associated with the cell type pair selection grid*/
 const CELL_SIZE = 30;
 const MARGIN_LEFT = 200;
 const MARGIN_BOTTOM = -200;
-
+var selection_grid_obj = null;
 
 function render_x_axis_cci_cell_type_pair_search(svg, xVals, xScale) {
   /*
@@ -2799,8 +2802,9 @@ function render_x_axis_cci_cell_type_pair_search(svg, xVals, xScale) {
     .style("text-anchor", "end")
     .attr("dx", "-.8em")
     .attr("dy", ".15em")
-    .attr("transform", "rotate(-45)");
+    .attr("transform", "rotate(-45)")
 }
+
 
 function render_y_axis_cci_cell_type_pair_search(svg, yVals, yScale){
     /*
@@ -2828,6 +2832,36 @@ function render_y_axis_cci_cell_type_pair_search(svg, yVals, yScale){
     .call(yAxis);
 }
 
+
+function cci_toggle_select_cells_by_type(cell_type){
+  /*
+  Given string of class name to search d3 rectangle 'grid cells' for, if these are all selected, deselect them all.
+  Else, select them all. Please note this works per axis (incoming/outgoing) for the type, not just for the overall cell type.
+  Parameters:
+    -> cell_type: string, class name to search for
+  */
+  const matches = d3.selectAll(cell_type)._groups[0];
+  var all_selected = true
+  //1. check the state of all matches (if any is deselected, all_selected is false and break the loop)
+  for (let match = 0; match < matches.length; match++) {
+    console.log("*********", matches[match].__data__.clicked, matches[match].__data__.interacts)
+    if (!matches[match].__data__.clicked && matches[match].__data__.interacts){
+      all_selected = false;
+      break;
+    }
+  }
+  //2. if all selected true, deselect everything. Otherwise select everything.
+  console.log("NEW MATCHES")
+  for (let match = 0; match < matches.length; match++) {
+    console.log(matches[match], matches[match].__data__)
+    if (matches[match].__data__.interacts) {
+      matches[match].__data__.clicked = all_selected ? false : true;
+      all_selected ? d3.select(matches[match]).style("fill","#fff") : d3.select(matches[match]).style("fill","#2C93E8");
+    }
+  }
+}
+
+
 function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks_arr){
   /*
   Create cell type pair search grid using d3
@@ -2837,7 +2871,7 @@ function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks
   */
 
   const dimensions = (50 + MARGIN_LEFT + cell_type_pair_grid_data.length * CELL_SIZE).toString() + "px"
-  var grid = d3.select("#select_cell_type_pairs_grid")
+  selection_grid_obj = d3.select("#select_cell_type_pairs_grid")
     .append("svg")
     .attr("width",dimensions)
     .attr("height",dimensions);
@@ -2854,10 +2888,11 @@ function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks
     .scaleLinear()
     .domain([0, cell_type_pair_grid_data.length -1 ])
     .range([yMin + (CELL_SIZE/2), yMax - (CELL_SIZE/2)]);
-  render_x_axis_cci_cell_type_pair_search(grid, ticks_arr, xScale)
-  render_y_axis_cci_cell_type_pair_search(grid, ticks_arr, yScale)
 
-  var row = grid.selectAll(".row")
+  render_x_axis_cci_cell_type_pair_search(selection_grid_obj, ticks_arr, xScale)
+  render_y_axis_cci_cell_type_pair_search(selection_grid_obj, ticks_arr, yScale)
+
+  var row = selection_grid_obj.selectAll(".row")
 	.data(cell_type_pair_grid_data)
 	.enter().append("g")
 	.attr("class", "row");
@@ -2870,18 +2905,29 @@ function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks
 	.attr("y", function(d) { return d.y; })
 	.attr("width", function(d) { return d.width; })
 	.attr("height", function(d) { return d.height; })
+  .attr("class", function (d) { return "col_" + d.xLabel.replace(".", "_") + " " + "row_" + d.yLabel.replace(".", "_"); })
   .style("fill", function(d) {
     return d.interacts ? "#ffff" : "#c5c5c5";
   })
 	.style("stroke", "#222")
   .on('click', function(d) { //when cell is clicked, if it interacts toggle clicked/not clicked in UI
-    if(d.srcElement.__data__.interacts) {
-      d.srcElement.__data__.click = !d.srcElement.__data__.click;
-      if (d.srcElement.__data__.click) { d3.select(this).style("fill","#2C93E8"); }
+    if (d.srcElement.__data__.interacts) {
+      d.srcElement.__data__.clicked = !d.srcElement.__data__.clicked;
+      if (d.srcElement.__data__.clicked) { d3.select(this).style("fill","#2C93E8"); }
       else { d3.select(this).style("fill","#fff"); }
     }
   });
+
+  selection_grid_obj.selectAll(".x-axis .tick")
+  .on("click", function(d) {
+    cci_toggle_select_cells_by_type(".row_" + d.srcElement.innerHTML.replace(".", "_"));
+  });
+  selection_grid_obj.selectAll(".y-axis .tick")
+  .on("click", function(d) {
+    cci_toggle_select_cells_by_type(".col_" + d.srcElement.innerHTML.replace(".", "_"));
+  });
 }
+
 
 function populate_cci_cell_type_pair_search_grid(all_cell_type_pairs, all_cell_types) {
   /*
@@ -2938,6 +2984,9 @@ function populate_cci_cell_type_pair_search_grid(all_cell_type_pairs, all_cell_t
 	}
 	return [pairs_map_data, ticks_arr];
 }
+
+
+
 
 // This is used to check if the page viewer is authorized to view the page
 function getHash() {
