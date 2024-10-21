@@ -156,6 +156,8 @@ document.addEventListener('DOMContentLoaded', function() {
             enable_autocomplete('cci_search_celltype_pair_input', 'cci_search_selected_celltype_pairs', res['all_cell_type_pairs']);
             enable_autocomplete('cci_search_gene_input', 'cci_search_selected_genes', res['all_genes']);
             enable_autocomplete('cci_search_interaction_input', 'cci_search_selected_interactions', res['all_interacting_pairs']);
+            var cell_type_grid_data = populate_cci_cell_type_pair_search_grid(res['all_cell_type_pairs'], res['all_cell_types']);
+            generate_cci_cell_type_pair_search_grid(cell_type_grid_data[0], cell_type_grid_data[1]);
             if (res.hasOwnProperty('microenvironments')) {
                 enable_autocomplete('cci_search_microenvironment_input', 'cci_search_selected_microenvironments', res['microenvironments']);
                 // Initialise 'Filter cell types by micro-environment in 'cell-cell interaction search' plot select dropdown
@@ -2760,6 +2762,177 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
                 $("#cci_search_spinner").hide();
             }
      });
+}
+
+/*Global constants associated with the cell type pair selection grid*/
+const CELL_SIZE = 30;
+const MARGIN_LEFT = 200;
+const MARGIN_BOTTOM = -200;
+
+
+function render_x_axis_cci_cell_type_pair_search(svg, xVals, xScale) {
+  /*
+  Renders x axis on cell type pair selection grid. Adds label for each cell type 'column' for identification
+  Parameters:
+    -> svg: d3 (scalable vector graphics) object
+    -> xVals: array of tick labels
+    -> xScale: transformation function containing range (width) and domain for axis
+  */
+  
+  var xAxis = d3
+    .axisBottom()
+    .ticks(xVals.length)
+    .tickFormat(t => {
+      return xVals[t];
+    })
+    .scale(xScale);
+  svg
+    .append("g")
+    .attr("class", "x-axis")
+    .attr("id", "spme_x-axis")
+    .attr("transform", function() {
+      return "translate(" + 0 + "," + (xVals.length * CELL_SIZE) + ")";
+    })
+    .attr("opacity", 1)
+    .call(xAxis)
+    .selectAll("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".15em")
+    .attr("transform", "rotate(-45)");
+}
+
+function render_y_axis_cci_cell_type_pair_search(svg, yVals, yScale){
+    /*
+  Renders y axis on cell type pair selection grid. Adds label for each cell type 'row' for identification
+  Parameters:
+    -> svg: d3 (scalable vector graphics) object
+    -> yVals: array of tick labels
+    -> yScale: transformation function containing range (height) and domain for axis
+  */
+
+  var yAxis = d3
+      .axisLeft()
+      .ticks(yVals.length)
+      .tickFormat(t => {
+        return yVals[t];
+      })
+      .scale(yScale);
+  svg
+    .append("g")
+    .attr("class", "y-axis")
+    .attr("id", "spme_y-axis")
+    .attr("transform", function() {
+      return "translate(" + MARGIN_LEFT + "," + -MARGIN_BOTTOM + ")";
+    })
+    .call(yAxis);
+}
+
+function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks_arr){
+  /*
+  Create cell type pair search grid using d3
+  Parameters:
+    -> cell_type_pair_grid_data: d3 rectangle data array defined in populate_cci_cell_type_pair_search_grid.
+    -> ticks_arr: array of tick label strings.
+  */
+
+  const dimensions = (50 + MARGIN_LEFT + cell_type_pair_grid_data.length * CELL_SIZE).toString() + "px"
+  var grid = d3.select("#select_cell_type_pairs_grid")
+    .append("svg")
+    .attr("width",dimensions)
+    .attr("height",dimensions);
+
+  var yMin = MARGIN_BOTTOM,
+    xMin = MARGIN_LEFT,
+    yMax = MARGIN_BOTTOM + (cell_type_pair_grid_data.length * CELL_SIZE),
+    xMax = MARGIN_LEFT + (cell_type_pair_grid_data.length * CELL_SIZE)
+  var xScale = d3
+    .scaleLinear()
+    .domain([0, cell_type_pair_grid_data.length -1 ])
+    .range([xMin + (CELL_SIZE/2), xMax - (CELL_SIZE/2)]),
+    yScale = d3
+    .scaleLinear()
+    .domain([0, cell_type_pair_grid_data.length -1 ])
+    .range([yMin + (CELL_SIZE/2), yMax - (CELL_SIZE/2)]);
+  render_x_axis_cci_cell_type_pair_search(grid, ticks_arr, xScale)
+  render_y_axis_cci_cell_type_pair_search(grid, ticks_arr, yScale)
+
+  var row = grid.selectAll(".row")
+	.data(cell_type_pair_grid_data)
+	.enter().append("g")
+	.attr("class", "row");
+
+  var column = row.selectAll(".square")
+	.data(function(d) { return d; })
+	.enter().append("rect")
+	.attr("class","square")
+	.attr("x", function(d) { return d.x; })
+	.attr("y", function(d) { return d.y; })
+	.attr("width", function(d) { return d.width; })
+	.attr("height", function(d) { return d.height; })
+	.style("fill", "#fff")
+	.style("stroke", "#222")
+  .on('click', function(d) { //when cell is clicked, if i
+    d.srcElement.__data__.click = !d.srcElement.__data__.click;
+    if (d.srcElement.__data__.click) { d3.select(this).style("fill","#2C93E8"); }
+	  else { d3.select(this).style("fill","#fff"); }
+  });
+}
+
+function populate_cci_cell_type_pair_search_grid(all_cell_type_pairs, all_cell_types) {
+  /*
+  Using all cell types, generate a grid format so that each cell type has a row and column
+  (for incoming/outgoing interactions)
+  Parameters:
+    -> all_cell_type_pairs: array of strings containing all cell type pairs that interact. Used to filter interacting/
+    non-interacting pairs.
+    -> all_cell_types: all available cell types for this visualization.
+  */
+  
+  //1. Populate pair mapping with incoming/outgoing interactions
+  var pairs_map = {} //key is outgoing interaction, values are incoming interactions
+  for(pair=0; pair < all_cell_type_pairs.length; pair++){
+    const cell_type_pair = all_cell_type_pairs[pair];
+    const individual_types = cell_type_pair.split("|");
+    if (pairs_map.hasOwnProperty(individual_types[0])) {
+        pairs_map[individual_types[0]].push(individual_types[1])
+    } else {
+        pairs_map[individual_types[0]] = [individual_types[1]];
+    }
+  }
+
+  //2. Populate grid with data for each cell, including whether the pair interact.
+	var pairs_map_data = new Array();
+	var xpos = MARGIN_LEFT, //starting xpos and ypos at 1 so the stroke will show when we make the grid below
+      ypos = 0,
+      ticks_arr = [];
+	
+	// iterate for rows	
+	for (var row = 0; row < all_cell_types.length; row++) {
+		pairs_map_data.push( new Array() );
+    ticks_arr.push(all_cell_types[row]);
+		
+		// iterate for cells/columns inside rows
+		for (var column = 0; column < all_cell_types.length; column++) {
+			pairs_map_data[row].push({
+				x: xpos,
+				y: ypos,
+				width: CELL_SIZE,
+				height: CELL_SIZE,
+        xLabel: all_cell_types[row],
+        yLabel: all_cell_types[column],
+        interacts: pairs_map[all_cell_types[row]].includes(all_cell_types[column]) ? true : false,
+        clicked: false
+			})
+			// increment the x position. I.e. move it over by width
+			xpos += CELL_SIZE;
+		}
+		// reset the x position after a row is complete
+		xpos = MARGIN_LEFT;
+		// increment the y position for the next row. Move it down by height
+		ypos += CELL_SIZE;	
+	}
+	return [pairs_map_data, ticks_arr];
 }
 
 // This is used to check if the page viewer is authorized to view the page
