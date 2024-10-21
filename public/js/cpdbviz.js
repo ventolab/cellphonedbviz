@@ -2844,16 +2844,13 @@ function cci_toggle_select_cells_by_type(cell_type){
   var all_selected = true
   //1. check the state of all matches (if any is deselected, all_selected is false and break the loop)
   for (let match = 0; match < matches.length; match++) {
-    console.log("*********", matches[match].__data__.clicked, matches[match].__data__.interacts)
     if (!matches[match].__data__.clicked && matches[match].__data__.interacts){
       all_selected = false;
       break;
     }
   }
   //2. if all selected true, deselect everything. Otherwise select everything.
-  console.log("NEW MATCHES")
   for (let match = 0; match < matches.length; match++) {
-    console.log(matches[match], matches[match].__data__)
     if (matches[match].__data__.interacts) {
       matches[match].__data__.clicked = all_selected ? false : true;
       all_selected ? d3.select(matches[match]).style("fill","#fff") : d3.select(matches[match]).style("fill","#2C93E8");
