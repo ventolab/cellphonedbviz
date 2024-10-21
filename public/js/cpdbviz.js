@@ -2870,12 +2870,16 @@ function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks
 	.attr("y", function(d) { return d.y; })
 	.attr("width", function(d) { return d.width; })
 	.attr("height", function(d) { return d.height; })
-	.style("fill", "#fff")
+  .style("fill", function(d) {
+    return d.interacts ? "#ffff" : "#c5c5c5";
+  })
 	.style("stroke", "#222")
-  .on('click', function(d) { //when cell is clicked, if i
-    d.srcElement.__data__.click = !d.srcElement.__data__.click;
-    if (d.srcElement.__data__.click) { d3.select(this).style("fill","#2C93E8"); }
-	  else { d3.select(this).style("fill","#fff"); }
+  .on('click', function(d) { //when cell is clicked, if it interacts toggle clicked/not clicked in UI
+    if(d.srcElement.__data__.interacts) {
+      d.srcElement.__data__.click = !d.srcElement.__data__.click;
+      if (d.srcElement.__data__.click) { d3.select(this).style("fill","#2C93E8"); }
+      else { d3.select(this).style("fill","#fff"); }
+    }
   });
 }
 
