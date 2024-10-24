@@ -687,11 +687,6 @@ function refreshCCISummaryChordPlots() {
                                                 <i class="material-icons right">clear_all</i>
                                               </button>
                                           </div>
-                                          <div class="input-field">
-                                            <input style="padding-top: 20px;" type="text" id="cci_search_celltype_pair_input" placeholder="Cell type pair">
-                                            <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10 search-input-label">Filter by cell type pairs</label>
-                                          </div>
-                                          <div class="cci_search_selected_celltype_pairs"></div>
                                   </div>
                                 </div>
                               </div>
@@ -756,6 +751,9 @@ function refreshCCISummaryChordPlots() {
                               </div>
                             </div>
                         </div> <!-- <div class="row"> -->
+                        <div class="row center">
+                          <div id="select_cell_type_pairs_grid"></div>
+                        </div>
 
                           <div class="row center">
                               <div class="section">
@@ -831,7 +829,6 @@ function refreshCCISummaryChordPlots() {
 <!--              </div> &lt;!&ndash; <div class="row"> &ndash;&gt;-->
           </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
-        <div id="select_cell_type_pairs_grid"></div>
 
         <div class="valign-wrapper">
           <h8 style="padding-left: 30px">Powered by</h8>

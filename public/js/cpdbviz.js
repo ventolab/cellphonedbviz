@@ -153,11 +153,10 @@ document.addEventListener('DOMContentLoaded', function() {
             $('#num_all_cell_type_pairs').text(res['num_all_cell_type_pairs']);
             // Enable gene and cell type input autocompletes for gene expression plot
             enable_autocomplete('cci_search_celltype_input', 'cci_search_selected_celltypes', res['all_cell_types']);
-            enable_autocomplete('cci_search_celltype_pair_input', 'cci_search_selected_celltype_pairs', res['all_cell_type_pairs']);
             enable_autocomplete('cci_search_gene_input', 'cci_search_selected_genes', res['all_genes']);
             enable_autocomplete('cci_search_interaction_input', 'cci_search_selected_interactions', res['all_interacting_pairs']);
-            var cell_type_grid_data = populate_cci_cell_type_pair_search_grid(res['all_cell_type_pairs'], res['all_cell_types']);
-            generate_cci_cell_type_pair_search_grid(cell_type_grid_data[0], cell_type_grid_data[1]);
+            initialise_cell_type_pairs(res['all_cell_type_pairs']);
+            populate_cci_cell_type_pair_search_grid();
             if (res.hasOwnProperty('microenvironments')) {
                 enable_autocomplete('cci_search_microenvironment_input', 'cci_search_selected_microenvironments', res['microenvironments']);
                 // Initialise 'Filter cell types by micro-environment in 'cell-cell interaction search' plot select dropdown
@@ -175,6 +174,8 @@ document.addEventListener('DOMContentLoaded', function() {
             enable_cci_search_radio();
             // Allow the user to sort interacting pair either by the highest mean on top or alphabetically
             enable_cci_search_sort_ips_switch();
+            //Enable update of specific interacting cell type pair grid when switches change
+            enable_cci_search_cell_type_update();
             // Enable side navs - used for displaying interacting pair participant information
             enable_side_navs();
             $("#cci_search_spinner").hide();
@@ -288,6 +289,10 @@ function enable_cci_summary_switch(num_cell_types) {
       });
 }
 
+function enable_cci_search_cell_type_update(){
+  $('.cci_search_selected_celltypes').on('DOMSubtreeModified', function() { populate_cci_cell_type_pair_search_grid() })
+}
+
 function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
                              selected_microenvironments_div, selected_celltypes_div, celltype_input_div) {
     var elems = document.querySelectorAll('select');
@@ -311,7 +316,6 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
               // Disable cell type and cell type pair inputs as the requirement is for
               // microenvironments, cell type and cell type pair inputs to be mutually exclusive
               $('#cci_search_celltype_input').prop( "disabled", true );
-              $('#cci_search_celltype_pair_input').prop( "disabled", true );
               $('.cci_search_selected_celltypes').hide();
               $('.cci_search_selected_celltype_pairs').empty();
               $('#cci_search_select_all_celltypes').addClass('disabled');
@@ -330,7 +334,6 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
                 selected_cell_types = all_cell_types;
               }
               $('#cci_search_celltype_input').prop( "disabled", false );
-              $('#cci_search_celltype_pair_input').prop( "disabled", false );
               $('.cci_search_selected_celltypes').show();
               $('#sge_select_all_celltypes').prop( "disabled", false );
               $('#cci_search_select_all_celltypes').removeClass('disabled');
@@ -1855,7 +1858,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         }
         if (typeof selectedMicroenvironments === 'undefined' || selectedMicroenvironments.length == 0) {
             for (var i = 0; i < selectedCellTypePairs.length; i++) {
-                storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
+                //TODO storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
             }
         }
     } else if (typeof interacting_pairs_selection_logic !== 'undefined') {
@@ -2772,6 +2775,7 @@ const CELL_SIZE = 30;
 const MARGIN_LEFT = 200;
 const MARGIN_BOTTOM = -200;
 var selection_grid_obj = null;
+var pairs_map = {};
 
 function render_x_axis_cci_cell_type_pair_search(svg, xVals, xScale) {
   /*
@@ -2882,6 +2886,7 @@ function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks
     -> cell_type_pair_grid_data: d3 rectangle data array defined in populate_cci_cell_type_pair_search_grid.
     -> ticks_arr: array of tick label strings.
   */
+    d3.selectAll("#select_cell_type_pairs_grid > *").remove();
 
   const dimensions = (50 + MARGIN_LEFT + cell_type_pair_grid_data.length * CELL_SIZE).toString() + "px"
   selection_grid_obj = d3.select("#select_cell_type_pairs_grid")
@@ -2920,7 +2925,7 @@ function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks
 	.attr("height", function(d) { return d.height; })
   .attr("class", function (d) { return "col_" + d.xLabel.replace(/[. ]/g, "_") + " " + "row_" + d.yLabel.replace(/[. ]/g, "_"); })
   .style("fill", function(d) {
-    return d.interacts ? "#ffff" : "#c5c5c5";
+    return d.interacts ? d.clicked ? "#2C93E8" : "#ffff" : "#c5c5c5";
   })
 	.style("stroke", "#222")
   .on('click', function(d) { //when cell is clicked, if it interacts toggle clicked/not clicked in UI
@@ -2941,19 +2946,9 @@ function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks
   });
 }
 
-
-function populate_cci_cell_type_pair_search_grid(all_cell_type_pairs, all_cell_types) {
-  /*
-  Using all cell types, generate a grid format so that each cell type has a row and column
-  (for incoming/outgoing interactions)
-  Parameters:
-    -> all_cell_type_pairs: array of strings containing all cell type pairs that interact. Used to filter interacting/
-    non-interacting pairs.
-    -> all_cell_types: all available cell types for this visualization.
-  */
-  
-  //1. Populate pair mapping with incoming/outgoing interactions
-  var pairs_map = {} //key is outgoing interaction, values are incoming interactions
+function initialise_cell_type_pairs(all_cell_type_pairs){
+  //Populate pair mapping with incoming/outgoing interactions
+  //key is outgoing interaction, values are incoming interactions
   for(pair=0; pair < all_cell_type_pairs.length; pair++){
     const cell_type_pair = all_cell_type_pairs[pair];
     const individual_types = cell_type_pair.split("|");
@@ -2963,39 +2958,59 @@ function populate_cci_cell_type_pair_search_grid(all_cell_type_pairs, all_cell_t
         pairs_map[individual_types[0]] = [individual_types[1]];
     }
   }
+}
 
-  //2. Populate grid with data for each cell, including whether the pair interact.
-	var pairs_map_data = new Array();
-	var xpos = MARGIN_LEFT, //starting xpos and ypos at 1 so the stroke will show when we make the grid below
-      ypos = 0,
-      ticks_arr = [];
-	
-	// iterate for rows	
-	for (var row = 0; row < all_cell_types.length; row++) {
-		pairs_map_data.push( new Array() );
-    ticks_arr.push(all_cell_types[row]);
-		
-		// iterate for cells/columns inside rows
-		for (var column = 0; column < all_cell_types.length; column++) {
-			pairs_map_data[row].push({
-				x: xpos,
-				y: ypos,
-				width: CELL_SIZE,
-				height: CELL_SIZE,
-        xLabel: all_cell_types[row],
-        yLabel: all_cell_types[column],
-        interacts: all_cell_types[row] in pairs_map && pairs_map[all_cell_types[row]].includes(all_cell_types[column]) ? true : false,
-        clicked: false
-			})
-			// increment the x position. I.e. move it over by width
-			xpos += CELL_SIZE;
-		}
-		// reset the x position after a row is complete
-		xpos = MARGIN_LEFT;
-		// increment the y position for the next row. Move it down by height
-		ypos += CELL_SIZE;	
-	}
-	return [pairs_map_data, ticks_arr];
+
+function populate_cci_cell_type_pair_search_grid() {
+  /*
+  Using all cell types, generate a grid format so that each cell type has a row and column
+  (for incoming/outgoing interactions)
+  Parameters:
+    -> all_cell_type_pairs: array of strings containing all cell type pairs that interact. Used to filter interacting/
+    non-interacting pairs.
+    -> all_cell_types: all available cell types for this visualization.
+  */
+
+  const chips_received = getSelectedTokens(["cci_search_selected_celltypes"])
+  if (chips_received.length){
+    var selected_cell_types = decodeURIComponent(chips_received[0][0]).split(",");
+
+    //2. Populate grid with data for each cell, including whether the pair interact.
+    var pairs_map_data = new Array();
+    var xpos = MARGIN_LEFT, //starting xpos and ypos at 1 so the stroke will show when we make the grid below
+        ypos = 0,
+        ticks_arr = [];
+    
+    // iterate for rows	
+    for (var row = 0; row < selected_cell_types.length; row++) {
+      pairs_map_data.push( new Array() );
+      ticks_arr.push(selected_cell_types[row]);
+      
+      // iterate for cells/columns inside rows
+      for (var column = 0; column < selected_cell_types.length; column++) {
+        pairs_map_data[row].push({
+          x: xpos,
+          y: ypos,
+          width: CELL_SIZE,
+          height: CELL_SIZE,
+          xLabel: selected_cell_types[row],
+          yLabel: selected_cell_types[column],
+          interacts: selected_cell_types[row] in pairs_map && pairs_map[selected_cell_types[row]].includes(selected_cell_types[column]) ? true : false,
+          clicked: true
+        })
+        // increment the x position. I.e. move it over by width
+        xpos += CELL_SIZE;
+      }
+      // reset the x position after a row is complete
+      xpos = MARGIN_LEFT;
+      // increment the y position for the next row. Move it down by height
+      ypos += CELL_SIZE;	
+    }
+    generate_cci_cell_type_pair_search_grid(pairs_map_data, ticks_arr);
+  }
+  else {
+    $("#select_cell_type_pairs_grid").html("<h6>No cell types selected </h6>")
+  }
 }
 
 
