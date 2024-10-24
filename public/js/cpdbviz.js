@@ -2803,6 +2803,13 @@ function render_x_axis_cci_cell_type_pair_search(svg, xVals, xScale) {
     .attr("dx", "-.8em")
     .attr("dy", ".15em")
     .attr("transform", "rotate(-45)")
+
+  // Add the text label for the x axis
+  svg
+    .append("text")
+    .attr("transform", "translate(" + (MARGIN_LEFT + (xVals.length * CELL_SIZE) / 2) + "," + ((xVals.length * CELL_SIZE) - MARGIN_BOTTOM) + ")")
+    .style("text-anchor", "middle")
+    .text("Outgoing interaction");
 }
 
 
@@ -2830,6 +2837,15 @@ function render_y_axis_cci_cell_type_pair_search(svg, yVals, yScale){
       return "translate(" + MARGIN_LEFT + "," + -MARGIN_BOTTOM + ")";
     })
     .call(yAxis);
+
+  //Add label for y axis
+  svg
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 20)
+    .attr("x", -(yVals.length * CELL_SIZE) / 2)
+    .style("text-anchor", "middle")
+    .text("Incoming interaction");
 }
 
 
@@ -2902,7 +2918,7 @@ function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks
 	.attr("y", function(d) { return d.y; })
 	.attr("width", function(d) { return d.width; })
 	.attr("height", function(d) { return d.height; })
-  .attr("class", function (d) { return "col_" + d.xLabel.replace(".", "_") + " " + "row_" + d.yLabel.replace(".", "_"); })
+  .attr("class", function (d) { return "col_" + d.xLabel.replace(/[. ]/g, "_") + " " + "row_" + d.yLabel.replace(/[. ]/g, "_"); })
   .style("fill", function(d) {
     return d.interacts ? "#ffff" : "#c5c5c5";
   })
@@ -2917,11 +2933,11 @@ function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks
 
   selection_grid_obj.selectAll(".x-axis .tick")
   .on("click", function(d) {
-    cci_toggle_select_cells_by_type(".row_" + d.srcElement.innerHTML.replace(".", "_"));
+    cci_toggle_select_cells_by_type(".row_" + d.srcElement.innerHTML.replace(/[. ]/g, "_"));
   });
   selection_grid_obj.selectAll(".y-axis .tick")
   .on("click", function(d) {
-    cci_toggle_select_cells_by_type(".col_" + d.srcElement.innerHTML.replace(".", "_"));
+    cci_toggle_select_cells_by_type(".col_" + d.srcElement.innerHTML.replace(/[. ]/g, "_"));
   });
 }
 
@@ -2968,7 +2984,7 @@ function populate_cci_cell_type_pair_search_grid(all_cell_type_pairs, all_cell_t
 				height: CELL_SIZE,
         xLabel: all_cell_types[row],
         yLabel: all_cell_types[column],
-        interacts: pairs_map[all_cell_types[row]].includes(all_cell_types[column]) ? true : false,
+        interacts: all_cell_types[row] in pairs_map && pairs_map[all_cell_types[row]].includes(all_cell_types[column]) ? true : false,
         clicked: false
 			})
 			// increment the x position. I.e. move it over by width
