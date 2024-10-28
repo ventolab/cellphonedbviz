@@ -2776,6 +2776,7 @@ const MARGIN_LEFT = 200;
 const MARGIN_BOTTOM = -200;
 var selection_grid_obj = null;
 var pairs_map = {};
+var grid_cell_type_data = [];
 
 function render_x_axis_cci_cell_type_pair_search(svg, xVals, xScale) {
   /*
@@ -2879,16 +2880,15 @@ function cci_toggle_select_cells_by_type(cell_type){
 }
 
 
-function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks_arr){
+function generate_cci_cell_type_pair_search_grid(ticks_arr){
   /*
   Create cell type pair search grid using d3
   Parameters:
-    -> cell_type_pair_grid_data: d3 rectangle data array defined in populate_cci_cell_type_pair_search_grid.
     -> ticks_arr: array of tick label strings.
   */
     d3.selectAll("#select_cell_type_pairs_grid > *").remove();
 
-  const dimensions = (50 + MARGIN_LEFT + cell_type_pair_grid_data.length * CELL_SIZE).toString() + "px"
+  const dimensions = (50 + MARGIN_LEFT + grid_cell_type_data.length * CELL_SIZE).toString() + "px"
   selection_grid_obj = d3.select("#select_cell_type_pairs_grid")
     .append("svg")
     .attr("width",dimensions)
@@ -2896,22 +2896,22 @@ function generate_cci_cell_type_pair_search_grid(cell_type_pair_grid_data, ticks
 
   var yMin = MARGIN_BOTTOM,
     xMin = MARGIN_LEFT,
-    yMax = MARGIN_BOTTOM + (cell_type_pair_grid_data.length * CELL_SIZE),
-    xMax = MARGIN_LEFT + (cell_type_pair_grid_data.length * CELL_SIZE)
+    yMax = MARGIN_BOTTOM + (grid_cell_type_data.length * CELL_SIZE),
+    xMax = MARGIN_LEFT + (grid_cell_type_data.length * CELL_SIZE)
   var xScale = d3
     .scaleLinear()
-    .domain([0, cell_type_pair_grid_data.length -1 ])
+    .domain([0, grid_cell_type_data.length -1 ])
     .range([xMin + (CELL_SIZE/2), xMax - (CELL_SIZE/2)]),
     yScale = d3
     .scaleLinear()
-    .domain([0, cell_type_pair_grid_data.length -1 ])
+    .domain([0, grid_cell_type_data.length -1 ])
     .range([yMin + (CELL_SIZE/2), yMax - (CELL_SIZE/2)]);
 
   render_x_axis_cci_cell_type_pair_search(selection_grid_obj, ticks_arr, xScale)
   render_y_axis_cci_cell_type_pair_search(selection_grid_obj, ticks_arr, yScale)
 
   var row = selection_grid_obj.selectAll(".row")
-	.data(cell_type_pair_grid_data)
+	.data(grid_cell_type_data.map(row => row.cells))
 	.enter().append("g")
 	.attr("class", "row");
 
@@ -2973,30 +2973,35 @@ function populate_cci_cell_type_pair_search_grid() {
 
   const chips_received = getSelectedTokens(["cci_search_selected_celltypes"])
   if (chips_received.length){
-    var selected_cell_types = decodeURIComponent(chips_received[0][0]).split(",");
-
-    //2. Populate grid with data for each cell, including whether the pair interact.
-    var pairs_map_data = new Array();
+    const selected_cell_types = decodeURIComponent(chips_received[0][0]).split(",");
+    tmp_grid = []
+    
     var xpos = MARGIN_LEFT, //starting xpos and ypos at 1 so the stroke will show when we make the grid below
         ypos = 0,
         ticks_arr = [];
     
     // iterate for rows	
     for (var row = 0; row < selected_cell_types.length; row++) {
-      pairs_map_data.push( new Array() );
+      tmp_row = {"row": selected_cell_types[row], "cells":[]}
       ticks_arr.push(selected_cell_types[row]);
-      
+        
       // iterate for cells/columns inside rows
       for (var column = 0; column < selected_cell_types.length; column++) {
-        pairs_map_data[row].push({
+        var clicked = true;
+        if (grid_cell_type_data.find(rows => rows.row === selected_cell_types[row])){ //If row already exists in grid data
+          if (cell_elem = grid_cell_type_data.find(rows => rows.row === selected_cell_types[row]).cells.find(cells => cells.xLabel === selected_cell_types[column])){
+            clicked = cell_elem.clicked
+          }
+        }
+        tmp_row.cells.push({
           x: xpos,
           y: ypos,
           width: CELL_SIZE,
           height: CELL_SIZE,
-          xLabel: selected_cell_types[row],
-          yLabel: selected_cell_types[column],
+          xLabel: selected_cell_types[column],
+          yLabel: selected_cell_types[row],
           interacts: selected_cell_types[row] in pairs_map && pairs_map[selected_cell_types[row]].includes(selected_cell_types[column]) ? true : false,
-          clicked: true
+          clicked: clicked
         })
         // increment the x position. I.e. move it over by width
         xpos += CELL_SIZE;
@@ -3004,9 +3009,12 @@ function populate_cci_cell_type_pair_search_grid() {
       // reset the x position after a row is complete
       xpos = MARGIN_LEFT;
       // increment the y position for the next row. Move it down by height
-      ypos += CELL_SIZE;	
+      ypos += CELL_SIZE;
+      tmp_grid.push(tmp_row);
     }
-    generate_cci_cell_type_pair_search_grid(pairs_map_data, ticks_arr);
+    grid_cell_type_data = tmp_grid;
+    
+    generate_cci_cell_type_pair_search_grid(ticks_arr);
   }
   else {
     $("#select_cell_type_pairs_grid").html("<h6>No cell types selected </h6>")
