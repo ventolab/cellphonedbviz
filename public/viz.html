@@ -687,6 +687,12 @@ function refreshCCISummaryChordPlots() {
                                                 <i class="material-icons right">clear_all</i>
                                               </button>
                                           </div>
+                                          <div style="padding-top: 10px;">
+                                            <button id="toggle_cell_pair_grid_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="toggleShowCellTypePairGrid()">
+                                              <span id="toggle_show_cell_type_pair_grid">Show select specific cell type interactions</span>
+                                              <i class="material-icons right">apps</i>
+                                            </button>
+                                          </div>
                                   </div>
                                 </div>
                               </div>
@@ -752,7 +758,7 @@ function refreshCCISummaryChordPlots() {
                             </div>
                         </div> <!-- <div class="row"> -->
                         <div class="row center">
-                          <div id="select_cell_type_pairs_grid"></div>
+                          <div id="select_cell_type_pairs_grid" hidden></div>
                         </div>
 
                           <div class="row center">

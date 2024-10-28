@@ -2691,12 +2691,12 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     const valuesToShow = $('input[name=cci_search_radio]:checked').val();
     var ret = getSelectedTokens([
         "cci_search_selected_genes", "cci_search_selected_celltypes",
-        "cci_search_selected_celltype_pairs", "cci_search_selected_interactions",
+        "cci_search_selected_interactions",
         "cci_search_selected_microenvironments", "cci_search_selected_classes"]);
     var pos=0;
     var selectedGenes = ret[pos++];
     var selectedCellTypes = ret[pos++];
-    var selectedCellTypePairs = ret[pos++];
+    var selectedCellTypePairs = [CCIGetSelectedCellTypePairs()];
     var selectedInteractions = ret[pos++];
     var selectedMicroenvironments = ret[pos++];
     var selectedClasses = ret[pos++];
@@ -2720,9 +2720,9 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
             }
             url += "interacting_pairs=" + selectedInteractions + "&";
         }
-        if (selectedCellTypes) {
+        /*if (selectedCellTypes) {
             url += "cell_types=" + selectedCellTypes + "&";
-        }
+        }*/
         if (selectedCellTypePairs) {
             url += "cell_type_pairs=" + selectedCellTypePairs + "&";
         }
@@ -3023,6 +3023,7 @@ function populate_cci_cell_type_pair_search_grid() {
   }
 }
 
+
 function toggleShowCellTypePairGrid(){
   /*Toggle visibility of grid for filtering interactions between cell type pairs*/
   
@@ -3030,6 +3031,7 @@ function toggleShowCellTypePairGrid(){
   $("#toggle_show_cell_type_pair_grid").text(show_grid ? "Hide select specific cell type interactions" : "Show select specific cell type interactions");
   $("#select_cell_type_pairs_grid").toggle();
 }
+
 
 function toggleDisableCellTypePairGrid(disabled){
   /*Either disable or enable cell type pair grid selection
@@ -3045,6 +3047,21 @@ function toggleDisableCellTypePairGrid(disabled){
   else {
     $("#toggle_cell_pair_grid_btn").removeClass('disabled');
   }
+}
+
+function CCIGetSelectedCellTypePairs(){
+  /*Returns all selected cell type pairs using cell type pair interaction search plot */
+  
+  var selected_pairs = [];
+  for (var row = 0; row < grid_cell_type_data.length; row++) {
+    // iterate for cells/columns inside rows
+    for (var cell = 0; cell < grid_cell_type_data[row].cells.length; cell++) {
+      if (grid_cell_type_data[row].cells[cell].clicked && grid_cell_type_data[row].cells[cell].interacts){
+        selected_pairs.push(grid_cell_type_data[row].cells[cell].xLabel + "|" + grid_cell_type_data[row].cells[cell].yLabel);
+      }
+    }
+  }
+  return encodeURIComponent(selected_pairs);
 }
 
 
