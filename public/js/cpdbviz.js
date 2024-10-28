@@ -319,6 +319,7 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
               $('.cci_search_selected_celltypes').hide();
               $('.cci_search_selected_celltype_pairs').empty();
               $('#cci_search_select_all_celltypes').addClass('disabled');
+              toggleDisableCellTypePairGrid(true);
             }
         } else {
             if (selected_microenvironments_div == 'sge_selected_microenvironments') {
@@ -337,6 +338,7 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
               $('.cci_search_selected_celltypes').show();
               $('#sge_select_all_celltypes').prop( "disabled", false );
               $('#cci_search_select_all_celltypes').removeClass('disabled');
+              toggleDisableCellTypePairGrid(false);
             }
         }
         // Replace any previously selected cell types in selected_celltypes_div with the ones in the selected microenvironments
@@ -3018,6 +3020,30 @@ function populate_cci_cell_type_pair_search_grid() {
   }
   else {
     $("#select_cell_type_pairs_grid").html("<h6>No cell types selected </h6>")
+  }
+}
+
+function toggleShowCellTypePairGrid(){
+  /*Toggle visibility of grid for filtering interactions between cell type pairs*/
+  
+  show_grid = $("#toggle_show_cell_type_pair_grid").text() == "Show select specific cell type interactions" ? true : false;
+  $("#toggle_show_cell_type_pair_grid").text(show_grid ? "Hide select specific cell type interactions" : "Show select specific cell type interactions");
+  $("#select_cell_type_pairs_grid").toggle();
+}
+
+function toggleDisableCellTypePairGrid(disabled){
+  /*Either disable or enable cell type pair grid selection
+  Parameters:
+    -> disabled: Boolean, true if we want to disable the grid, false if we wish to re-enable it*/
+  
+  if($("#toggle_show_cell_type_pair_grid").text() === "Hide select specific cell type interactions"){
+    toggleShowCellTypePairGrid();
+  }
+  if(disabled){
+    $("#toggle_cell_pair_grid_btn").addClass('disabled');
+  }
+  else {
+    $("#toggle_cell_pair_grid_btn").removeClass('disabled');
   }
 }
 
