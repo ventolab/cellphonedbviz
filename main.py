@@ -15,7 +15,7 @@ api = FastAPI()
 def list_projects():
     projectName2Title = dict(zip(dir_name2project_data.keys(),
                                  [x['title'] for x in dir_name2project_data.values()]))
-    return projectName2Title
+    return dict(sorted(projectName2Title.items(), key=lambda item: item[1]))
 
 @api.get("/data/{project}/{viz}")
 def get_viz_data(project: str,
