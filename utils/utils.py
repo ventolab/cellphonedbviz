@@ -16,7 +16,6 @@ CONFIG_KEYS = ['title','cell_type_data','lineage_data','celltype_composition','m
                'deconvoluted_result','deconvoluted_percents','degs','pvalues', \
                'cellsign_active_interactions_deconvoluted', 'hash', 'cellphonedb']
 VIZZES = ['celltype_composition','microenvironments','single_gene_expression', \
-          'cell_cell_interaction_specificity_ataglance',
           'cell_cell_interaction_summary','cell_cell_interaction_search']
 MAX_NUM_STACKS_IN_SANKEY_PLOTS = 6
 SIDENAV_PROPERTY_STYLE = "style=\"padding-left: 60px; font-size: 14px; margin: 20px 0px !important; \""
@@ -423,106 +422,6 @@ By aggregate mean expression, retrieve top TOP_N interaction classes, and for th
 interacting pairs (ips), and then for each ip select TOP_N cell type pairs.
 """
 
-def populate_specificity_ataglance_data(result_dict, dict_ri_flags):
-    dict_specaag = result_dict['cell_cell_interaction_specificity_ataglance']
-    dict_specaag['edges'] = []
-    for i in list(range(MAX_NUM_STACKS_IN_SANKEY_PLOTS)):
-        dict_specaag["list{}".format(i)] = []
-
-    dict_cci_search = result_dict['cell_cell_interaction_search']
-    if 'interacting_pair2classes' in dict_cci_search:
-        analysis_means = dict_cci_search['analysis_means']
-        ip2class = dict_cci_search['interacting_pair2classes']
-        aux_list = []
-        for ct_pair in dict_ri_flags:
-            for ip in dict_ri_flags[ct_pair]:
-                if ip in ip2class:
-                    ip_class = ip2class[ip]
-                else:
-                    ip_class = 'Not provided'
-                # Note the need for sum() below as in v5.0.0 of cellphonedb-data exist interacting pair duplicates,
-                # e.g. GALP_GALR1
-                mean = analysis_means.loc[ip, ct_pair].sum()
-                aux_list.append([ip, ip_class, ct_pair, mean])
-
-        aux_df = pd.DataFrame(aux_list, columns=['ip', 'ip_class', 'ct_pair', 'mean'])
-
-        # Sort ip-ct pair tuples by mean in desc order
-        aux_df.set_index(['ip_class'], inplace=True)
-        ip_ctp_df = sort_df_by_mean(aux_df, ['ip', 'ct_pair'])
-        ip_ctp_df.reset_index(drop=False, inplace=True)
-
-        # Sort ip-ipclass tuples by mean in desc order
-        aux_df.reset_index(drop=False, inplace=True)
-        aux_df.set_index(['ct_pair'], inplace=True)
-        ip_ipclass_df = sort_df_by_mean(aux_df, ['ip', 'ip_class'])
-
-        # Sort ip class by mean in desc order
-        ip_ipclass_df.reset_index(drop=False, inplace=True)
-        aux_df.reset_index(drop=False, inplace=True)
-        aux_df.drop(columns=['ct_pair', 'ip'], inplace=True)
-        ipclass_df = sort_df_by_mean(aux_df, ['ip_class'])
-
-        # Pick TOP_N ip interaction classes, by average expression
-        topN_ip_classes = ipclass_df.index.tolist()[0:TOP_N]
-        dict_specaag['list0'] = topN_ip_classes
-
-        # For each ip_class in topN_ip_classes pick top TOP_N ips, and then for each of
-        # the chosen ips, pick TOP_N ctps. Create one node for the remaining X ips and,
-        # for each ip, the remaining Y ctps
-        # Note: ret attempts to highlight expression specificity (of interacting pairs
-        # and cell type pairs), and since dict_ri_flags contains relevant interactions only,
-        # what is highlighted is cell-cell interaction specificity
-        edges = dict_specaag['edges']
-        all_elems = set([])
-        dict_specaag['num_stacks'] = 3
-        for ip_class in topN_ip_classes:
-            all_elems.add(ip_class)
-            topN_ips = []
-            aux_df = ip_ipclass_df.loc[ip_ipclass_df['ip_class'] == ip_class]
-            for l in aux_df.head(TOP_N).values.tolist():
-                ip = l[0]
-                total_mean = l[2]
-                edges.append([ip_class, total_mean, ip])
-                all_elems.add(ip)
-                topN_ips.append(ip)
-                dict_specaag['list1'].append(ip)
-            aux_df = aux_df.tail(max(aux_df.shape[0] - TOP_N, 0))
-            rem_cnt = aux_df.shape[0]
-            if rem_cnt > 0:
-                rem_elem = "Remaining {} interacting pairs".format(rem_cnt)
-                edges.append([ip_class, aux_df['mean'].sum(), rem_elem])
-                all_elems.add(rem_elem)
-                dict_specaag['list1'].append(rem_elem)
-
-            for ip in topN_ips:
-                aux_df = ip_ctp_df.loc[ip_ctp_df['ip'] == ip]
-                for l in aux_df.head(TOP_N).values.tolist():
-                    ct = l[1]
-                    total_mean = l[2]
-                    edges.append([ip, total_mean, ct])
-                    all_elems.add(ct)
-                    dict_specaag['list2'].append(ct)
-                aux_df = aux_df.tail(max(aux_df.shape[0] - TOP_N, 0))
-                rem_cnt = aux_df.shape[0]
-                if rem_cnt > 0:
-                    rem_elem = "Remaining {} cell type pairs".format(rem_cnt)
-                    edges.append([ip, aux_df['mean'].sum(), rem_elem])
-                    all_elems.add(rem_elem)
-                    dict_specaag['list2'].append(rem_elem)
-
-        dict_specaag['all_elems'] = list(sorted(all_elems))
-
-        for i in list(range(MAX_NUM_STACKS_IN_SANKEY_PLOTS)):
-            items = dict_specaag['list{}'.format(i)]
-            if items:
-                y_space = int(650 / len(items))
-                y_box = int(300 / len(items))
-            else:
-                y_space, y_box = 0, 0
-            dict_specaag['y_space{}'.format(i)] = y_space
-            dict_specaag['y_box{}'.format(i)] = y_box
-
 def sort_df_by_mean(df, cols):
     return df.groupby(cols) \
         .mean() \
@@ -542,7 +441,6 @@ def populate_relevant_interactions_data(result_dict, df, separator):
             dict_ri_flags[ct_pair] = dict(zip(df_filtered['interacting_pair'], df_filtered[ct_pair]))
         cnt += 1
     dict_cci_search['relevant_interactions'] = dict_ri_flags
-    populate_specificity_ataglance_data(result_dict, dict_ri_flags)
 
 
 

@@ -660,12 +660,7 @@ Licence: MIT Open Source licence http://www.opensource.org/licenses/mit-license.
         'fill': "#E8E2FF",
         "stroke": "#D4CBF2"
       });
-      // The Y position adjustment below is specific to 'Specificity at a glance' plot only,
-      // where interacting pair classes are the only labels with " by " in their name
       var adjustedYPos = this.labelPositionY();
-      if (this.descriptionLabelText().includes(" by ")) {
-        adjustedYPos = adjustedYPos - 15;
-      }
       this.label = r.text(this.labelPositionX(), adjustedYPos, this.descriptionLabelText()).attr(this.labelAttributes());
       if (this.bubbleValue != null) {
         this.bubble_circle = r.circle(this.x + box_width, this.y, this.bubbleSize()).attr({
