@@ -129,35 +129,29 @@ function refreshCCISummaryChordPlots() {
 
 </script>
   <body>
-        <div style="padding-right: 30px" class="valign-wrapper right">
-          <h8 >Powered by</h8>
-          <a href="https://github.com/datasome/cellphonedbviz">
-              <img src="img/cellphonedbviz_logo.png" alt="CellphoneDB Viz logo" width="200" height="43">
-          </a>
-        </div>
-        <br>
-        <h4 class="center" id="page_header"></h4>
-        <div class="col s12">
-          <div class="row">
-                <div class="card-content center">
-                   <a data-target="toc-dropdown" style="text-transform: none;" class="dropdown-trigger btn">
-                     Table of contents&nbsp;<i style="vertical-align: middle;" class="large material-icons center">format_list_bulleted</i>
-                  </a>
-                </div>
-          </div>
-        </div>
-
-        <!-- Dropdown ToC -->
         <ul id='toc-dropdown' class='dropdown-content'>
-             <div class="toc-header left">Input dataset: overview</div>
-          <li id="toc_ctcomp"><a name="#ctcomp_title" >Cell composition</a></li>
-          <li id="toc_spme"><a href="#spme_title">Spatial microenvironments</a></li>
+          <div class="toc-header left">Input dataset: overview</div>
+          <li class="blue-text text-darken-4"><a name="#ctcomp_title" >Cell composition</a></li>
+          <li class="blue-text text-darken-4"><a href="#spme_title">Spatial microenvironments</a></li>
           <li class="divider"></li>
-             <div class="toc-header left">CellphoneDB predictions</div>
-          <li><a href="#cci_summary_title">Cell-cell Communication - Summary</a></li>
-          <li><a href="#cci_search_title">Cell-cell Communication - Search</a></li>
-          <li><a href="#sge_title">Single gene expression</a></li>
+              <div class="toc-header left">CellphoneDB predictions</div>
+          <li class="blue-text text-darken-4"><a href="#cci_summary_title">Cell-cell Communication - Summary</a></li>
+          <li class="blue-text text-darken-4"><a href="#cci_search_title">Cell-cell Communication - Search</a></li>
+          <li class="blue-text text-darken-4"><a href="#sge_title">Single gene expression</a></li>
         </ul>
+        <div class="navbar-fixed">
+          <nav class="blue darken-3">
+            <div class="nav-wrapper">
+              <a href="https://github.com/datasome/cellphonedbviz">
+                <img src="img/cellphonedbviz_logo.png" alt="CellphoneDB Viz logo" width="200" height="43">
+              </a>
+              <ul class="right hide-on-med-and-down">
+                <li><a class="dropdown-trigger waves-effect waves-light btn blue darken-4" data-target="toc-dropdown">Contents<i class="material-icons right">arrow_drop_down</i></a></li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+        <h4 class="center" id="page_header"></h4>
 
         <div class="col s12">
           <div class="row">
