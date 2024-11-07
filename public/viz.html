@@ -127,6 +127,11 @@ function refreshCCISummaryChordPlots() {
  // Regenerate chord plots when the user clicks on the 'Refresh plots' button
  document.querySelector('#refresh_cci_summary_plots').addEventListener('click', refreshCCISummaryChordPlots);
 
+ var instance = M.Tabs.init($('.tabs'));
+ $(document).ready(function(){
+    $('.tabs').tabs();
+  });
+
 </script>
   <body>
         <div style="padding-right: 30px" class="valign-wrapper right">
@@ -790,6 +795,23 @@ function refreshCCISummaryChordPlots() {
               </div> <!-- <div class="row"> -->
           </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
+        <div class="card" id="cci-display-box">
+          <div class="row" id="cci-tabs-row">
+            <div class="col s12">
+              <ul class="tabs" id="cci-tabs">
+                <li class="tab col s3"><a class="active" href="#cci-summary">Summary</a></li>
+                <li class="tab col s3"><a href="#cci-search">Search</a></li>
+                <li class="tab col s3"><a href="#single-gene-expr">Single gene expression</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="row" id="cci-display-panel">
+            <div id="cci-config" class="col s3">CONFIG_PANEL</div>
+            <div id="cci-summary" class="col s9 cci-display">Cell-Cell Interaction Summary</div>
+            <div id="cci-search" class="col s9 cci-display">Cell-Cell Interaction Search</div>
+            <div id="single-gene-expr" class="col s9 cci-display">Single Gene Expression</div>
+          </div>
+        </div>
 
         <div class="valign-wrapper">
           <h8 style="padding-left: 30px">Powered by</h8>
