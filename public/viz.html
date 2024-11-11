@@ -208,11 +208,9 @@ function refreshCCISummaryChordPlots() {
           </div> <!-- <div class="row"> -->
         </div> <!-- <div class="col s12"> -->
 
+        <!---FILTERS FOR CELL-CELL COMMUNICATION SUMMARY-->
         <div class="col s12">
           <div class="card">
-              <div class="card-content col s12">
-                <span id="cci_summary_title" class="card card-title center blue-text">Cell-cell Communication - Summary</span>
-              </div>
                 <ul class="collapsible">
                     <li>
                       <div class="collapsible-header center search-header"><i class="material-icons">expand_more</i>Manage filters</div>
@@ -272,249 +270,12 @@ function refreshCCISummaryChordPlots() {
                       </div>
                     </li>
                 </ul>
-              <div id="cci_summary_spinner" class="container center" hidden>
-                  <div class="preloader-wrapper active center">
-                    <div class="spinner-layer spinner-red-only">
-                      <div class="circle-clipper left">
-                        <div class="circle"></div>
-                      </div><div class="gap-patch">
-                        <div class="circle"></div>
-                      </div><div class="circle-clipper right">
-                        <div class="circle"></div>
-                      </div>
-                    </div>
-                  </div>
-              </div>
-              <div id="cci_summary_error" class="container center red-text" style="padding-top: 20px;" hidden></div>
-              <div class="row">
-                <!-- Cell cell interaction plot - All cell types-->
-                <div id="cci0_div" hidden>
-                  <div class="col s12 m6 l6">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci0','cci_summary_title','cci0_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                        </button>
-                          <span id="cci_summary_all_celltypes_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the number of significant interactions between each cell type pair.
-                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions'
-                           (and 'microenvironments' and 'interaction_scores' if applicable)">info_outline</i>
-                          </span>
-                        <div id="cci0_header" hidden></div>
-                          <div id="cci0" style="width:1000px"></div>
-                          <div id="cci0_chord" style="width:1000px" hidden></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <!-- Cell cell interaction plot - Microenvironment 1 -->
-                <div id="cci1_div" hidden>
-                  <div class="col s12 m4 l4">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci1','cci_summary_title','cci1_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                        </button>
-                          <span id="cci_summary_me1_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
-                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
-                           (and 'interaction_scores' if applicable)">info_outline</i>
-                          </span>
-                        <div id="cci1_header" hidden></div>
-                          <div id="cci1" style="width:400px"></div>
-                          <div id="cci1_chord" style="width:400px" hidden></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Cell cell interaction plot - Microenvironment 2 -->
-                <div id="cci2_div" hidden>
-                  <div class="col s12 m4 l4">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci2','cci_summary_title','cci2_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                        </button>
-                          <span id="cci_summary_me2_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
-                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
-                           (and 'interaction_scores' if applicable)">info_outline</i>
-                          </span>
-                        <div id="cci2_header" hidden></div>
-                          <div id="cci2" style="width:400px"></div>
-                          <div id="cci2_chord" style="width:400px" hidden></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Cell cell interaction plot - Microenvironment 3 -->
-                <div id="cci3_div" hidden>
-                  <div class="col s12 m4 l4">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci3','cci_summary_title','cci3_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                        </button>
-                          <span id="cci_summary_me3_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
-                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
-                           (and 'interaction_scores' if applicable)">info_outline</i>
-                          </span>
-                        <div id="cci3_header" hidden></div>
-                          <div id="cci3" style="width:400px"></div>
-                          <div id="cci3_chord" style="width:400px" hidden></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div> <!-- <div class="row"> -->
-
-              <div class="row">
-                <!-- Cell cell interaction plot - Microenvironment 4 -->
-                <div id="cci4_div" hidden>
-                  <div class="col s12 m4 l4">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci4','cci_summary_title','cci4_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                        </button>
-                          <span id="cci_summary_me4_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
-                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
-                           (and 'interaction_scores' if applicable)">info_outline</i>
-                          </span>
-                        <div id="cci4_header" hidden></div>
-                          <div id="cci4" style="width:400px"></div>
-                          <div id="cci4_chord" style="width:400px" hidden></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Cell cell interaction plot - Microenvironment 5 -->
-                <div id="cci5_div" hidden>
-                  <div class="col s12 m4 l4">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci5','cci_summary_title','cci5_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                        </button>
-                          <span id="cci_summary_me5_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
-                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
-                           (and 'interaction_scores' if applicable)">info_outline</i>
-                          </span>
-                        <div id="cci5_header" hidden></div>
-                          <div id="cci5" style="width:400px"></div>
-                          <div id="cci5_chord" style="width:400px" hidden></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Cell cell interaction plot - Microenvironment 6 -->
-                <div id="cci6_div" hidden>
-                  <div class="col s12 m4 l4">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci6','cci_summary_title','cci6_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                        </button>
-                          <span id="cci_summary_me6_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
-                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
-                           (and 'interaction_scores' if applicable)">info_outline</i>
-                          </span>
-                        <div id="cci6_header" hidden></div>
-                          <div id="cci6" style="width:400px"></div>
-                          <div id="cci6_chord" style="width:400px" hidden></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div> <!-- <div class="row"> -->
-             <div class="row">
-                <!-- Cell cell interaction plot - Microenvironment 7 -->
-                <div id="cci7_div" hidden>
-                  <div class="col s12 m4 l4">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci7','cci_summary_title','cci7_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                        </button>
-                          <span id="cci_summary_me7_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
-                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
-                           (and 'interaction_scores' if applicable)">info_outline</i>
-                          </span>
-                        <div id="cci7_header" hidden></div>
-                          <div id="cci7" style="width:400px"></div>
-                          <div id="cci7_chord" style="width:400px" hidden></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Cell cell interaction plot - Microenvironment 8 -->
-                <div id="cci8_div" hidden>
-                  <div class="col s12 m4 l4">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci8','cci_summary_title','cci8_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                        </button>
-                          <span id="cci_summary_me8_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
-                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
-                           (and 'interaction_scores' if applicable)">info_outline</i>
-                          </span>
-                        <div id="cci8_header" hidden></div>
-                          <div id="cci8" style="width:400px"></div>
-                          <div id="cci8_chord" style="width:400px" hidden></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Cell cell interaction plot - Microenvironment 9 -->
-                <div id="cci9_div" hidden>
-                  <div class="col s12 m4 l4">
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci9','cci_summary_title','cci9_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                        </button>
-                          <span id="cci_summary_me9_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
-                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
-                           (and 'interaction_scores' if applicable)">info_outline</i>
-                          </span>
-                        <div id="cci9_header" hidden></div>
-                          <div id="cci9" style="width:400px"></div>
-                          <div id="cci9_chord" style="width:400px" hidden></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div> <!-- <div class="row"> -->
+              
             </div>  <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
-
+        <!--FILTERS FOR CELL-CELL INTERACTION SEARCH-->
         <div class="col s12">
            <div style="padding-left: 30px; padding-right: 30px;" class="card">
-                <div class="card-content col s12">
-                  <span id="cci_search_title" class="card card-title center blue-text">Cell-cell Communication - Search</span>
-<!--                      <span id="ccis_input_header" class="card-title center" style="font-size: 16px;">Placeholder/span>-->
-                </div>
-
                  <ul class="collapsible">
                     <li>
                       <div class="collapsible-header center search-header"><i class="material-icons">expand_more</i>Manage filters</div>
@@ -633,67 +394,17 @@ function refreshCCISummaryChordPlots() {
                 <div class="col s12">
                   <div class="card">
                     <div class="card-content black-text col s12">
-                        <div id="cci_search_spinner" class="container center">
-                          <div class="preloader-wrapper active center">
-                            <div class="spinner-layer spinner-red-only">
-                              <div class="circle-clipper left">
-                                <div class="circle"></div>
-                              </div><div class="gap-patch">
-                                <div class="circle"></div>
-                              </div><div class="circle-clipper right">
-                                <div class="circle"></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci_search','cci_search_title','cci_search_header')">
-                           <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                      </button>
-                     <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                           <i id="interacting_pair_help" class="material-icons left tooltipped" data-tooltip=
-                                   "This plot shows significant interactions across the selected cell type/interacting pairs.
-                                   <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions'
-                           (and 'microenvironments', 'interaction_scores' and 'pvalues' if applicable respectively)<p />"
-                           >info_outline</i>
-                      </span>
-                      <div style="padding-top: 20px;">
-                          <span class="black-text text-lighten+10 switch-label">Show: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                          <label>
-                              <input name="cci_search_radio" value="means" type="radio" class="with-gap" checked>
-                              <span class="black-text text-lighten-10 switch-label">mean expressions</span>
-                          </label>
-                          <label>
-                              <input name="cci_search_radio" value="zscores" type="radio" class="with-gap">
-                              <span class="black-text text-lighten-10 switch-label">z-scores</span>
-                          </label>
-                          <label id="rb_scores" hidden>
-                              <input name="cci_search_radio" value="scores" type="radio" class="with-gap">
-                              <span class="black-text text-lighten-10 switch-label">scores</span>
-                          </label>
-                      </div>
-                      <div class="switch" style="padding-top: 20px;">
-                        <label>
-                          <span class="black-text text-lighten+10 switch-label">Sort interacting pairs:&nbsp;&nbsp;&nbsp;</span>
-                          <span class="black-text text-lighten-10 switch-label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by expression</span>
-                          <input id="cci_search_sort_ips_switch" type="checkbox">
-                          <span class="lever"></span>
-                          <span class="black-text text-lighten-10 switch-label">alphabetically</span>
-                        </label>
-                      </div>
-                      <div id="cci_search_header" hidden></div>
-                        <div id="cci_search_sidenav_content"></div>
-                        <div id="cci_search" style="width:1400px"></div>
-                    </div>
+                        
+                    
                   </div>
                 </div>
 <!--              </div> &lt;!&ndash; <div class="row"> &ndash;&gt;-->
           </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
+
+        <!--SINGLE GENE EXPRESSION FILTERS-->
         <div class="col s12">
           <div class="card">
-              <div class="card-content col s12">
-                <span id="sge_title" class="card card-title center blue-text">Single gene expression</span>
-              </div>
               <div class="row">
                   <div id="search_results" hidden>
                     <div class="card">
@@ -762,54 +473,356 @@ function refreshCCISummaryChordPlots() {
                           </div>
                         </li>
                       </ul>
-                  </div>
-
-                  <div class="col s12 m9 l9 push-s1">
-                    <div id="sge_spinner" class="container center" hidden>
-                      <div class="preloader-wrapper active center">
-                        <div class="spinner-layer spinner-red-only">
-                          <div class="circle-clipper left">
-                            <div class="circle"></div>
-                          </div><div class="gap-patch">
-                            <div class="circle"></div>
-                          </div><div class="circle-clipper right">
-                            <div class="circle"></div>
-                          </div>
-                        </div>
-                      </div>
                     </div>
-                    <div class="card">
-                        <div class="card-content black-text col s12">
-                          <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('sge','sge_title','sge_header')">
-                              <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                          </button>
-                          <span id="sge_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                            <i class="material-icons left tooltipped"
-                                data-tooltip="The plot shows mean expressions of the genes/complexes and cell types/microenvironments selected in the filter. The data comes from files specified in the configuration keys: 'deconvoluted_result', 'deconvoluted_percents' and 'microenvironments'.">info_outline</i>
-                          </span>
-                          <div id="sge_header" hidden></div>
-                            <div id="sge" style="width:1000px"></div>
-                        </div>
-                    </div>
-                  </div>
               </div> <!-- <div class="row"> -->
           </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
-        <div class="card" id="cci-display-box">
+        <div class="card border-card" id="cci-display-box">
           <div class="row" id="cci-tabs-row">
             <div class="col s12">
               <ul class="tabs" id="cci-tabs">
-                <li class="tab col s3"><a class="active" href="#cci-summary">Summary</a></li>
-                <li class="tab col s3"><a href="#cci-search">Search</a></li>
-                <li class="tab col s3"><a href="#single-gene-expr">Single gene expression</a></li>
+                <li class="tab col s3 blue-text text-darken-4"><a class="active" href="#cci-summary">Summary</a></li>
+                <li class="tab col s3 blue-text text-darken-4"><a href="#cci-search">Search</a></li>
+                <li class="tab col s3 blue-text text-darken-4"><a href="#single-gene-expr">Single gene expression</a></li>
               </ul>
             </div>
           </div>
           <div class="row" id="cci-display-panel">
-            <div id="cci-config" class="col s3">CONFIG_PANEL</div>
-            <div id="cci-summary" class="col s9 cci-display">Cell-Cell Interaction Summary</div>
-            <div id="cci-search" class="col s9 cci-display">Cell-Cell Interaction Search</div>
-            <div id="single-gene-expr" class="col s9 cci-display">Single Gene Expression</div>
+            <div id="cci-config" class="col s3">
+              <div class="card border-card">
+                <h6 class="center-align">SELECT cell types</h5>
+                <div id="cell-type-or-microenvironment"></div>
+                <div id="microenvironment-select"></div>
+                <div id="cell-type-select"></div>
+              </div>
+              <div class="card border-card">
+                <h6 class="center-align">SELECT interactions</h5>
+                <div id="interaction-classification-select"></div>
+                <div id="gene-select"></div>
+                <div id="gene-pair-select"></div>
+              </div>
+              <div class="apply-or-restore-filters"></div>
+            </div>
+            <div id="cci-summary" class="col s9 cci-display">
+              <span id="cci_summary_title" class="card card-title center blue-text">Cell-cell Communication - Summary</span>
+              <div id="cci_summary_spinner" class="container center" hidden>
+                <div class="preloader-wrapper active center">
+                  <div class="spinner-layer spinner-red-only">
+                    <div class="circle-clipper left">
+                      <div class="circle"></div>
+                    </div><div class="gap-patch">
+                      <div class="circle"></div>
+                    </div><div class="circle-clipper right">
+                      <div class="circle"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="cci_summary_error" class="container center red-text" style="padding-top: 20px;" hidden></div>
+              <div class="row">
+                <!-- Cell cell interaction plot - All cell types-->
+                <div id="cci0_div" hidden>
+                  <div class="col s12 m6 l6">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci0','cci_summary_title','cci0_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                        </button>
+                          <span id="cci_summary_all_celltypes_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                          data-tooltip="The plot shows the number of significant interactions between each cell type pair.
+                          <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions'
+                          (and 'microenvironments' and 'interaction_scores' if applicable)">info_outline</i>
+                          </span>
+                        <div id="cci0_header" hidden></div>
+                          <div id="cci0" style="width:1000px"></div>
+                          <div id="cci0_chord" style="width:1000px" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <!-- Cell cell interaction plot - Microenvironment 1 -->
+                <div id="cci1_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci1','cci_summary_title','cci1_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                        </button>
+                          <span id="cci_summary_me1_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                          data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
+                          <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
+                          (and 'interaction_scores' if applicable)">info_outline</i>
+                          </span>
+                        <div id="cci1_header" hidden></div>
+                          <div id="cci1" style="width:400px"></div>
+                          <div id="cci1_chord" style="width:400px" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cell cell interaction plot - Microenvironment 2 -->
+                <div id="cci2_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci2','cci_summary_title','cci2_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                        </button>
+                          <span id="cci_summary_me2_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                          data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
+                          <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
+                          (and 'interaction_scores' if applicable)">info_outline</i>
+                          </span>
+                        <div id="cci2_header" hidden></div>
+                          <div id="cci2" style="width:400px"></div>
+                          <div id="cci2_chord" style="width:400px" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cell cell interaction plot - Microenvironment 3 -->
+                <div id="cci3_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci3','cci_summary_title','cci3_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                        </button>
+                          <span id="cci_summary_me3_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                          data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
+                          <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
+                          (and 'interaction_scores' if applicable)">info_outline</i>
+                          </span>
+                        <div id="cci3_header" hidden></div>
+                          <div id="cci3" style="width:400px"></div>
+                          <div id="cci3_chord" style="width:400px" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- <div class="row"> -->
+
+              <div class="row">
+                <!-- Cell cell interaction plot - Microenvironment 4 -->
+                <div id="cci4_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci4','cci_summary_title','cci4_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                        </button>
+                          <span id="cci_summary_me4_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                          data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
+                          <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
+                          (and 'interaction_scores' if applicable)">info_outline</i>
+                          </span>
+                        <div id="cci4_header" hidden></div>
+                          <div id="cci4" style="width:400px"></div>
+                          <div id="cci4_chord" style="width:400px" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cell cell interaction plot - Microenvironment 5 -->
+                <div id="cci5_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci5','cci_summary_title','cci5_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                        </button>
+                          <span id="cci_summary_me5_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                          data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
+                          <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
+                          (and 'interaction_scores' if applicable)">info_outline</i>
+                          </span>
+                        <div id="cci5_header" hidden></div>
+                          <div id="cci5" style="width:400px"></div>
+                          <div id="cci5_chord" style="width:400px" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cell cell interaction plot - Microenvironment 6 -->
+                <div id="cci6_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci6','cci_summary_title','cci6_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                        </button>
+                          <span id="cci_summary_me6_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                          data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
+                          <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
+                          (and 'interaction_scores' if applicable)">info_outline</i>
+                          </span>
+                        <div id="cci6_header" hidden></div>
+                          <div id="cci6" style="width:400px"></div>
+                          <div id="cci6_chord" style="width:400px" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- <div class="row"> -->
+              <div class="row">
+                <!-- Cell cell interaction plot - Microenvironment 7 -->
+                <div id="cci7_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci7','cci_summary_title','cci7_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                        </button>
+                          <span id="cci_summary_me7_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                          data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
+                          <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
+                          (and 'interaction_scores' if applicable)">info_outline</i>
+                          </span>
+                        <div id="cci7_header" hidden></div>
+                          <div id="cci7" style="width:400px"></div>
+                          <div id="cci7_chord" style="width:400px" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cell cell interaction plot - Microenvironment 8 -->
+                <div id="cci8_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci8','cci_summary_title','cci8_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                        </button>
+                          <span id="cci_summary_me8_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                          data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
+                          <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
+                          (and 'interaction_scores' if applicable)">info_outline</i>
+                          </span>
+                        <div id="cci8_header" hidden></div>
+                          <div id="cci8" style="width:400px"></div>
+                          <div id="cci8_chord" style="width:400px" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cell cell interaction plot - Microenvironment 9 -->
+                <div id="cci9_div" hidden>
+                  <div class="col s12 m4 l4">
+                    <div class="card">
+                      <div class="card-content black-text col s12">
+                        <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci9','cci_summary_title','cci9_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                        </button>
+                          <span id="cci_summary_me9_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                            <i class="material-icons left tooltipped"
+                          data-tooltip="The plot shows the number of significant interactions between each cell type pair in this microenviroment.
+                          <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
+                          (and 'interaction_scores' if applicable)">info_outline</i>
+                          </span>
+                        <div id="cci9_header" hidden></div>
+                          <div id="cci9" style="width:400px"></div>
+                          <div id="cci9_chord" style="width:400px" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="cci-search" class="col s9 cci-display">
+              <span id="cci_search_title" class="card card-title center blue-text">Cell-cell Communication - Search</span>
+              <div id="cci_search_spinner" class="container center">
+                <div class="preloader-wrapper active center">
+                  <div class="spinner-layer spinner-red-only">
+                    <div class="circle-clipper left">
+                      <div class="circle"></div>
+                    </div><div class="gap-patch">
+                      <div class="circle"></div>
+                    </div><div class="circle-clipper right">
+                      <div class="circle"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci_search','cci_search_title','cci_search_header')">
+                <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+              </button>
+              <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                <i id="interacting_pair_help" class="material-icons left tooltipped" data-tooltip=
+                        "This plot shows significant interactions across the selected cell type/interacting pairs.
+                        <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions'
+                (and 'microenvironments', 'interaction_scores' and 'pvalues' if applicable respectively)<p />"
+                >info_outline</i>
+              </span>
+              <div style="padding-top: 20px;">
+                <span class="black-text text-lighten+10 switch-label">Show: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <label>
+                  <input name="cci_search_radio" value="means" type="radio" class="with-gap" checked>
+                  <span class="black-text text-lighten-10 switch-label">mean expressions</span>
+                </label>
+                <label>
+                  <input name="cci_search_radio" value="zscores" type="radio" class="with-gap">
+                  <span class="black-text text-lighten-10 switch-label">z-scores</span>
+                </label>
+                <label id="rb_scores" hidden>
+                  <input name="cci_search_radio" value="scores" type="radio" class="with-gap">
+                  <span class="black-text text-lighten-10 switch-label">scores</span>
+                </label>
+              </div>
+              <div class="switch" style="padding-top: 20px;">
+                <label>
+                  <span class="black-text text-lighten+10 switch-label">Sort interacting pairs:&nbsp;&nbsp;&nbsp;</span>
+                  <span class="black-text text-lighten-10 switch-label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by expression</span>
+                  <input id="cci_search_sort_ips_switch" type="checkbox">
+                  <span class="lever"></span>
+                  <span class="black-text text-lighten-10 switch-label">alphabetically</span>
+                </label>
+              </div>
+              <div id="cci_search_header" hidden></div>
+              <div id="cci_search_sidenav_content"></div>
+              <div id="cci_search" style="width:1400px"></div>
+            </div>
+            <div id="single-gene-expr" class="col s9 cci-display">
+              <span id="sge_title" class="card card-title center blue-text">Single gene expression</span>
+              <div class="col s12 m9 l9 push-s1">
+                <div id="sge_spinner" class="container center" hidden>
+                  <div class="preloader-wrapper active center">
+                    <div class="spinner-layer spinner-red-only">
+                      <div class="circle-clipper left">
+                        <div class="circle"></div>
+                      </div><div class="gap-patch">
+                        <div class="circle"></div>
+                      </div><div class="circle-clipper right">
+                        <div class="circle"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                    <div class="card-content black-text col s12">
+                      <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('sge','sge_title','sge_header')">
+                          <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                      </button>
+                      <span id="sge_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                        <i class="material-icons left tooltipped"
+                            data-tooltip="The plot shows mean expressions of the genes/complexes and cell types/microenvironments selected in the filter. The data comes from files specified in the configuration keys: 'deconvoluted_result', 'deconvoluted_percents' and 'microenvironments'.">info_outline</i>
+                      </span>
+                      <div id="sge_header" hidden></div>
+                        <div id="sge" style="width:1000px"></div>
+                    </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
