@@ -390,15 +390,6 @@ function refreshCCISummaryChordPlots() {
                         </div>
                     </li>
                 </ul>
-
-                <div class="col s12">
-                  <div class="card">
-                    <div class="card-content black-text col s12">
-                        
-                    
-                  </div>
-                </div>
-<!--              </div> &lt;!&ndash; <div class="row"> &ndash;&gt;-->
           </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
 
@@ -487,6 +478,7 @@ function refreshCCISummaryChordPlots() {
               </ul>
             </div>
           </div>
+          <!--Config panel for CellphoneDB predictions-->
           <div class="row" id="cci-display-panel">
             <div id="cci-config" class="col s3">
               <div class="card border-card">
@@ -503,8 +495,9 @@ function refreshCCISummaryChordPlots() {
               </div>
               <div class="apply-or-restore-filters"></div>
             </div>
+            <!---Cell-Cell Communication Summary Display-->
             <div id="cci-summary" class="col s9 cci-display">
-              <span id="cci_summary_title" class="card card-title center blue-text">Cell-cell Communication - Summary</span>
+              <h4 id="cci_summary_title">Cell-cell Communication - Summary</h4>
               <div id="cci_summary_spinner" class="container center" hidden>
                 <div class="preloader-wrapper active center">
                   <div class="spinner-layer spinner-red-only">
@@ -578,7 +571,7 @@ function refreshCCISummaryChordPlots() {
                           <br>The data comes from files specified in the configuration keys: 'analysis_means', 'relevant_interactions', 'microenvironments'
                           (and 'interaction_scores' if applicable)">info_outline</i>
                           </span>
-                        <div id="cci2_header" hidden></div>
+                          <div id="cci2_header" hidden></div>
                           <div id="cci2" style="width:400px"></div>
                           <div id="cci2_chord" style="width:400px" hidden></div>
                       </div>
@@ -739,8 +732,9 @@ function refreshCCISummaryChordPlots() {
                 </div>
               </div>
             </div>
+            <!---Cell-Cell Communication Search Display-->
             <div id="cci-search" class="col s9 cci-display">
-              <span id="cci_search_title" class="card card-title center blue-text">Cell-cell Communication - Search</span>
+              <h4 id="cci_search_title">Cell-cell Communication - Search</h4>
               <div id="cci_search_spinner" class="container center">
                 <div class="preloader-wrapper active center">
                   <div class="spinner-layer spinner-red-only">
@@ -793,7 +787,7 @@ function refreshCCISummaryChordPlots() {
               <div id="cci_search" style="width:1400px"></div>
             </div>
             <div id="single-gene-expr" class="col s9 cci-display">
-              <span id="sge_title" class="card card-title center blue-text">Single gene expression</span>
+              <h4 id="sge_title">Single gene expression</h4>
               <div class="col s12 m9 l9 push-s1">
                 <div id="sge_spinner" class="container center" hidden>
                   <div class="preloader-wrapper active center">

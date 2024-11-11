@@ -79,18 +79,18 @@ nav ul li a, h5 {
  #cci-display-box {
   padding-top: 5px;
   min-height: 90vh;
-  height:1px;
   width: 95%;
   margin: auto;
   display: flex;
   flex-direction: column;
-  overflow-y: hidden;
 }
 
 #cci-display-panel {
-  flex: 1;
   margin-left: 0;
   margin-right: 0;
+  height: 100%;
+  flex: 1;
+  display: flex;
 }
 
 .cci-display {
@@ -128,7 +128,6 @@ nav ul li a, h5 {
 }
 
 #cci-config {
-  height: 100%;
   border-right: solid;
   border-color: hsl(0, 0%, 71%);
   border-width: thin;
