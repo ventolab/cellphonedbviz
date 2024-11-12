@@ -142,19 +142,17 @@ function refreshCCISummaryChordPlots() {
         </div>
         <br>
         <h4 class="center" id="page_header"></h4>
-        <div class="col s12">
-          <div class="row">
-                <div class="card-content center">
-                   <a data-target="toc-dropdown" style="text-transform: none;" class="dropdown-trigger btn">
-                     Table of contents&nbsp;<i style="vertical-align: middle;" class="large material-icons center">format_list_bulleted</i>
-                  </a>
-                </div>
-          </div>
+        <div class="row">
+              <div class="card-content center">
+                  <a data-target="toc-dropdown" style="text-transform: none;" class="dropdown-trigger btn">
+                    Table of contents&nbsp;<i style="vertical-align: middle;" class="large material-icons center">format_list_bulleted</i>
+                </a>
+              </div>
         </div>
 
         <!-- Dropdown ToC -->
         <ul id='toc-dropdown' class='dropdown-content'>
-             <div class="toc-header left">Input dataset: overview</div>
+          <div class="toc-header left">Input dataset: overview</div>
           <li id="toc_ctcomp"><a name="#ctcomp_title" >Cell composition</a></li>
           <li id="toc_spme"><a href="#spme_title">Spatial microenvironments</a></li>
           <li class="divider"></li>
@@ -164,50 +162,42 @@ function refreshCCISummaryChordPlots() {
           <li><a href="#sge_title">Single gene expression</a></li>
         </ul>
 
-        <div class="col s12">
-          <div class="row">
-            <!-- Celltype composition sankey plot -->
-            <div>
-              <div class="col s12 m6 l6">
-                <div class="card">
-                  <div class="card-content black-text col s12">
-                    <span id="ctcomp_title" class="card card-title center blue-text">Cell composition</span>
-                    <button id="ctcomp_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('ctcomp','ctcomp_title','ctcomp_header')">
-                        <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                    </button>
-                      <span id="celltype_composition_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                        <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the mapping between different cell type characteristics specified in the file under the configuration key: 'celltype_composition'">info_outline</i>
-                      </span>
-                      <div id="ctcomp_header" hidden></div>
-                      <div id="ctcomp" style="width:1500px;height:700px"></div>
-                  </div>
-                </div>
-              </div>
-
-            <!-- Spatial micro-environments plot -->
-            <div>
-              <div class="col s12 m6 l6">
-                <div class="card">
-                  <div class="card-content black-text col s12">
-                    <span id="spme_title" class="card card-title center blue-text">Spatial microenvironments</span>
-                    <button id="spme_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('spme','spme_title','spme_header')">
-                        <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                    </button>
-                      <span id="spme_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                        <i class="material-icons left tooltipped"
-                           data-tooltip="The plot shows the mapping between cell types and microenvironments specified in the file under the configuration key: 'microenvironments'">info_outline</i>
-                      </span>
-                    <div id="spme_header" hidden>Cell Type - Microenvironment</div>
-                      <div id="spme" style="width:800px"></div>
-                  </div>
-                </div>
-              </div>
-
+        <div class="row">
+          <!-- Celltype composition sankey plot -->
+          <div class="card">
+            <div class="card-content black-text col s12">
+              <span id="ctcomp_title" class="card card-title center blue-text">Cell composition</span>
+              <button id="ctcomp_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('ctcomp','ctcomp_title','ctcomp_header')">
+                  <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+              </button>
+                <span id="celltype_composition_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                  <i class="material-icons left tooltipped"
+                      data-tooltip="The plot shows the mapping between different cell type characteristics specified in the file under the configuration key: 'celltype_composition'">info_outline</i>
+                </span>
+                <div id="ctcomp_header" hidden></div>
+                <div id="ctcomp" style="width:1500px;height:700px;justify-content: center;"></div>
             </div>
-          </div> <!-- <div class="row"> -->
-        </div> <!-- <div class="col s12"> -->
+          </div>
+        </div>
 
+        <!-- Spatial micro-environments plot -->
+        <div class="row">
+          <div class="card">
+            <div class="card-content black-text col s12">
+              <span id="spme_title" class="card card-title center blue-text">Spatial microenvironments</span>
+              <button id="spme_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('spme','spme_title','spme_header')">
+                  <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+              </button>
+              <span id="spme_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                <i class="material-icons left tooltipped"
+                    data-tooltip="The plot shows the mapping between cell types and microenvironments specified in the file under the configuration key: 'microenvironments'">info_outline</i>
+              </span>
+              <div id="spme_header" hidden>Cell Type - Microenvironment</div>
+              <div id="spme" style="width:800px"></div>
+            </div>
+          </div>
+        </div>
+        
         <!---FILTERS FOR CELL-CELL COMMUNICATION SUMMARY-->
         <div class="col s12">
           <div class="card">
@@ -469,14 +459,12 @@ function refreshCCISummaryChordPlots() {
           </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
         <div class="card border-card" id="cci-display-box">
-          <div class="row" id="cci-tabs-row">
-            <div class="col s12">
-              <ul class="tabs" id="cci-tabs">
+          <div id="cci-tabs-row">
+              <ul class="tabs center" id="cci-tabs">
                 <li class="tab col s3 blue-text text-darken-4"><a class="active" href="#cci-summary">Summary</a></li>
                 <li class="tab col s3 blue-text text-darken-4"><a href="#cci-search">Search</a></li>
                 <li class="tab col s3 blue-text text-darken-4"><a href="#single-gene-expr">Single gene expression</a></li>
               </ul>
-            </div>
           </div>
           <!--Config panel for CellphoneDB predictions-->
           <div class="row" id="cci-display-panel">

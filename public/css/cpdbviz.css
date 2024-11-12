@@ -94,7 +94,7 @@ nav ul li a, h5 {
 }
 
 .cci-display {
-  overflow: scroll;
+  overflow-x: scroll;
 }
 
 #cci-tabs-row, #cci-display-panel {
