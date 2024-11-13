@@ -133,6 +133,28 @@ function refreshCCISummaryChordPlots() {
   });
 
 </script>
+
+<!--SCRIPTS NEEDED FOR ACCESS WITHIN BODY-->
+<script>
+  function deactivateFilter(value, index, array){
+    /*Given ID of filter to deactivate, switch off its checkbox and hide its inner contents*/
+    $(`#${value}`).prop('checked', false);
+    $(`#${value}-select`).hide();
+  }
+  function toggleFilterVisibility(filter_change_elem) {
+    /*Handle selection of different filter where filters are mutually exclusive (e.g. cell type and microenvironment).
+    Deactivates other filter accordingly*/
+
+    //map of filters to other filters that should be deactivated when this is activated.
+    const filter_swap_map = {"celltypefilter": ["microenvironmentfilter"], "microenvironmentfilter": ["celltypefilter"], "interactionclassfilter": ["genefilter", "genepairfilter"], "genefilter": ["interactionclassfilter", "genepairfilter"], "genepairfilter": ["interactionclassfilter", "genefilter"]}
+    //1. Deactivate all other filters involved with this one (defined in filter_swap_map) if now checked.
+    if (filter_change_elem.checked) {
+      filter_swap_map[filter_change_elem.name].forEach(deactivateFilter);
+    }
+    //2. Toggle filter contents selection (if checked show else hide)
+    $(`#${filter_change_elem.name}-select`).toggle();
+}
+</script>
   <body>
         <div style="padding-right: 30px" class="valign-wrapper right">
           <h8 >Powered by</h8>
@@ -469,18 +491,63 @@ function refreshCCISummaryChordPlots() {
           <!--Config panel for CellphoneDB predictions-->
           <div class="row" id="cci-display-panel">
             <div id="cci-config" class="col s3">
-              <div class="card border-card">
-                <h6 class="center-align">SELECT cell types</h5>
-                <div id="cell-type-or-microenvironment"></div>
-                <div id="microenvironment-select"></div>
-                <div id="cell-type-select"></div>
-              </div>
-              <div class="card border-card">
-                <h6 class="center-align">SELECT interactions</h5>
-                <div id="interaction-classification-select"></div>
-                <div id="gene-select"></div>
-                <div id="gene-pair-select"></div>
-              </div>
+              <ul class="collapsible">
+                <li>
+                  <div class="collapsible-header"><i class="material-icons">class</i>SELECT cell types</div>
+                  <div class="collapsible-body filter-menu-padding filter-layer-one">
+                    <div>
+                      <label id="filter-by-cell-type">
+                        <input type="checkbox" class="filled-in" name="celltypefilter" id="celltypefilter" onchange="toggleFilterVisibility(this)"/>
+                        <span class="outer-filter-nest">By Cell Type</span>
+                      </label>
+                      <div class="filter-layer-two" id="celltypefilter-select" hidden>
+                        <p>SELECT CELL TYPES HERE</p>
+                      </div>
+                      <div class="divider filter-divider"></div>
+                      <label id="filter-by-microenvironment">
+                        <input type="checkbox" class="filled-in" name="microenvironmentfilter" id="microenvironmentfilter" onchange="toggleFilterVisibility(this)"/>
+                        <span class="outer-filter-nest">By Microenvironment</span>
+                      </label>
+                      <div class="filter-layer-two" id="microenvironmentfilter-select" hidden>
+                        <p>SELECT MICROENVIRONMENTS HERE</p>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="collapsible-header"><i class="material-icons">compare_arrows</i>SELECT interactions</div>
+                  <div class="collapsible-body filter-menu-padding filter-layer-one">
+                    <div>
+                      <label id="filter-by-interaction-class">
+                        <input type="checkbox" class="filled-in" name="interactionclassfilter" id="interactionclassfilter" onchange="toggleFilterVisibility(this)"/>
+                        <span class="outer-filter-nest">By Interaction Classification</span>
+                      </label>
+                      <div class="filter-layer-two" id="interactionclassfilter-select" hidden>
+                        <p>SELECT INTERACTION CLASSIFICATIONS HERE</p>
+                      </div>
+                      <div class="divider filter-divider"></div>
+                      <label id="filter-by-gene">
+                        <input type="checkbox" class="filled-in" name="genefilter" id="genefilter" onchange="toggleFilterVisibility(this)"/>
+                        <span class="outer-filter-nest">By Gene</span>
+                      </label>
+                      <div class="filter-layer-two" id="genefilter-select" hidden>
+                        <p>SELECT GENES HERE</p>
+                      </div>
+                      <div class="divider filter-divider"></div>
+                      <label id="filter-by-gene-pair">
+                        <input type="checkbox" class="filled-in" name="genepairfilter" id="genepairfilter" onchange="toggleFilterVisibility(this)"/>
+                        <span class="outer-filter-nest">By Gene Pair</span>
+                      </label>
+                      <div class="filter-layer-two" id="genepairfilter-select" hidden>
+                        <p>SELECT GENE PAIRS HERE</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="interaction-classification-select"></div>
+                  <div id="gene-select"></div>
+                  <div id="gene-pair-select"></div>
+                </li>
+              </ul>
               <div class="apply-or-restore-filters"></div>
             </div>
             <!---Cell-Cell Communication Summary Display-->

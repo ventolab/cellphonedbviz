@@ -141,3 +141,28 @@ nav ul li a, h5 {
   border-width: thin;
   box-shadow: none;
 }
+
+.filter-menu-padding {
+  padding-right: 0px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.filter-layer-one {
+  padding-left: 10px;
+}
+
+.filter-layer-two {
+  padding-left: 20px;
+}
+
+.outer-filter-nest {
+  color: black;
+  font-size: .83em;
+  font-weight: bold;
+}
+
+.filter-divider {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
