@@ -166,3 +166,11 @@ nav ul li a, h5 {
   margin-top: 10px;
   margin-bottom: 10px;
 }
+
+.filter-search-and-buttons {
+  padding-bottom: 10px;
+  margin-right: 20px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  width: 100%;
+}
