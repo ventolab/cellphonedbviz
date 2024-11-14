@@ -76,6 +76,12 @@ nav ul li a, h5 {
     background-color: #F1F1F1 !important;
  }
 
+ /*==================================================
+    CELLPHONEDB PREDICTIONS PANE
+ ==================================================*/
+
+ /* Overall display for CellphoneDB predictions pane */
+
  #cci-display-box {
   padding-top: 5px;
   min-height: 90vh;
@@ -97,6 +103,16 @@ nav ul li a, h5 {
   overflow-x: scroll;
 }
 
+.border-card {
+  border-style: solid;
+  border-radius: 5px;
+  border-color: hsl(0, 0%, 71%);
+  border-width: thin;
+  box-shadow: none;
+}
+
+/* Tabs for CellphoneDB predictions pane */
+
 #cci-tabs-row, #cci-display-panel {
   margin-bottom: 0%;
 }
@@ -108,7 +124,6 @@ nav ul li a, h5 {
   border-width: thin;
 }
 
-/*Colouring the CCI display selection tabs to match overall aesthetic*/
 #cci-tabs .tab a{
   color:#1565c0;
 }
@@ -127,19 +142,14 @@ nav ul li a, h5 {
   background-color:#1565c0;
 }
 
+/* Config panel for CellphoneDB predictions pane */
+
 #cci-config {
   border-right: solid;
   border-color: hsl(0, 0%, 71%);
   border-width: thin;
   overflow-y: scroll;
-}
-
-.border-card {
-  border-style: solid;
-  border-radius: 5px;
-  border-color: hsl(0, 0%, 71%);
-  border-width: thin;
-  box-shadow: none;
+  position: relative;
 }
 
 .filter-menu-padding {
@@ -178,4 +188,15 @@ nav ul li a, h5 {
 .filter-row {
   margin-left: 0 !important;
   margin-right: 0 !important;
+}
+
+#apply-reset-filters {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  table-layout: fixed;
+  width: 100%;
+  border-top: solid;
+  border-color: hsl(0, 0%, 71%);
+  border-width: thin;
 }

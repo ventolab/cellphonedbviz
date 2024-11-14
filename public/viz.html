@@ -358,18 +358,6 @@ function refreshCCISummaryChordPlots() {
                               </div>
                             </div>
                         </div> <!-- <div class="row"> -->
-
-                          <div class="row center">
-                              <div class="section">
-                                <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
-                                    <i class="material-icons right">refresh</i>
-                                </button>
-                                <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchFilters()">Clear filters
-                                    <i class="material-icons right">clear_all</i>
-                                </button>
-                              </div>
-                          </div>
-
                         </div>
                     </li>
                 </ul>
@@ -451,7 +439,13 @@ function refreshCCISummaryChordPlots() {
               </div> <!-- <div class="row"> -->
           </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
+
+        <!--========================
+          CELLPHONEDB PREDICTION PANE
+          ========================-->
+
         <div class="card border-card" id="cci-display-box">
+          <!--TABS for CellphoneDB predictions-->
           <div id="cci-tabs-row">
               <ul class="tabs center" id="cci-tabs">
                 <li class="tab col s3 blue-text text-darken-4"><a class="active" href="#cci-summary">Summary</a></li>
@@ -459,19 +453,23 @@ function refreshCCISummaryChordPlots() {
                 <li class="tab col s3 blue-text text-darken-4"><a href="#single-gene-expr">Single Gene Expression</a></li>
               </ul>
           </div>
-          <!--Config panel for CellphoneDB predictions-->
+          <!--CONFIG PANEL for CellphoneDB predictions-->
           <div class="row" id="cci-display-panel">
             <div id="cci-config" class="col s3">
               <ul class="collapsible">
+                <!--Option 1: Filter cell types (sub-options are mutually exclusive)-->
                 <li>
                   <div class="collapsible-header"><i class="material-icons">class</i>SELECT cell types</div>
                   <div class="collapsible-body filter-menu-padding filter-layer-one">
                     <div>
+
+                      <!--Option 1a: Filter by cell type (and cell type pair)-->
                       <label id="filter-by-cell-type">
                         <input type="checkbox" class="filled-in" name="celltypefilter" id="celltypefilter" checked onchange="toggleFilterVisibility(this)"/>
                         <span class="outer-filter-nest">By Cell Type</span>
                       </label>
                       <div class="filter-layer-two" id="celltypefilter-select">
+                        <!--Search (autocomplete), select all, clear all for cell type filtering-->
                         <div class="row">
                           <div class="input-field col l7 m12 s12">
                             <input type="text" id="cci_search_celltype_input" placeholder="Cell type">
@@ -495,43 +493,55 @@ function refreshCCISummaryChordPlots() {
                             </button>
                           </div>
                         </div>
+                        <!--Embedded list of cell types to choose from-->
                         <div class="cci_search_selected_celltypes"></div>
                       </div>
                       <div class="divider filter-divider"></div>
+
+                      <!--Option 1b: Filter by microenvironment-->
                       <label id="filter-by-microenvironment">
                         <input type="checkbox" class="filled-in" name="microenvironmentfilter" id="microenvironmentfilter" onchange="toggleFilterVisibility(this)"/>
                         <span class="outer-filter-nest">By Microenvironment</span>
                       </label>
                       <div class="filter-layer-two" id="microenvironmentfilter-select" hidden>
+                        <!--Search microenvironment (autocomplete)-->
                         <div id="cci_search_microenvironment_sel" class="input-field filter-search-and-buttons">
                           <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
                           <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
                         </div>
+                        <!--Embedded list of microenvironments to choose from-->
                         <div class="cci_search_selected_microenvironments"></div>
                       </div>
                     </div>
                   </div>
                 </li>
+                <!--Option 2: Select interactions (sub-options are mutually exclusive)-->
                 <li>
                   <div class="collapsible-header"><i class="material-icons">compare_arrows</i>SELECT interactions</div>
                   <div class="collapsible-body filter-menu-padding filter-layer-one">
                     <div>
+                      <!--Option 2a: Filter by interaction class-->
                       <label id="filter-by-interaction-class">
                         <input type="checkbox" class="filled-in" name="interactionclassfilter" id="interactionclassfilter" onchange="toggleFilterVisibility(this)"/>
                         <span class="outer-filter-nest">By Interaction Classification</span>
                       </label>
                       <div class="filter-layer-two" id="interactionclassfilter-select" hidden>
+                        <!--Search interaction classes (autocomplete)-->
                         <div id="cci_search_class_filter_div" class="input-field" hidden>
                           <input type="text" id="cci_search_class_input" placeholder="Interaction class">
                         </div>
+                        <!--Embedded list of interaction classes to choose from-->
                         <div class="cci_search_selected_classes"></div>
                       </div>
                       <div class="divider filter-divider"></div>
+
+                      <!--Option 2b: Filter by gene-->
                       <label id="filter-by-gene">
                         <input type="checkbox" class="filled-in" name="genefilter" id="genefilter" onchange="toggleFilterVisibility(this)"/>
                         <span class="outer-filter-nest">By Gene</span>
                       </label>
                       <div class="filter-layer-two" id="genefilter-select" hidden>
+                        <!--Search genes (autocomplete) - note there is an option to select all genes by family here.-->
                         <div class="input-field">
                           <input style="padding-top: 20px;" type="text" id="cci_search_gene_input" placeholder="Gene">
                           <label style="padding-top: 20px;" for="cci_search_gene_input" class="black-text text-lighten-10 search-input-label">Search Genes&nbsp;&nbsp;
@@ -540,28 +550,45 @@ function refreshCCISummaryChordPlots() {
                               </span>
                           </label>
                         </div>
+                        <!--Embedded list of genes to choose from-->
                         <div class="cci_search_selected_genes"></div>
                       </div>
                       <div class="divider filter-divider"></div>
+
+                      <!--Option 2c: Filter by gene pair-->
                       <label id="filter-by-gene-pair">
                         <input type="checkbox" class="filled-in" name="genepairfilter" id="genepairfilter" checked onchange="toggleFilterVisibility(this)"/>
                         <span class="outer-filter-nest">By Gene Pair</span>
                       </label>
                       <div class="filter-layer-two" id="genepairfilter-select">
+                        <!--Search gene pairs (autocomplete)-->
                         <div class="input-field">
                           <input type="text" id="cci_search_interaction_input" placeholder="Gene Pair">
                         </div>
+                        <!--Embedded list of gene pairs to choose from-->
                         <div class="cci_search_selected_interactions"></div>
                       </div>
                     </div>
                   </div>
-                  <div id="interaction-classification-select"></div>
-                  <div id="gene-select"></div>
-                  <div id="gene-pair-select"></div>
                 </li>
               </ul>
-              <div class="apply-or-restore-filters"></div>
+
+              <!--Buttons to a) apply current filter selection and b) remove all filters from the side panel.-->
+              <div id="apply-reset-filters">
+                <div class="section">
+                  <div class="center-align">
+                    <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 green lighten-1" onclick="refreshCCISearchPlot()">Refresh plot
+                        <i class="material-icons right">refresh</i>
+                    </button>
+                    <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 red lighten-1" onclick="clearCCISearchFilters()">Clear filters
+                        <i class="material-icons right">clear_all</i>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!--DISPLAY PLOTS-->
             <!---Cell-Cell Communication Summary Display-->
             <div id="cci-summary" class="col s9 cci-display">
               <h4 id="cci_summary_title">Cell-cell Communication - Summary</h4>
@@ -799,6 +826,7 @@ function refreshCCISummaryChordPlots() {
                 </div>
               </div>
             </div>
+
             <!---Cell-Cell Communication Search Display-->
             <div id="cci-search" class="col s9 cci-display">
               <h4 id="cci_search_title">Cell-cell Communication - Search</h4>
@@ -853,6 +881,8 @@ function refreshCCISummaryChordPlots() {
               <div id="cci_search_sidenav_content"></div>
               <div id="cci_search" style="width:1400px"></div>
             </div>
+
+            <!--Single Gene Expression Display-->
             <div id="single-gene-expr" class="col s9 cci-display">
               <h4 id="sge_title">Single Gene Expression</h4>
               <div class="col s12 m9 l9 push-s1">
