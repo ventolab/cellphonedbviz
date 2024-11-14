@@ -437,14 +437,14 @@ function refreshSGEPlot() {
 
 function storeToken(newVal, target_div_class, input_field_id) {
     let found = false;
-    $("."+target_div_class + " .chip").each(function(index, element) {
-        const chipVal = $(this).text().replace("close","");
+    $("."+target_div_class + " .filter-label").each(function(index, element) {
+        const chipVal = $(this).text();
         if (newVal == chipVal) {
             found = true;
         }
     });
     if (!found) {
-        $("."+target_div_class).append($('<div class="chip">' + newVal + '<i class="tiny close material-icons">close</i></div>'));
+        $("."+target_div_class).append($('<label class="row filter-row"><input type="checkbox" class="filled-in filter-check" checked/><span class="filter-label">' + newVal + '</span></label>'));
     }
     $('#' + input_field_id).val("");
 }
