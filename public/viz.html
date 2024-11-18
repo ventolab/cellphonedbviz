@@ -456,6 +456,19 @@ function refreshCCISummaryChordPlots() {
           <!--CONFIG PANEL for CellphoneDB predictions-->
           <div class="row" id="cci-display-panel">
             <div id="cci-config" class="col s3">
+              <!--Buttons to a) apply current filter selection and b) remove all filters from the side panel.-->
+              <div id="apply-reset-filters">
+                <div class="section">
+                  <div class="center-align">
+                    <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 green lighten-1" onclick="refreshCCISearchPlot()">Refresh plot
+                        <i class="material-icons right">refresh</i>
+                    </button>
+                    <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 red lighten-1" onclick="clearCCISearchFilters()">Clear filters
+                        <i class="material-icons right">clear_all</i>
+                    </button>
+                  </div>
+                </div>
+              </div>
               <ul class="collapsible">
                 <!--Option 1: Filter cell types (sub-options are mutually exclusive)-->
                 <li>
@@ -572,20 +585,6 @@ function refreshCCISummaryChordPlots() {
                   </div>
                 </li>
               </ul>
-
-              <!--Buttons to a) apply current filter selection and b) remove all filters from the side panel.-->
-              <div id="apply-reset-filters">
-                <div class="section">
-                  <div class="center-align">
-                    <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 green lighten-1" onclick="refreshCCISearchPlot()">Refresh plot
-                        <i class="material-icons right">refresh</i>
-                    </button>
-                    <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 red lighten-1" onclick="clearCCISearchFilters()">Clear filters
-                        <i class="material-icons right">clear_all</i>
-                    </button>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <!--DISPLAY PLOTS-->

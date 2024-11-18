@@ -192,11 +192,11 @@ nav ul li a, h5 {
 
 #apply-reset-filters {
   position: absolute;
-  bottom: 0px;
+  top: 0px;
   left: 0px;
   table-layout: fixed;
   width: 100%;
-  border-top: solid;
+  border-bottom: solid;
   border-color: hsl(0, 0%, 71%);
   border-width: thin;
 }
