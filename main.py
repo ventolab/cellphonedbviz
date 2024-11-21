@@ -17,7 +17,7 @@ def list_projects(request: Request):
     projectName2Title = dict(zip(dir_name2project_data.keys(),
                                  [x['title'] for x in dir_name2project_data.values()]))
     #If request url is our main cpdbviz site, only list exemplar data. Otherwise list everything available.
-    if "https://www.cellphonedb.org" in str(request.url):
+    if "www.cellphonedb.org" in str(request.url):
         projectName2Title = {case_example: projectName2Title[case_example] for case_example in case_examples if case_example in projectName2Title}
     return dict(sorted(projectName2Title.items(), key=lambda item: item[1]))
 
