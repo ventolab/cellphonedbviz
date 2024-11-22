@@ -84,19 +84,21 @@ nav ul li a, h5 {
 
  #cci-display-box {
   padding-top: 5px;
-  min-height: 90vh;
+  height: 90vh;
   width: 95%;
   margin: auto;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 #cci-display-panel {
   margin-left: 0;
   margin-right: 0;
-  height: 100%;
+  align-self: stretch;
   flex: 1;
   display: flex;
+  overflow-y: scroll;
 }
 
 .cci-display {
@@ -191,12 +193,5 @@ nav ul li a, h5 {
 }
 
 #apply-reset-filters {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  table-layout: fixed;
-  width: 100%;
-  border-bottom: solid;
-  border-color: hsl(0, 0%, 71%);
-  border-width: thin;
+  margin-bottom: 0;
 }

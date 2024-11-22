@@ -457,7 +457,7 @@ function refreshCCISummaryChordPlots() {
           <div class="row" id="cci-display-panel">
             <div id="cci-config" class="col s3">
               <!--Buttons to a) apply current filter selection and b) remove all filters from the side panel.-->
-              <div id="apply-reset-filters">
+              <div class="row" id="apply-reset-filters">
                 <div class="section">
                   <div class="center-align">
                     <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 green lighten-1" onclick="refreshCCISearchPlot()">Refresh plot
@@ -469,122 +469,124 @@ function refreshCCISummaryChordPlots() {
                   </div>
                 </div>
               </div>
-              <ul class="collapsible">
-                <!--Option 1: Filter cell types (sub-options are mutually exclusive)-->
-                <li>
-                  <div class="collapsible-header"><i class="material-icons">class</i>SELECT cell types</div>
-                  <div class="collapsible-body filter-menu-padding filter-layer-one">
-                    <div>
+              <div class="row">
+                <ul class="collapsible">
+                  <!--Option 1: Filter cell types (sub-options are mutually exclusive)-->
+                  <li>
+                    <div class="collapsible-header"><i class="material-icons">class</i>SELECT cell types</div>
+                    <div class="collapsible-body filter-menu-padding filter-layer-one">
+                      <div>
 
-                      <!--Option 1a: Filter by cell type (and cell type pair)-->
-                      <label id="filter-by-cell-type">
-                        <input type="checkbox" class="filled-in" name="celltypefilter" id="celltypefilter" checked onchange="toggleFilterVisibility(this)"/>
-                        <span class="outer-filter-nest">By Cell Type</span>
-                      </label>
-                      <div class="filter-layer-two" id="celltypefilter-select">
-                        <!--Search (autocomplete), select all, clear all for cell type filtering-->
-                        <div class="row">
-                          <div class="input-field col l7 m12 s12">
-                            <input type="text" id="cci_search_celltype_input" placeholder="Cell type">
+                        <!--Option 1a: Filter by cell type (and cell type pair)-->
+                        <label id="filter-by-cell-type">
+                          <input type="checkbox" class="filled-in" name="celltypefilter" id="celltypefilter" checked onchange="toggleFilterVisibility(this)"/>
+                          <span class="outer-filter-nest">By Cell Type</span>
+                        </label>
+                        <div class="filter-layer-two" id="celltypefilter-select">
+                          <!--Search (autocomplete), select all, clear all for cell type filtering-->
+                          <div class="row">
+                            <div class="input-field col l7 m12 s12">
+                              <input type="text" id="cci_search_celltype_input" placeholder="Cell type">
+                            </div>
+                            <div class="input-field col l2 m6 s6">
+                              <button id="cci_search_select_all_celltypes"
+                                class="btn tooltipped waves-effect waves-light btn-small z-depth-2"
+                                data-position="bottom" data-tooltip="Select all cell types"
+                                onclick="selectAllCellTypes('cell_cell_interaction_search')"
+                              >
+                                <i class="material-icons">done_all</i>
+                              </button>
+                            </div>
+                            <div class="input-field col l2 m6 s6">
+                              <button id="clear_cci_search_cell_type_filters"
+                                class="btn tooltipped waves-effect waves-light btn-small z-depth-2"
+                                data-position="bottom" data-tooltip="Clear all cell types"
+                                onclick="clearCCISearchCellTypeFilters()"
+                              >
+                                <i class="material-icons">clear_all</i>
+                              </button>
+                            </div>
                           </div>
-                          <div class="input-field col l2 m6 s6">
-                            <button id="cci_search_select_all_celltypes"
-                              class="btn tooltipped waves-effect waves-light btn-small z-depth-2"
-                              data-position="bottom" data-tooltip="Select all cell types"
-                              onclick="selectAllCellTypes('cell_cell_interaction_search')"
-                            >
-                              <i class="material-icons">done_all</i>
-                            </button>
-                          </div>
-                          <div class="input-field col l2 m6 s6">
-                            <button id="clear_cci_search_cell_type_filters"
-                              class="btn tooltipped waves-effect waves-light btn-small z-depth-2"
-                              data-position="bottom" data-tooltip="Clear all cell types"
-                              onclick="clearCCISearchCellTypeFilters()"
-                            >
-                              <i class="material-icons">clear_all</i>
-                            </button>
-                          </div>
+                          <!--Embedded list of cell types to choose from-->
+                          <div class="cci_search_selected_celltypes"></div>
                         </div>
-                        <!--Embedded list of cell types to choose from-->
-                        <div class="cci_search_selected_celltypes"></div>
-                      </div>
-                      <div class="divider filter-divider"></div>
+                        <div class="divider filter-divider"></div>
 
-                      <!--Option 1b: Filter by microenvironment-->
-                      <label id="filter-by-microenvironment">
-                        <input type="checkbox" class="filled-in" name="microenvironmentfilter" id="microenvironmentfilter" onchange="toggleFilterVisibility(this)"/>
-                        <span class="outer-filter-nest">By Microenvironment</span>
-                      </label>
-                      <div class="filter-layer-two" id="microenvironmentfilter-select" hidden>
-                        <!--Search microenvironment (autocomplete)-->
-                        <div id="cci_search_microenvironment_sel" class="input-field filter-search-and-buttons">
-                          <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
-                          <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
+                        <!--Option 1b: Filter by microenvironment-->
+                        <label id="filter-by-microenvironment">
+                          <input type="checkbox" class="filled-in" name="microenvironmentfilter" id="microenvironmentfilter" onchange="toggleFilterVisibility(this)"/>
+                          <span class="outer-filter-nest">By Microenvironment</span>
+                        </label>
+                        <div class="filter-layer-two" id="microenvironmentfilter-select" hidden>
+                          <!--Search microenvironment (autocomplete)-->
+                          <div id="cci_search_microenvironment_sel" class="input-field filter-search-and-buttons">
+                            <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
+                            <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
+                          </div>
+                          <!--Embedded list of microenvironments to choose from-->
+                          <div class="cci_search_selected_microenvironments"></div>
                         </div>
-                        <!--Embedded list of microenvironments to choose from-->
-                        <div class="cci_search_selected_microenvironments"></div>
                       </div>
                     </div>
-                  </div>
-                </li>
-                <!--Option 2: Select interactions (sub-options are mutually exclusive)-->
-                <li>
-                  <div class="collapsible-header"><i class="material-icons">compare_arrows</i>SELECT interactions</div>
-                  <div class="collapsible-body filter-menu-padding filter-layer-one">
-                    <div>
-                      <!--Option 2a: Filter by interaction class-->
-                      <label id="filter-by-interaction-class">
-                        <input type="checkbox" class="filled-in" name="interactionclassfilter" id="interactionclassfilter" onchange="toggleFilterVisibility(this)"/>
-                        <span class="outer-filter-nest">By Interaction Classification</span>
-                      </label>
-                      <div class="filter-layer-two" id="interactionclassfilter-select" hidden>
-                        <!--Search interaction classes (autocomplete)-->
-                        <div id="cci_search_class_filter_div" class="input-field" hidden>
-                          <input type="text" id="cci_search_class_input" placeholder="Interaction class">
+                  </li>
+                  <!--Option 2: Select interactions (sub-options are mutually exclusive)-->
+                  <li>
+                    <div class="collapsible-header"><i class="material-icons">compare_arrows</i>SELECT interactions</div>
+                    <div class="collapsible-body filter-menu-padding filter-layer-one">
+                      <div>
+                        <!--Option 2a: Filter by interaction class-->
+                        <label id="filter-by-interaction-class">
+                          <input type="checkbox" class="filled-in" name="interactionclassfilter" id="interactionclassfilter" onchange="toggleFilterVisibility(this)"/>
+                          <span class="outer-filter-nest">By Interaction Classification</span>
+                        </label>
+                        <div class="filter-layer-two" id="interactionclassfilter-select" hidden>
+                          <!--Search interaction classes (autocomplete)-->
+                          <div id="cci_search_class_filter_div" class="input-field" hidden>
+                            <input type="text" id="cci_search_class_input" placeholder="Interaction class">
+                          </div>
+                          <!--Embedded list of interaction classes to choose from-->
+                          <div class="cci_search_selected_classes"></div>
                         </div>
-                        <!--Embedded list of interaction classes to choose from-->
-                        <div class="cci_search_selected_classes"></div>
-                      </div>
-                      <div class="divider filter-divider"></div>
+                        <div class="divider filter-divider"></div>
 
-                      <!--Option 2b: Filter by gene-->
-                      <label id="filter-by-gene">
-                        <input type="checkbox" class="filled-in" name="genefilter" id="genefilter" onchange="toggleFilterVisibility(this)"/>
-                        <span class="outer-filter-nest">By Gene</span>
-                      </label>
-                      <div class="filter-layer-two" id="genefilter-select" hidden>
-                        <!--Search genes (autocomplete) - note there is an option to select all genes by family here.-->
-                        <div class="input-field">
-                          <input style="padding-top: 20px;" type="text" id="cci_search_gene_input" placeholder="Gene">
-                          <label style="padding-top: 20px;" for="cci_search_gene_input" class="black-text text-lighten-10 search-input-label">Search Genes&nbsp;&nbsp;
-                              <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                                  <i id="cci_search_gene_input_help" class="material-icons left tooltipped" data-tooltip="Select all genes in a family by selecting e.g. WNT* or TNFR* from the dropdown">info_outline</i>
-                              </span>
-                          </label>
+                        <!--Option 2b: Filter by gene-->
+                        <label id="filter-by-gene">
+                          <input type="checkbox" class="filled-in" name="genefilter" id="genefilter" onchange="toggleFilterVisibility(this)"/>
+                          <span class="outer-filter-nest">By Gene</span>
+                        </label>
+                        <div class="filter-layer-two" id="genefilter-select" hidden>
+                          <!--Search genes (autocomplete) - note there is an option to select all genes by family here.-->
+                          <div class="input-field">
+                            <input style="padding-top: 20px;" type="text" id="cci_search_gene_input" placeholder="Gene">
+                            <label style="padding-top: 20px;" for="cci_search_gene_input" class="black-text text-lighten-10 search-input-label">Search Genes&nbsp;&nbsp;
+                                <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                                    <i id="cci_search_gene_input_help" class="material-icons left tooltipped" data-tooltip="Select all genes in a family by selecting e.g. WNT* or TNFR* from the dropdown">info_outline</i>
+                                </span>
+                            </label>
+                          </div>
+                          <!--Embedded list of genes to choose from-->
+                          <div class="cci_search_selected_genes"></div>
                         </div>
-                        <!--Embedded list of genes to choose from-->
-                        <div class="cci_search_selected_genes"></div>
-                      </div>
-                      <div class="divider filter-divider"></div>
+                        <div class="divider filter-divider"></div>
 
-                      <!--Option 2c: Filter by gene pair-->
-                      <label id="filter-by-gene-pair">
-                        <input type="checkbox" class="filled-in" name="genepairfilter" id="genepairfilter" checked onchange="toggleFilterVisibility(this)"/>
-                        <span class="outer-filter-nest">By Gene Pair</span>
-                      </label>
-                      <div class="filter-layer-two" id="genepairfilter-select">
-                        <!--Search gene pairs (autocomplete)-->
-                        <div class="input-field">
-                          <input type="text" id="cci_search_interaction_input" placeholder="Gene Pair">
+                        <!--Option 2c: Filter by gene pair-->
+                        <label id="filter-by-gene-pair">
+                          <input type="checkbox" class="filled-in" name="genepairfilter" id="genepairfilter" checked onchange="toggleFilterVisibility(this)"/>
+                          <span class="outer-filter-nest">By Gene Pair</span>
+                        </label>
+                        <div class="filter-layer-two" id="genepairfilter-select">
+                          <!--Search gene pairs (autocomplete)-->
+                          <div class="input-field">
+                            <input type="text" id="cci_search_interaction_input" placeholder="Gene Pair">
+                          </div>
+                          <!--Embedded list of gene pairs to choose from-->
+                          <div class="cci_search_selected_interactions"></div>
                         </div>
-                        <!--Embedded list of gene pairs to choose from-->
-                        <div class="cci_search_selected_interactions"></div>
                       </div>
                     </div>
-                  </div>
-                </li>
-              </ul>
+                  </li>
+                </ul>
+              </div>
             </div>
 
             <!--DISPLAY PLOTS-->
