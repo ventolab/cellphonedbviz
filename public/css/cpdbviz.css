@@ -192,6 +192,6 @@ nav ul li a, h5 {
   margin-right: 0 !important;
 }
 
-#apply-reset-filters {
+#apply-reset-filters, .no-margin-bottom {
   margin-bottom: 0;
 }

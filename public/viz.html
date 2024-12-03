@@ -305,12 +305,6 @@ function refreshCCISummaryChordPlots() {
                                             <input style="padding-top: 20px;" type="text" id="cci_search_celltype_input" placeholder="Cell type">
                                             <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10 search-input-label">Filter by cell types</label>
                                           </div>
-                                          <div class="cci_search_selected_celltypes"></div>
-                                          <button id="toggle_cell_pair_grid_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="toggleShowCellTypePairGrid()">
-                                            <span id="toggle_show_cell_type_pair_grid">Show select specific cell type interactions</span>
-                                            <i class="material-icons right">apps</i>
-                                          </button>
-                                          
                                           <div class="input-field">
                                             <input style="padding-top: 20px;" type="text" id="cci_search_celltype_pair_input" placeholder="Cell type pair">
                                             <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10 search-input-label">Filter by cell type pairs</label>
@@ -361,10 +355,6 @@ function refreshCCISummaryChordPlots() {
                               </div>
                             </div>
                         </div> <!-- <div class="row"> -->
-                        <div class="row center">
-                          <div id="select_cell_type_pairs_grid" hidden></div>
-                        </div>
-
                           <div class="row center">
                               <div class="section">
                                 <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
@@ -502,7 +492,7 @@ function refreshCCISummaryChordPlots() {
                         </label>
                         <div class="filter-layer-two" id="celltypefilter-select">
                           <!--Search (autocomplete), select all, clear all for cell type filtering-->
-                          <div class="row">
+                          <div class="row no-margin-bottom">
                             <div class="input-field col l7 m12 s12">
                               <input type="text" id="cci_search_celltype_input" placeholder="Cell type">
                             </div>
@@ -527,6 +517,13 @@ function refreshCCISummaryChordPlots() {
                           </div>
                           <!--Embedded list of cell types to choose from-->
                           <div class="cci_search_selected_celltypes"></div>
+                          <button id="toggle_cell_pair_grid_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="toggleShowCellTypePairGrid()">
+                            <span id="toggle_show_cell_type_pair_grid">Advanced search</span>
+                            <i class="material-icons right">apps</i>
+                          </button>
+                        </div>
+                        <div class="row center">
+                          <div id="select_cell_type_pairs_grid" hidden></div>
                         </div>
                         <div class="divider filter-divider"></div>
 
