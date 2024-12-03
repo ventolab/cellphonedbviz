@@ -306,12 +306,15 @@ function refreshCCISummaryChordPlots() {
                                             <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10 search-input-label">Filter by cell types</label>
                                           </div>
                                           <div class="cci_search_selected_celltypes"></div>
+                                          <button id="toggle_cell_pair_grid_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="toggleShowCellTypePairGrid()">
+                                            <span id="toggle_show_cell_type_pair_grid">Show select specific cell type interactions</span>
+                                            <i class="material-icons right">apps</i>
+                                          </button>
                                           
                                           <div class="input-field">
                                             <input style="padding-top: 20px;" type="text" id="cci_search_celltype_pair_input" placeholder="Cell type pair">
                                             <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10 search-input-label">Filter by cell type pairs</label>
                                           </div>
-                                          <div class="cci_search_selected_celltype_pairs"></div>
                                   </div>
                                 </div>
                               </div>
@@ -329,7 +332,7 @@ function refreshCCISummaryChordPlots() {
                                           <div id="interacting_pairs_selection_logic" hidden>10</div>
                                           <a class="btn waves-effect waves-light btn-small z-depth-2 dropdown-trigger" style="text-transform: none;" data-target="cci_search_select_relevant_interactions_dropdown">
                                               Select significant/relevant interactions&nbsp;<i style="vertical-align: middle;" class="material-icons white-text">pageview</i></a>
-                                          <ul id="cci_search_select_relevant_interactions_dropdown" class="dropdown-content" tabindex="0" style="">
+                                          <ul id="cci_search_select_relevant_interactions_dropdown" class="dropdown-content" tabindex="0">
                                               <li><a href="javascript:refreshCCISearchPlot('10');">Top 10</a></li>
                                               <li><a href="javascript:refreshCCISearchPlot('20');">Top 20</a></li>
                                               <li><a href="javascript:refreshCCISearchPlot('40');">Top 40</a></li>
@@ -358,6 +361,21 @@ function refreshCCISummaryChordPlots() {
                               </div>
                             </div>
                         </div> <!-- <div class="row"> -->
+                        <div class="row center">
+                          <div id="select_cell_type_pairs_grid" hidden></div>
+                        </div>
+
+                          <div class="row center">
+                              <div class="section">
+                                <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
+                                    <i class="material-icons right">refresh</i>
+                                </button>
+                                <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchFilters()">Clear filters
+                                    <i class="material-icons right">clear_all</i>
+                                </button>
+                              </div>
+                          </div>
+
                         </div>
                     </li>
                 </ul>
