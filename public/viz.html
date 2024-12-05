@@ -127,9 +127,9 @@ function refreshCCISummaryChordPlots() {
  // Regenerate chord plots when the user clicks on the 'Refresh plots' button
  document.querySelector('#refresh_cci_summary_plots').addEventListener('click', refreshCCISummaryChordPlots);
 
- var instance = M.Tabs.init($('.tabs'));
+ var tabs = M.Tabs.init($('.tabs'));
+ var modal = M.Modal.init($('.modal'));
  $(document).ready(function(){
-    $('.tabs').tabs();
     $('.tooltipped').tooltip();
   });
 
@@ -154,7 +154,17 @@ function refreshCCISummaryChordPlots() {
     }
     //2. Toggle filter contents selection (if checked show else hide)
     $(`#${filter_change_elem.name}-select`).toggle();
-}
+  }
+  function updateCellTypePairsPlotandDisplay(){
+    /*Update the cell type pair selection matrix with current specification of cell types. Display the updated plot.
+    Parameters:
+      None
+    Returns:
+      None*/
+    populate_cci_cell_type_pair_search_grid();
+    var instance = M.Modal.getInstance($('#cell-type-pair-modal'));
+    instance.open();
+  }
 </script>
   <body>
         <div style="padding-right: 30px" class="valign-wrapper right">
@@ -286,92 +296,6 @@ function refreshCCISummaryChordPlots() {
               
             </div>  <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
-        <!--FILTERS FOR CELL-CELL INTERACTION SEARCH-->
-        <div class="col s12">
-           <div style="padding-left: 30px; padding-right: 30px;" class="card">
-                 <ul class="collapsible">
-                    <li>
-                      <div class="collapsible-header center search-header"><i class="material-icons">expand_more</i>Manage filters</div>
-                      <div class="collapsible-body">
-                        <div class="row">
-
-                            <!-- Cell-cell Interaction Search - Microenvironment/Cell type Inputs -->
-                            <div id="ccis_input1_div">
-                              <div class="col s12 m6 l6">
-                                <div class="card">
-                                  <div class="card-content black-text col s12">
-                                          
-                                          <div class="input-field">
-                                            <input style="padding-top: 20px;" type="text" id="cci_search_celltype_input" placeholder="Cell type">
-                                            <label style="padding-top: 20px;" for="cci_search_celltype_input" class="black-text text-lighten-10 search-input-label">Filter by cell types</label>
-                                          </div>
-                                          <div class="input-field">
-                                            <input style="padding-top: 20px;" type="text" id="cci_search_celltype_pair_input" placeholder="Cell type pair">
-                                            <label style="padding-top: 20px;" for="cci_search_celltype_pair_input" class="black-text text-lighten-10 search-input-label">Filter by cell type pairs</label>
-                                          </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <!-- Cell-cell Interaction Search - Gene/Interaction Inputs -->
-                            <div id="ccis_input2_div" style="padding-left: 20px;">
-                              <div class="col s12 m6 l6">
-                                <div class="card">
-                                  <div class="card-content black-text col s12">
-                                      
-                                      
-                                      <div style="padding-top: 10px;">
-                                          <!-- Default: select top 10 interacting pairs corresponding to the selected cell type pairs-->
-                                          <div id="interacting_pairs_selection_logic" hidden>10</div>
-                                          <a class="btn waves-effect waves-light btn-small z-depth-2 dropdown-trigger" style="text-transform: none;" data-target="cci_search_select_relevant_interactions_dropdown">
-                                              Select significant/relevant interactions&nbsp;<i style="vertical-align: middle;" class="material-icons white-text">pageview</i></a>
-                                          <ul id="cci_search_select_relevant_interactions_dropdown" class="dropdown-content" tabindex="0">
-                                              <li><a href="javascript:refreshCCISearchPlot('10');">Top 10</a></li>
-                                              <li><a href="javascript:refreshCCISearchPlot('20');">Top 20</a></li>
-                                              <li><a href="javascript:refreshCCISearchPlot('40');">Top 40</a></li>
-                                              <li><a href="javascript:refreshCCISearchPlot('all');">All</a></li>
-                                          </ul>
-                                          <button id="clear_cci_search_interaction_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchInteractionFilters()">Clear interaction filters
-                                                <i class="material-icons right">clear_all</i>
-                                          </button>
-                                          <div id="cci_search_sel_ips_logic_spinner" class="container center" hidden>
-                                              <div class="preloader-wrapper active center">
-                                                <div class="spinner-layer spinner-red-only">
-                                                  <div class="circle-clipper left">
-                                                    <div class="circle"></div>
-                                                  </div><div class="gap-patch">
-                                                    <div class="circle"></div>
-                                                  </div><div class="circle-clipper right">
-                                                    <div class="circle"></div>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                          </div>
-                                          <div id="cci_search_sel_ips_request_error" class="container center red-text" style="padding-top: 20px;" hidden></div>
-                                      </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                        </div> <!-- <div class="row"> -->
-                          <div class="row center">
-                              <div class="section">
-                                <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISearchPlot()">Refresh plot
-                                    <i class="material-icons right">refresh</i>
-                                </button>
-                                <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchFilters()">Clear filters
-                                    <i class="material-icons right">clear_all</i>
-                                </button>
-                              </div>
-                          </div>
-
-                        </div>
-                    </li>
-                </ul>
-          </div> <!-- <div class="card"> -->
-        </div> <!-- <div class="col s12"> -->
-
         <!--SINGLE GENE EXPRESSION FILTERS-->
         <div class="col s12">
           <div class="card">
@@ -517,13 +441,20 @@ function refreshCCISummaryChordPlots() {
                           </div>
                           <!--Embedded list of cell types to choose from-->
                           <div class="cci_search_selected_celltypes"></div>
-                          <button id="toggle_cell_pair_grid_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="toggleShowCellTypePairGrid()">
+                          <button id="toggle_cell_pair_grid_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 margin-top" onclick="updateCellTypePairsPlotandDisplay()">
                             <span id="toggle_show_cell_type_pair_grid">Advanced search</span>
                             <i class="material-icons right">apps</i>
                           </button>
                         </div>
-                        <div class="row center">
-                          <div id="select_cell_type_pairs_grid" hidden></div>
+                        <div id="cell-type-pair-modal" class="modal modal-fixed-footer">
+                          <div class="modal-content">
+                            <h3 class="center-align">Select cell type pairs</h3>
+                            <p>Select specific interactions between cell types on this grid. Incoming interactions are the y-axis and outgoing interactions are the x-axis. A blue square indicates a selected interaction between cell type pairs. White means that the interaction has not been selected. A grey square indicates that the interaction does not exist between the relevant cell types.</p>
+                            <div id="select_cell_type_pairs_grid"></div>
+                          </div>
+                          <div class="modal-footer">
+                            <button class="modal-close waves-effect waves-green btn-flat">Close</button>
+                          </div>
                         </div>
                         <div class="divider filter-divider"></div>
 
@@ -590,6 +521,36 @@ function refreshCCISummaryChordPlots() {
                           <span class="outer-filter-nest">By Gene Pair</span>
                         </label>
                         <div class="filter-layer-two" id="genepairfilter-select">
+                        <!--Select top X/clear all interaction class filters-->
+                        <div style="padding-top: 10px;">
+                          <!-- Default: select top 10 interacting pairs corresponding to the selected cell type pairs-->
+                          <div id="interacting_pairs_selection_logic" hidden>10</div>
+                          <a class="btn waves-effect waves-light btn-small z-depth-2 dropdown-trigger" style="text-transform: none;" data-target="cci_search_select_relevant_interactions_dropdown">
+                              Select significant/relevant interactions&nbsp;<i style="vertical-align: middle;" class="material-icons white-text">pageview</i></a>
+                          <ul id="cci_search_select_relevant_interactions_dropdown" class="dropdown-content" tabindex="0">
+                              <li><a href="javascript:refreshCCISearchPlot('10');">Top 10</a></li>
+                              <li><a href="javascript:refreshCCISearchPlot('20');">Top 20</a></li>
+                              <li><a href="javascript:refreshCCISearchPlot('40');">Top 40</a></li>
+                              <li><a href="javascript:refreshCCISearchPlot('all');">All</a></li>
+                          </ul>
+                          <button id="clear_cci_search_interaction_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchInteractionFilters()">Clear interaction filters
+                                <i class="material-icons right">clear_all</i>
+                          </button>
+                          <div id="cci_search_sel_ips_logic_spinner" class="container center" hidden>
+                              <div class="preloader-wrapper active center">
+                                <div class="spinner-layer spinner-red-only">
+                                  <div class="circle-clipper left">
+                                    <div class="circle"></div>
+                                  </div><div class="gap-patch">
+                                    <div class="circle"></div>
+                                  </div><div class="circle-clipper right">
+                                    <div class="circle"></div>
+                                  </div>
+                                </div>
+                              </div>
+                          </div>
+                          <div id="cci_search_sel_ips_request_error" class="container center red-text" style="padding-top: 20px;" hidden></div>
+                        </div>
                           <!--Search gene pairs (autocomplete)-->
                           <div class="input-field">
                             <input type="text" id="cci_search_interaction_input" placeholder="Gene Pair">

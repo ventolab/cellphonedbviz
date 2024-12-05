@@ -164,8 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
             enable_cci_search_radio();
             // Allow the user to sort interacting pair either by the highest mean on top or alphabetically
             enable_cci_search_sort_ips_switch();
-            //Enable update of specific interacting cell type pair grid when switches change
-            enable_cci_search_cell_type_update();
             // Enable side navs - used for displaying interacting pair participant information
             enable_side_navs();
             $("#cci_search_spinner").hide();
@@ -279,17 +277,13 @@ function enable_cci_summary_switch(num_cell_types) {
       });
 }
 
-function enable_cci_search_cell_type_update(){
-  $('.cci_search_selected_celltypes').on('DOMSubtreeModified', function() { populate_cci_cell_type_pair_search_grid() })
-}
-
 function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
                              selected_microenvironments_div, selected_celltypes_div, celltype_input_div) {
     var elems = document.querySelectorAll('select');
     var options = {};
     var instances = M.FormSelect.init(elems, options);
     $('.' + selected_microenvironments_div).on('DOMSubtreeModified', function(event){
-        var selected_microenvironments = $("."+selected_microenvironments_div).map((_,el) => el.innerText.replace(/(\n)*close(\n)*/g,",").replace(/,$/,"")).get()[0];
+        var selected_microenvironments = decodeURIComponent(getSelectedTokens(['cci_search_selected_microenvironments']))
         if (selected_microenvironments) {
             var sel_mes_set = new Set();
             for (sel_me of selected_microenvironments.split(',')) {
@@ -399,16 +393,33 @@ function sortBy(a, b) {
   return  b > a;
 }
 
+function getSelectedTokensForClass(divClass){
+  /*Given class of div, get labels for all selected options within this (e.g. all selected cell types)
+  Parameters:
+    -> divClass(string): Class of element to search within TODO this should be ID
+  Returns:
+    -> selectedTokensForClass(array): List of all selected options within div
+  */
+  var selectedTokensForClass = []
+  $('.' + divClass + ' > .filter-row > .filter-check').each(function () {
+    if (this.checked){
+      selectedTokensForClass.push($(this).next('.filter-label').text());
+    }
+  });
+  return selectedTokensForClass;
+}
 
 // Collect genes and cell types selected in sge_selected_genes and sge_selected_celltypes divs respectively
 function getSelectedTokens(divClassList) {
+    const tokenClassToOverallSelectionMap = {'cci_search_selected_celltypes': 'celltypefilter', 'cci_search_selected_microenvironments': 'microenvironmentfilter', 'cci_search_selected_classes': 'interactionclassfilter', 'cci_search_selected_genes': 'genefilter', 'cci_search_selected_interactions': 'genepairfilter'};
     var selectedTokens = [];
     for (let i = 0; i < divClassList.length; i++) {
         divClass = divClassList[i];
-        var vals = $("."+divClass).map((_,el) => el.innerText.replace(/(\n)*close(\n)*/g,",").replace(/,$/,"")).get()[0];
-        if (vals) {
-            selectedTokens[i] = encodeURIComponent(vals).split(",");
+        var selectedTokensForClass = [];
+        if($('#' + tokenClassToOverallSelectionMap[divClass]).is(':checked')){
+          selectedTokensForClass = getSelectedTokensForClass(divClass)
         }
+        selectedTokens[i] = selectedTokensForClass.length ? encodeURIComponent(selectedTokensForClass).split(",") : [];
     }
     return selectedTokens;
 }
@@ -2639,21 +2650,22 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     var pos=0;
     var selectedGenes = ret[pos++];
     var selectedCellTypes = ret[pos++];
-    var selectedCellTypePairs = [CCIGetSelectedCellTypePairs()];
+    populate_cci_cell_type_pair_search_grid(); //update cell type pair selection
+    var selectedCellTypePairs = selectedCellTypes.length ? [CCIGetSelectedCellTypePairs()] : [] ;
     var selectedInteractions = ret[pos++];
     var selectedMicroenvironments = ret[pos++];
     var selectedClasses = ret[pos++];
-    // DEBUG console.log(selectedGenes, selectedCellTypes, selectedCellTypePairs, selectedInteractions);
+    console.log("SELECTED DATA ", selectedGenes, selectedCellTypes, selectedCellTypePairs, selectedInteractions, selectedClasses, selectedMicroenvironments);
     var url = './api/data/'+projectId+'/cell_cell_interaction_search';
     if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs || selectedClasses) {
         url += "?";
-        if (selectedClasses) {
+        if (selectedClasses.length) {
             url += "classes=" + selectedClasses + "&";
         }
-        if (selectedGenes) {
+        if (selectedGenes.length) {
             url += "genes=" + selectedGenes + "&";
         }
-        if (selectedInteractions) {
+        if (selectedInteractions.length) {
             if (typeof interacting_pairs_selection_logic !== 'undefined') {
                 // There's no point increasing the length of the GET request unnecessarily with the current selection
                 // of interacting pairs if all we need the API call to do is overwrite them with with interacting_pairs_selection_logic
@@ -2666,10 +2678,10 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
         /*if (selectedCellTypes) {
             url += "cell_types=" + selectedCellTypes + "&";
         }*/
-        if (selectedCellTypePairs) {
+        if (selectedCellTypePairs.length) {
             url += "cell_type_pairs=" + selectedCellTypePairs + "&";
         }
-        if (selectedMicroenvironments) {
+        if (selectedMicroenvironments.length) {
             url += "microenvironments=" + selectedMicroenvironments + "&";
         }
     } else {
@@ -2963,29 +2975,6 @@ function populate_cci_cell_type_pair_search_grid() {
   }
   else {
     $("#select_cell_type_pairs_grid").html("<h6>No cell types selected </h6>")
-  }
-}
-
-
-function toggleShowCellTypePairGrid(){
-  /*Toggle visibility of grid for filtering interactions between cell type pairs*/
-  $("#select_cell_type_pairs_grid").toggle();
-}
-
-
-function toggleDisableCellTypePairGrid(disabled){
-  /*Either disable or enable cell type pair grid selection
-  Parameters:
-    -> disabled: Boolean, true if we want to disable the grid, false if we wish to re-enable it*/
-  
-  if($("#toggle_show_cell_type_pair_grid").text() === "Hide select specific cell type interactions"){
-    toggleShowCellTypePairGrid();
-  }
-  if(disabled){
-    $("#toggle_cell_pair_grid_btn").addClass('disabled');
-  }
-  else {
-    $("#toggle_cell_pair_grid_btn").removeClass('disabled');
   }
 }
 

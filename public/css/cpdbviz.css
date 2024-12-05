@@ -195,3 +195,11 @@ nav ul li a, h5 {
 #apply-reset-filters, .no-margin-bottom {
   margin-bottom: 0;
 }
+
+.margin-top {
+  margin-top: 0.75rem !important;
+}
+.modal {
+  max-height: 100%;
+  bottom: 10% !important;
+}
