@@ -162,7 +162,7 @@ function refreshCCISummaryChordPlots() {
     Deactivates other filter accordingly*/
 
     //map of filters to other filters that should be deactivated when this is activated.
-    const filter_swap_map = {"searchcelltypefilter": ["searchmicroenvironmentfilter"], "searchmicroenvironmentfilter": ["searchcelltypefilter"], "searchinteractionclassfilter": ["searchgenefilter", "searchgenepairfilter"], "searchgenefilter": ["searchinteractionclassfilter", "searchgenepairfilter"], "searchgenepairfilter": ["searchinteractionclassfilter", "searchgenefilter"]}
+    const filter_swap_map = {"searchcelltypefilter": ["searchmicroenvironmentfilter"], "searchmicroenvironmentfilter": ["searchcelltypefilter"], "searchinteractionclassfilter": ["searchgenefilter", "searchgenepairfilter"], "searchgenefilter": ["searchinteractionclassfilter", "searchgenepairfilter"], "searchgenepairfilter": ["searchinteractionclassfilter", "searchgenefilter"], "sgemicroenvironmentfilter": ["sgecelltypefilter"], "sgecelltypefilter": ["sgemicroenvironmentfilter"]}
     //1. Deactivate all other filters involved with this one (defined in filter_swap_map) if now checked.
     if (filter_change_elem.checked) {
       filter_swap_map[filter_change_elem.name].forEach(deactivateFilter);
@@ -322,32 +322,9 @@ function refreshCCISummaryChordPlots() {
                                             <i class="material-icons right">clear_all</i>
                                         </button>
                                       </div>
-                                      <div id="sge_microenvironment_sel" class="input-field">
-                                        <input style="padding-top: 30px;" type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
-                                        <label style="padding-top: 10px;" for="sge_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
-                                      </div>
-                                      <div class="sge_selected_microenvironments"></div>
                                       <div style="padding-top: 20px;"></div>
-                                      <div class="input-field">
-                                        <input style="padding-top: 30px;" type="text" id="sge_celltype_input" placeholder="Cell type">
-                                        <label style="padding-top: 30px;" for="sge_celltype_input" class="black-text text-lighten-10 search-input-label">Add cell types to the plot</label>
-                                      </div>
-                                      <div class="sge_selected_celltypes"></div>
-                                      <div style="padding-top: 10px;">
-                                          <button id="sge_select_all_celltypes" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="selectAllCellTypes('single_gene_expression')">Select all cell types
-                                              <i class="material-icons right">done_all</i>
-                                          </button>
-                                      </div>
+                                      
                                       <div style="padding-top: 20px;"></div>
-                                      <div class="input-field">
-                                        <input style="padding-top: 30px;" type="text" id="sge_gene_input" placeholder="Gene name">
-                                        <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10 search-input-label">Add genes to the plot&nbsp;&nbsp;
-                                            <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                                                <i id="sge_gene_input_help" class="material-icons left tooltipped" data-tooltip="Select all genes in a family by selecting e.g. WNT* or TNFR* from the dropdown">info_outline</i>
-                                            </span>
-                                        </label>
-                                      </div>
-                                      <div class="sge_selected_genes"></div>
                                   </div>
                                 </div>
                               </div>
@@ -355,7 +332,7 @@ function refreshCCISummaryChordPlots() {
                           </div>
                         </li>
                       </ul>
-                    </div>
+                  </div>
               </div> <!-- <div class="row"> -->
           </div> <!-- <div class="card"> -->
         </div> <!-- <div class="col s12"> -->
@@ -433,9 +410,9 @@ function refreshCCISummaryChordPlots() {
                           </div>
                           <div id="cci_summary_microenvironment_div" hidden>
                             <div class="input-field">
-                              <input style="padding-top: 30px;" type="text" id="cci_summary_microenvironment_input" placeholder="">
+                              <input type="text" id="cci_summary_microenvironment_input" placeholder="">
                             </div>
-                            <div class="cci_summary_selected_microenvironments" style="padding-bottom: 10px;" ></div>
+                            <div class="cci_summary_selected_microenvironments" ></div>
                           </div>
                         </div>
                       </div>
@@ -511,8 +488,51 @@ function refreshCCISummaryChordPlots() {
                       <!--
                       Cell type filters for: Single Gene Expression Plot
                       -->
+
                       <div id="sge-cell-type-filters" hidden>
-                        <h5>SGE cell type filters</h5>
+                        <!--Option 1a: Filter by cell type-->
+                        <label>
+                          <input type="checkbox" class="filled-in" name="sgecelltypefilter" id="sgecelltypefilter" checked onchange="toggleFilterVisibility(this)"/>
+                          <span class="outer-filter-nest">By Cell Type</span>
+                        </label>
+                        <div class="filter-layer-two" id="sgecelltypefilter-select">
+                          <div class="row no-margin-bottom">
+                            <div class="input-field  col l7 m12 s12">
+                              <input type="text" id="sge_celltype_input" placeholder="Cell type">
+                            </div>
+                            <div class="input-field col l2 m6 s6">
+                              <button id="sge_select_all_celltypes"
+                              class="btn tooltipped waves-effect waves-light btn-small z-depth-2"
+                              data-position="bottom" data-tooltip="Select all cell types"
+                              onclick="selectAllCellTypes('single_gene_expression')">
+                                  <i class="material-icons">done_all</i>
+                              </button>
+                            </div>
+                            <div class="input-field col l2 m6 s6">
+                              <button id="clear_sge_cell_type_filters"
+                                class="btn tooltipped waves-effect waves-light btn-small z-depth-2"
+                                data-position="bottom" data-tooltip="Clear all cell types"
+                                onclick="clearSGECellTypeFilters()"
+                              >
+                                <i class="material-icons">clear_all</i>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="sge_selected_celltypes"></div>
+                        </div>
+                        <div class="divider filter-divider"></div>
+                        <!--Option 1b: Filter by microenvironment-->
+                        <label>
+                          <input type="checkbox" class="filled-in" name="sgemicroenvironmentfilter" id="sgemicroenvironmentfilter" onchange="toggleFilterVisibility(this)"/>
+                          <span class="outer-filter-nest">By Microenvironment</span>
+                        </label>
+                        <div class="filter-layer-two" id="sgemicroenvironmentfilter-select" hidden>
+                          <div id="sge_microenvironment_sel" class="input-field">
+                            <input style="padding-top: 30px;" type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
+                            <label style="padding-top: 10px;" for="sge_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
+                          </div>
+                          <div class="sge_selected_microenvironments"></div>
+                        </div>
                       </div>
                     </div>
                   </li>
@@ -552,7 +572,7 @@ function refreshCCISummaryChordPlots() {
                         <div class="filter-layer-two" id="searchinteractionclassfilter-select" hidden>
                           <!--Search interaction classes (autocomplete)-->
                           <div id="cci_search_class_filter_div" class="input-field" hidden>
-                            <input type="text" id="cci_search_class_input" placeholder="Interaction class">
+                            <input type="text" id="cci_search_class_input" placeholder="Search interaction class">
                           </div>
                           <!--Embedded list of interaction classes to choose from-->
                           <div class="cci_search_selected_classes"></div>
@@ -628,7 +648,22 @@ function refreshCCISummaryChordPlots() {
                       Interaction filters for: Single Gene Expression Plot
                       -->
                       <div id="sge-interaction-filters" hidden>
-                        <h5>SGE interaction filters</h5>
+                        <!--Option 2a: Filter by genes-->
+                        <label>
+                          <input type="checkbox" checked disabled class="filled-in" name="sgegenefilter" id="sgegenefilter" onchange="toggleFilterVisibility(this)"/>
+                          <span class="outer-filter-nest">By Gene</span>
+                        </label>
+                        <div class="filter-layer-two" id="sgegenefilter-select">
+                          <div class="input-field">
+                            <input style="padding-top: 30px;" type="text" id="sge_gene_input" placeholder="Gene name">
+                            <label style="padding-top: 30px;" for="sge_gene_input" class="black-text text-lighten-10 search-input-label">Add genes to the plot&nbsp;&nbsp;
+                                <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                                    <i id="sge_gene_input_help" class="material-icons left tooltipped" data-tooltip="Select all genes in a family by selecting e.g. WNT* or TNFR* from the dropdown">info_outline</i>
+                                </span>
+                            </label>
+                          </div>
+                          <div class="sge_selected_genes"></div>
+                        </div>
                       </div>
                     </div>
                   </li>

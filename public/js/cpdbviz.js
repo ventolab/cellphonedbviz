@@ -405,7 +405,7 @@ function getSelectedTokensForClass(divClass){
 
 // Collect genes and cell types selected in sge_selected_genes and sge_selected_celltypes divs respectively
 function getSelectedTokens(divClassList) {
-    const tokenClassToOverallSelectionMap = {'cci_search_selected_celltypes': 'searchcelltypefilter', 'cci_search_selected_microenvironments': 'searchmicroenvironmentfilter', 'cci_search_selected_classes': 'searchinteractionclassfilter', 'cci_search_selected_genes': 'searchgenefilter', 'cci_search_selected_interactions': 'searchgenepairfilter', 'cci_summary_selected_microenvironments': 'summarymicroenvironmentfilter', 'cci_summary_selected_classes': 'summaryinteractionclassfilter'};
+    const tokenClassToOverallSelectionMap = {'cci_search_selected_celltypes': 'searchcelltypefilter', 'cci_search_selected_microenvironments': 'searchmicroenvironmentfilter', 'cci_search_selected_classes': 'searchinteractionclassfilter', 'cci_search_selected_genes': 'searchgenefilter', 'cci_search_selected_interactions': 'searchgenepairfilter', 'cci_summary_selected_microenvironments': 'summarymicroenvironmentfilter', 'cci_summary_selected_classes': 'summaryinteractionclassfilter', 'sge_selected_celltypes': 'sgecelltypefilter', 'sge_selected_microenvironments': 'sgemicroenvironmentfilter', 'sge_selected_genes': 'sgegenefilter'};
     var selectedTokens = [];
     for (let i = 0; i < divClassList.length; i++) {
         divClass = divClassList[i];
@@ -1540,7 +1540,6 @@ function refreshCCISummaryPlots() {
     var selectedClasses = ret[pos++];
     var selectedMicroenvironments = ret[pos++];
     var selectedModalities = ret[pos++];
-    console.log("classes ", selectedClasses, " microenvironments ", selectedMicroenvironments, " modalities ", selectedModalities);
     var selectedMinInteractionScore = $('#cci_summary_selected_min_score').text();
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
     if (selectedClasses) {
@@ -1699,6 +1698,10 @@ function refreshCCISummaryPlots() {
 function clearSGEFilters() {
     $('.sge_selected_genes').empty();
     $('.sge_selected_celltypes').empty();
+}
+
+function clearSGECellTypeFilters() {
+  $('.sge_selected_celltypes').empty();
 }
 
 function clearCCISummaryFilters() {
