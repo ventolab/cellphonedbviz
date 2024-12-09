@@ -325,12 +325,6 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
               toggleDisableCellTypePairGrid(false);
             }
         }
-        // Replace any previously selected cell types in selected_celltypes_div with the ones in the selected microenvironments
-        // We're effectively forcing the user to select either cell types or microenvironments, but not both.
-        $('.'+ selected_celltypes_div).empty();
-        for (var i = 0; i < selected_cell_types.length; i++) {
-            storeToken(selected_cell_types[i], selected_celltypes_div, celltype_input_div);
-        }
     });
 }
 
@@ -2654,6 +2648,14 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     var selectedCellTypePairs = selectedCellTypes.length ? [CCIGetSelectedCellTypePairs()] : [] ;
     var selectedInteractions = ret[pos++];
     var selectedMicroenvironments = ret[pos++];
+    if (selectedMicroenvironments.length) {
+      var sel_mes_set = new Set();
+            for (sel_me of decodeURIComponent(selectedMicroenvironments).split(',')) {
+                cts = microenvironment2cell_types[sel_me];
+                sel_mes_set = new Set([ ...sel_mes_set, ...cts ]);
+            }
+            selectedCellTypes = Array.from(sel_mes_set).sort();
+    }
     var selectedClasses = ret[pos++];
     console.log("SELECTED DATA ", selectedGenes, selectedCellTypes, selectedCellTypePairs, selectedInteractions, selectedClasses, selectedMicroenvironments);
     var url = './api/data/'+projectId+'/cell_cell_interaction_search';
@@ -2675,9 +2677,9 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
             }
             url += "interacting_pairs=" + selectedInteractions + "&";
         }
-        /*if (selectedCellTypes) {
+        if (selectedCellTypes && selectedMicroenvironments) {
             url += "cell_types=" + selectedCellTypes + "&";
-        }*/
+        }
         if (selectedCellTypePairs.length) {
             url += "cell_type_pairs=" + selectedCellTypePairs + "&";
         }
