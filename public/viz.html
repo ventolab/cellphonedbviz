@@ -131,7 +131,22 @@ function refreshCCISummaryChordPlots() {
  var modal = M.Modal.init($('.modal'));
  $(document).ready(function(){
     $('.tooltipped').tooltip();
-  });
+ });
+
+ $('ul.tabs').on('click', 'a', function(e) {
+    const filter_hide_show_map = {'Summary': {'show': ["cci-summary-apply-filters", "cci-summary-cell-type-filters", "cci-summary-interaction-filters"], 'hide': ["sge-apply-filters", "cci-search-apply-filters", "cci-search-cell-type-filters", "sge-cell-type-filters", "cci-search-interaction-filters", "sge-interaction-filters"]}, 'Search': {'show': ["cci-search-apply-filters", "cci-search-cell-type-filters", "cci-search-interaction-filters"], 'hide': ["cci-summary-apply-filters", "sge-apply-filters", "cci-summary-cell-type-filters", "sge-cell-type-filters", "cci-summary-interaction-filters", "sge-interaction-filters"]}, 'Single Gene Expression': {'show': ["sge-apply-filters", "sge-cell-type-filters", "sge-interaction-filters"], 'hide': ["cci-summary-apply-filters", "cci-search-apply-filters", "cci-summary-cell-type-filters", "cci-search-cell-type-filters", "cci-summary-interaction-filters", "cci-search-interaction-filters"]}}
+    const selected_plot = e.target.text;
+
+    //Show all divs to be shown according to map dict (includes filter buttons and per-plot filters)
+    for (const div_to_show of filter_hide_show_map[selected_plot]["show"]){
+      $("#" + div_to_show).show();
+    }
+
+    //Hide all divs to be hidden according to map dict (includes filter buttons and per-plot filters)
+    for (const div_to_hide of filter_hide_show_map[selected_plot]["hide"]){
+      $("#" + div_to_hide).hide();
+    }
+ });
 
 </script>
 
@@ -391,7 +406,17 @@ function refreshCCISummaryChordPlots() {
               <!--Buttons to a) apply current filter selection and b) remove all filters from the side panel.-->
               <div class="row" id="apply-reset-filters">
                 <div class="section">
-                  <div class="center-align">
+                  <!--CCI Summary Plot buttons-->
+                  <div id="cci-summary-apply-filters" class="center-align">
+                    <button id="refresh_cci_summary_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 green lighten-1" onclick="refreshCCISummaryPlot()">Refresh plot
+                        <i class="material-icons right">refresh</i>
+                    </button>
+                    <button id="clear_cci_summary_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 red lighten-1" onclick="clearCCISummaryFilters()">Clear filters
+                        <i class="material-icons right">clear_all</i>
+                    </button>
+                  </div>
+                  <!--CCI Search Plot buttons-->
+                  <div id="cci-search-apply-filters" class="center-align" hidden>
                     <button id="refresh_cci_search_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 green lighten-1" onclick="refreshCCISearchPlot()">Refresh plot
                         <i class="material-icons right">refresh</i>
                     </button>
@@ -399,16 +424,35 @@ function refreshCCISummaryChordPlots() {
                         <i class="material-icons right">clear_all</i>
                     </button>
                   </div>
+                  <!--Single Gene Expression Plot buttons-->
+                  <div id="sge-apply-filters" class="center-align" hidden>
+                    <button id="refresh_sge_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 green lighten-1" onclick="refreshSGEPlot()">Refresh plot
+                        <i class="material-icons right">refresh</i>
+                    </button>
+                    <button id="clear_cci_search_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 red lighten-1" onclick="clearSGEFilters()">Clear filters
+                        <i class="material-icons right">clear_all</i>
+                    </button>
+                  </div>
                 </div>
               </div>
+              <!--MAIN FILTERS-->
               <div class="row">
                 <ul class="collapsible">
                   <!--Option 1: Filter cell types (sub-options are mutually exclusive)-->
                   <li>
                     <div class="collapsible-header"><i class="material-icons">class</i>SELECT cell types</div>
                     <div class="collapsible-body filter-menu-padding filter-layer-one">
-                      <div>
+                      <!--
+                      Cell type filters for: Cell-Cell Communication Summary Plot
+                      -->
+                      <div id="cci-summary-cell-type-filters">
+                        <h5>CCI Summary cell type filters</h5>
+                      </div>
 
+                      <!--
+                      Cell type filters for: Cell-Cell Communication Search Plot
+                      -->
+                      <div id="cci-search-cell-type-filters" hidden>
                         <!--Option 1a: Filter by cell type (and cell type pair)-->
                         <label id="filter-by-cell-type">
                           <input type="checkbox" class="filled-in" name="celltypefilter" id="celltypefilter" checked onchange="toggleFilterVisibility(this)"/>
@@ -473,13 +517,30 @@ function refreshCCISummaryChordPlots() {
                           <div class="cci_search_selected_microenvironments"></div>
                         </div>
                       </div>
+                      <!--
+                      Cell type filters for: Single Gene Expression Plot
+                      -->
+                      <div id="sge-cell-type-filters" hidden>
+                        <h5>SGE cell type filters</h5>
+                      </div>
                     </div>
                   </li>
                   <!--Option 2: Select interactions (sub-options are mutually exclusive)-->
                   <li>
                     <div class="collapsible-header"><i class="material-icons">compare_arrows</i>SELECT interactions</div>
                     <div class="collapsible-body filter-menu-padding filter-layer-one">
-                      <div>
+
+                      <!--
+                      Interaction filters for: Cell-Cell Communication Summary Plot
+                      -->
+                      <div id="cci-summary-interaction-filters">
+                        <h5>CCI Summary interaction filters</h5>
+                      </div>
+
+                      <!--
+                      Interaction filters for: Cell-Cell Communication Search Plot
+                      -->
+                      <div id="cci-search-interaction-filters" hidden>
                         <!--Option 2a: Filter by interaction class-->
                         <label id="filter-by-interaction-class">
                           <input type="checkbox" class="filled-in" name="interactionclassfilter" id="interactionclassfilter" onchange="toggleFilterVisibility(this)"/>
@@ -558,6 +619,13 @@ function refreshCCISummaryChordPlots() {
                           <!--Embedded list of gene pairs to choose from-->
                           <div class="cci_search_selected_interactions"></div>
                         </div>
+                      </div>
+
+                      <!--
+                      Interaction filters for: Single Gene Expression Plot
+                      -->
+                      <div id="sge-interaction-filters" hidden>
+                        <h5>SGE interaction filters</h5>
                       </div>
                     </div>
                   </li>

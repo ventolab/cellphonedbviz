@@ -2677,7 +2677,7 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
             }
             url += "interacting_pairs=" + selectedInteractions + "&";
         }
-        if (selectedCellTypes && selectedMicroenvironments) {
+        if (selectedCellTypes.length && selectedMicroenvironments.length) {
             url += "cell_types=" + selectedCellTypes + "&";
         }
         if (selectedCellTypePairs.length) {
