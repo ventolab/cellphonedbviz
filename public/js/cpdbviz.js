@@ -405,7 +405,7 @@ function getSelectedTokensForClass(divClass){
 
 // Collect genes and cell types selected in sge_selected_genes and sge_selected_celltypes divs respectively
 function getSelectedTokens(divClassList) {
-    const tokenClassToOverallSelectionMap = {'cci_search_selected_celltypes': 'celltypefilter', 'cci_search_selected_microenvironments': 'microenvironmentfilter', 'cci_search_selected_classes': 'interactionclassfilter', 'cci_search_selected_genes': 'genefilter', 'cci_search_selected_interactions': 'genepairfilter'};
+    const tokenClassToOverallSelectionMap = {'cci_search_selected_celltypes': 'searchcelltypefilter', 'cci_search_selected_microenvironments': 'searchmicroenvironmentfilter', 'cci_search_selected_classes': 'searchinteractionclassfilter', 'cci_search_selected_genes': 'searchgenefilter', 'cci_search_selected_interactions': 'searchgenepairfilter', 'cci_summary_selected_microenvironments': 'summarymicroenvironmentfilter'};
     var selectedTokens = [];
     for (let i = 0; i < divClassList.length; i++) {
         divClass = divClassList[i];
@@ -413,7 +413,9 @@ function getSelectedTokens(divClassList) {
         if($('#' + tokenClassToOverallSelectionMap[divClass]).is(':checked')){
           selectedTokensForClass = getSelectedTokensForClass(divClass)
         }
-        selectedTokens[i] = selectedTokensForClass.length ? encodeURIComponent(selectedTokensForClass).split(",") : [];
+        if(selectedTokensForClass.length){
+          selectedTokens[i] = encodeURIComponent(selectedTokensForClass).split(",");
+        }
     }
     return selectedTokens;
 }
@@ -2648,7 +2650,7 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     var selectedCellTypePairs = selectedCellTypes.length ? [CCIGetSelectedCellTypePairs()] : [] ;
     var selectedInteractions = ret[pos++];
     var selectedMicroenvironments = ret[pos++];
-    if (selectedMicroenvironments.length) {
+    if (selectedMicroenvironments) {
       var sel_mes_set = new Set();
             for (sel_me of decodeURIComponent(selectedMicroenvironments).split(',')) {
                 cts = microenvironment2cell_types[sel_me];
@@ -2657,17 +2659,16 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
             selectedCellTypes = Array.from(sel_mes_set).sort();
     }
     var selectedClasses = ret[pos++];
-    console.log("SELECTED DATA ", selectedGenes, selectedCellTypes, selectedCellTypePairs, selectedInteractions, selectedClasses, selectedMicroenvironments);
     var url = './api/data/'+projectId+'/cell_cell_interaction_search';
     if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs || selectedClasses) {
         url += "?";
-        if (selectedClasses.length) {
+        if (selectedClasses) {
             url += "classes=" + selectedClasses + "&";
         }
-        if (selectedGenes.length) {
+        if (selectedGenes) {
             url += "genes=" + selectedGenes + "&";
         }
-        if (selectedInteractions.length) {
+        if (selectedInteractions) {
             if (typeof interacting_pairs_selection_logic !== 'undefined') {
                 // There's no point increasing the length of the GET request unnecessarily with the current selection
                 // of interacting pairs if all we need the API call to do is overwrite them with with interacting_pairs_selection_logic
@@ -2677,13 +2678,13 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
             }
             url += "interacting_pairs=" + selectedInteractions + "&";
         }
-        if (selectedCellTypes.length && selectedMicroenvironments.length) {
+        if (selectedCellTypes && selectedMicroenvironments) {
             url += "cell_types=" + selectedCellTypes + "&";
         }
-        if (selectedCellTypePairs.length) {
+        if (selectedCellTypePairs) {
             url += "cell_type_pairs=" + selectedCellTypePairs + "&";
         }
-        if (selectedMicroenvironments.length) {
+        if (selectedMicroenvironments) {
             url += "microenvironments=" + selectedMicroenvironments + "&";
         }
     } else {

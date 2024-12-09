@@ -162,7 +162,7 @@ function refreshCCISummaryChordPlots() {
     Deactivates other filter accordingly*/
 
     //map of filters to other filters that should be deactivated when this is activated.
-    const filter_swap_map = {"celltypefilter": ["microenvironmentfilter"], "microenvironmentfilter": ["celltypefilter"], "interactionclassfilter": ["genefilter", "genepairfilter"], "genefilter": ["interactionclassfilter", "genepairfilter"], "genepairfilter": ["interactionclassfilter", "genefilter"]}
+    const filter_swap_map = {"searchcelltypefilter": ["searchmicroenvironmentfilter"], "searchmicroenvironmentfilter": ["searchcelltypefilter"], "searchinteractionclassfilter": ["searchgenefilter", "searchgenepairfilter"], "searchgenefilter": ["searchinteractionclassfilter", "searchgenepairfilter"], "searchgenepairfilter": ["searchinteractionclassfilter", "searchgenefilter"]}
     //1. Deactivate all other filters involved with this one (defined in filter_swap_map) if now checked.
     if (filter_change_elem.checked) {
       filter_swap_map[filter_change_elem.name].forEach(deactivateFilter);
@@ -281,13 +281,6 @@ function refreshCCISummaryChordPlots() {
                                     <label style="padding-top: 30px;" for="cci_summary_modality_input" class="black-text text-lighten-10 search-input-label">Filter interactions by modality</label>
                                   </div>
                                   <div style="padding-bottom: 20px;" class="cci_summary_selected_modalities"></div>
-                              </div>
-                              <div id="cci_summary_microenvironment_div" style="padding-left: 20px; padding-right: 20px" hidden>
-                                  <div class="input-field">
-                                    <input style="padding-top: 30px;" type="text" id="cci_summary_microenvironment_input" placeholder="">
-                                    <label style="padding-top: 10px;" for="cci_summary_microenvironment_input" class="black-text text-lighten-10 search-input-label">Select microenvironments to plot</label>
-                                  </div>
-                                  <div class="cci_summary_selected_microenvironments" style="padding-bottom: 10px;" ></div>
                               </div>
                               <div id="cci_summary_score_div" style="padding-left: 20px; padding-right: 800px; padding-top: 10px" hidden>
                                   <div class="range-field">
@@ -408,7 +401,7 @@ function refreshCCISummaryChordPlots() {
                 <div class="section">
                   <!--CCI Summary Plot buttons-->
                   <div id="cci-summary-apply-filters" class="center-align">
-                    <button id="refresh_cci_summary_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 green lighten-1" onclick="refreshCCISummaryPlot()">Refresh plot
+                    <button id="refresh_cci_summary_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 green lighten-1" onclick="refreshCCISummaryPlots()">Refresh plot
                         <i class="material-icons right">refresh</i>
                     </button>
                     <button id="clear_cci_summary_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2 red lighten-1" onclick="clearCCISummaryFilters()">Clear filters
@@ -435,6 +428,7 @@ function refreshCCISummaryChordPlots() {
                   </div>
                 </div>
               </div>
+
               <!--MAIN FILTERS-->
               <div class="row">
                 <ul class="collapsible">
@@ -446,7 +440,19 @@ function refreshCCISummaryChordPlots() {
                       Cell type filters for: Cell-Cell Communication Summary Plot
                       -->
                       <div id="cci-summary-cell-type-filters">
-                        <h5>CCI Summary cell type filters</h5>
+                        <label>
+                          <input type="checkbox" class="filled-in" name="summmarymicroenvironmentfilter" id="summarymicroenvironmentfilter" checked onchange="toggleFilterVisibility(this)"/>
+                          <span class="outer-filter-nest">By Microenvironment</span>
+                        </label>
+                        <div class="filter-layer-two" id="summarymicroenvironmentfilter-select">
+                          <div id="cci_summary_microenvironment_div" style="padding-left: 20px; padding-right: 20px" hidden>
+                            <div class="input-field">
+                              <input style="padding-top: 30px;" type="text" id="cci_summary_microenvironment_input" placeholder="">
+                              <label style="padding-top: 10px;" for="cci_summary_microenvironment_input" class="black-text text-lighten-10 search-input-label">Select microenvironments to plot</label>
+                            </div>
+                            <div class="cci_summary_selected_microenvironments" style="padding-bottom: 10px;" ></div>
+                          </div>
+                        </div>
                       </div>
 
                       <!--
@@ -454,11 +460,11 @@ function refreshCCISummaryChordPlots() {
                       -->
                       <div id="cci-search-cell-type-filters" hidden>
                         <!--Option 1a: Filter by cell type (and cell type pair)-->
-                        <label id="filter-by-cell-type">
-                          <input type="checkbox" class="filled-in" name="celltypefilter" id="celltypefilter" checked onchange="toggleFilterVisibility(this)"/>
+                        <label>
+                          <input type="checkbox" class="filled-in" name="searchcelltypefilter" id="searchcelltypefilter" checked onchange="toggleFilterVisibility(this)"/>
                           <span class="outer-filter-nest">By Cell Type</span>
                         </label>
-                        <div class="filter-layer-two" id="celltypefilter-select">
+                        <div class="filter-layer-two" id="searchcelltypefilter-select">
                           <!--Search (autocomplete), select all, clear all for cell type filtering-->
                           <div class="row no-margin-bottom">
                             <div class="input-field col l7 m12 s12">
@@ -503,11 +509,11 @@ function refreshCCISummaryChordPlots() {
                         <div class="divider filter-divider"></div>
 
                         <!--Option 1b: Filter by microenvironment-->
-                        <label id="filter-by-microenvironment">
-                          <input type="checkbox" class="filled-in" name="microenvironmentfilter" id="microenvironmentfilter" onchange="toggleFilterVisibility(this)"/>
+                        <label>
+                          <input type="checkbox" class="filled-in" name="searchmicroenvironmentfilter" id="searchmicroenvironmentfilter" onchange="toggleFilterVisibility(this)"/>
                           <span class="outer-filter-nest">By Microenvironment</span>
                         </label>
-                        <div class="filter-layer-two" id="microenvironmentfilter-select" hidden>
+                        <div class="filter-layer-two" id="searchmicroenvironmentfilter-select" hidden>
                           <!--Search microenvironment (autocomplete)-->
                           <div id="cci_search_microenvironment_sel" class="input-field filter-search-and-buttons">
                             <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
@@ -542,11 +548,11 @@ function refreshCCISummaryChordPlots() {
                       -->
                       <div id="cci-search-interaction-filters" hidden>
                         <!--Option 2a: Filter by interaction class-->
-                        <label id="filter-by-interaction-class">
-                          <input type="checkbox" class="filled-in" name="interactionclassfilter" id="interactionclassfilter" onchange="toggleFilterVisibility(this)"/>
+                        <label>
+                          <input type="checkbox" class="filled-in" name="searchinteractionclassfilter" id="searchinteractionclassfilter" onchange="toggleFilterVisibility(this)"/>
                           <span class="outer-filter-nest">By Interaction Classification</span>
                         </label>
-                        <div class="filter-layer-two" id="interactionclassfilter-select" hidden>
+                        <div class="filter-layer-two" id="searchinteractionclassfilter-select" hidden>
                           <!--Search interaction classes (autocomplete)-->
                           <div id="cci_search_class_filter_div" class="input-field" hidden>
                             <input type="text" id="cci_search_class_input" placeholder="Interaction class">
@@ -557,11 +563,11 @@ function refreshCCISummaryChordPlots() {
                         <div class="divider filter-divider"></div>
 
                         <!--Option 2b: Filter by gene-->
-                        <label id="filter-by-gene">
-                          <input type="checkbox" class="filled-in" name="genefilter" id="genefilter" onchange="toggleFilterVisibility(this)"/>
+                        <label>
+                          <input type="checkbox" class="filled-in" name="searchgenefilter" id="searchgenefilter" onchange="toggleFilterVisibility(this)"/>
                           <span class="outer-filter-nest">By Gene</span>
                         </label>
-                        <div class="filter-layer-two" id="genefilter-select" hidden>
+                        <div class="filter-layer-two" id="searchgenefilter-select" hidden>
                           <!--Search genes (autocomplete) - note there is an option to select all genes by family here.-->
                           <div class="input-field">
                             <input style="padding-top: 20px;" type="text" id="cci_search_gene_input" placeholder="Gene">
@@ -577,11 +583,11 @@ function refreshCCISummaryChordPlots() {
                         <div class="divider filter-divider"></div>
 
                         <!--Option 2c: Filter by gene pair-->
-                        <label id="filter-by-gene-pair">
-                          <input type="checkbox" class="filled-in" name="genepairfilter" id="genepairfilter" checked onchange="toggleFilterVisibility(this)"/>
+                        <label>
+                          <input type="checkbox" class="filled-in" name="searchgenepairfilter" id="searchgenepairfilter" checked onchange="toggleFilterVisibility(this)"/>
                           <span class="outer-filter-nest">By Gene Pair</span>
                         </label>
-                        <div class="filter-layer-two" id="genepairfilter-select">
+                        <div class="filter-layer-two" id="searchgenepairfilter-select">
                         <!--Select top X/clear all interaction class filters-->
                         <div style="padding-top: 10px;">
                           <!-- Default: select top 10 interacting pairs corresponding to the selected cell type pairs-->
