@@ -285,12 +285,7 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
     $('.' + selected_microenvironments_div).on('DOMSubtreeModified', function(event){
         var selected_microenvironments = decodeURIComponent(getSelectedTokens(['cci_search_selected_microenvironments']))
         if (selected_microenvironments) {
-            var sel_mes_set = new Set();
-            for (sel_me of selected_microenvironments.split(',')) {
-                cts = microenvironment2cell_types[sel_me];
-                sel_mes_set = new Set([ ...sel_mes_set, ...cts ]);
-            }
-            selected_cell_types = Array.from(sel_mes_set).sort();
+            selected_cell_types = getCellTypesForMicroenvironment(selected_microenvironments);
             // DEBUG console.log(selected_cell_types);
             if (selected_microenvironments_div == 'sge_selected_microenvironments') {
                $('.sge_selected_celltypes').hide();
@@ -420,11 +415,31 @@ function getSelectedTokens(divClassList) {
     return selectedTokens;
 }
 
+function getCellTypesForMicroenvironment(selected_microenvironments){
+  /*Given selected microenvironments, return all cell types residing within
+  Parameters:
+    -> selected_microenvironments (string): String of all microenvironments to extract cell types from
+  Returns
+    -> (array): All cell types within microenvironments
+  */
+  var sel_mes_set = new Set();
+  for (sel_me of selected_microenvironments.split(',')) {
+      cts = microenvironment2cell_types[sel_me];
+      sel_mes_set = new Set([ ...sel_mes_set, ...cts ]);
+  }
+  return Array.from(sel_mes_set).sort();
+}
+
 function refreshSGEPlot() {
     var projectId = getProjectId();
-    var ret = getSelectedTokens(["sge_selected_genes", "sge_selected_celltypes"]);
+    var ret = getSelectedTokens(["sge_selected_genes", "sge_selected_celltypes", "sge_selected_microenvironments"]);
     var selectedGenes = ret[0];
     var selectedCellTypes = ret[1];
+    var selectedMicroenvironments = ret[2];
+    if (selectedMicroenvironments && !selectedCellTypes){
+      selectedCellTypes = getCellTypesForMicroenvironment(decodeURIComponent(selectedMicroenvironments));
+    }
+    console.log("genes ", selectedGenes, " cell types ", selectedCellTypes, " microenvironments ", selectedMicroenvironments)
     var url = './api/data/'+projectId+'/single_gene_expression';
     if (selectedGenes || selectedCellTypes) {
         url += "?";
@@ -2651,16 +2666,11 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     var selectedGenes = ret[pos++];
     var selectedCellTypes = ret[pos++];
     populate_cci_cell_type_pair_search_grid(); //update cell type pair selection
-    var selectedCellTypePairs = selectedCellTypes.length ? [CCIGetSelectedCellTypePairs()] : [] ;
+    var selectedCellTypePairs = selectedCellTypes ? [CCIGetSelectedCellTypePairs()] : [] ;
     var selectedInteractions = ret[pos++];
     var selectedMicroenvironments = ret[pos++];
     if (selectedMicroenvironments) {
-      var sel_mes_set = new Set();
-            for (sel_me of decodeURIComponent(selectedMicroenvironments).split(',')) {
-                cts = microenvironment2cell_types[sel_me];
-                sel_mes_set = new Set([ ...sel_mes_set, ...cts ]);
-            }
-            selectedCellTypes = Array.from(sel_mes_set).sort();
+      selectedCellTypes = getCellTypesForMicroenvironment(decodeURIComponent(selectedMicroenvironments));
     }
     var selectedClasses = ret[pos++];
     var url = './api/data/'+projectId+'/cell_cell_interaction_search';
