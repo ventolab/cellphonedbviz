@@ -50,7 +50,7 @@ function refreshCCISummaryChordPlots() {
     var ret = getSelectedTokens(["cci_summary_selected_classes"]);
     var selectedClasses = ret[0];
     ret = getSelectedTokens(["cci_summary_selected_microenvironments"]);
-    var selectedMicroenvironments = ret[0];
+    var selectedMicroenvironments = ret[0] ? decodeURIComponent(ret[0]) : ret[0];
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
@@ -245,97 +245,6 @@ function refreshCCISummaryChordPlots() {
             </div>
           </div>
         </div>
-        
-        <!---FILTERS FOR CELL-CELL COMMUNICATION SUMMARY-->
-        <div class="col s12">
-          <div class="card">
-                <ul class="collapsible">
-                    <li>
-                      <div class="collapsible-header center search-header"><i class="material-icons">expand_more</i>Manage filters</div>
-                      <div class="collapsible-body">
-                          
-                          <div>
-                              <div id="cci_summary_modality_filter_div" style="padding-left: 20px; padding-right: 20px" hidden>
-                                  <div class="input-field">
-                                    <input style="padding-top: 30px;" type="text" id="cci_summary_modality_input" placeholder="">
-                                    <label style="padding-top: 30px;" for="cci_summary_modality_input" class="black-text text-lighten-10 search-input-label">Filter interactions by modality</label>
-                                  </div>
-                                  <div style="padding-bottom: 20px;" class="cci_summary_selected_modalities"></div>
-                              </div>
-                              <div id="cci_summary_score_div" style="padding-left: 20px; padding-right: 800px; padding-top: 10px" hidden>
-                                  <div class="range-field">
-                                    <label style="padding-top: 10px; font-size: 14px;" for="cci_summary_score_input" class="black-text text-lighten-10 input-label">Filter interactions by minimum score</label>
-                                    <input type="range" value="0" id="cci_summary_score_input" min="0" max="100" placeholder=""/>
-                                    <span>Minimum interaction score: <label id="cci_summary_selected_min_score" style="font-size: 14px;" class="black-text text-lighten-10">0</label></span>
-                                  </div>
-                              </div>
-                              <div id="cci_summary_buttons_div" style="padding-left: 20px; padding-right: 20px; padding-bottom: 20px; padding-top: 20px" hidden>
-                                  <button id="refresh_cci_summary_plots" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshCCISummaryPlots();">Refresh plots
-                                        <i class="material-icons right">refresh</i>
-                                  </button>
-                                  <button id="clear_cci_summary_filter" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISummaryFilters()">Clear filters&nbsp;
-                                        <i class="material-icons right">clear_all</i>
-                                  </button>
-                              </div>
-                          </div>
-                      </div>
-                    </li>
-                </ul>
-              
-            </div>  <!-- <div class="card"> -->
-        </div> <!-- <div class="col s12"> -->
-        <!--SINGLE GENE EXPRESSION FILTERS-->
-        <div class="col s12">
-          <div class="card">
-              <div class="row">
-                  <div id="search_results" hidden>
-                    <div class="card">
-                      <div class="card-content black-text col s12">
-                        <div id="search_results_table"  class="col s12">
-                          <span id="search_results_title" class="card-title"></span>
-                          <div hidden id="search_results_csv"></div>
-                          <div class="divider"></div>
-                            <span style="color: blue"><i>Click on an interaction partner name for more information.</i></span>
-                            <p></p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-
-                  <div style="padding-left: 35px" class="col s12 m3 l3">
-                      <ul class="collapsible">
-                        <li>
-                          <div class="collapsible-header center search-header"><i class="material-icons">expand_more</i>Manage filters</div>
-                          <div class="collapsible-body">
-
-                            <div id="num_all_cell_type_pairs" hidden></div>
-                            <div class="row">
-                              <div class="col s12">
-                                <div class="row">
-                                  <div>
-                                      <div class="section center">
-                                        <button id="refresh_sge_plot_btn" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="refreshSGEPlot()">Refresh plot
-                                            <i class="material-icons right">refresh</i>
-                                        </button>
-                                        <button id="clear_sge_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearSGEFilters()">Clear filters&nbsp;
-                                            <i class="material-icons right">clear_all</i>
-                                        </button>
-                                      </div>
-                                      <div style="padding-top: 20px;"></div>
-                                      
-                                      <div style="padding-top: 20px;"></div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </li>
-                      </ul>
-                  </div>
-              </div> <!-- <div class="row"> -->
-          </div> <!-- <div class="card"> -->
-        </div> <!-- <div class="col s12"> -->
 
         <!--========================
           CELLPHONEDB PREDICTION PANE
@@ -550,13 +459,30 @@ function refreshCCISummaryChordPlots() {
                           <span class="outer-filter-nest">By Interaction Classification</span>
                         </label>
                         <div class="filter-layer-two" id="summaryinteractionclassfilter-select">
-                          <div id="cci_summary_class_filter_div" style="padding-left: 20px; padding-right: 20px" hidden>
+                          <div id="cci_summary_class_filter_div" hidden>
                             <div class="input-field">
                               <input style="padding-top: 30px;" type="text" id="cci_summary_class_input" placeholder="">
                               <label style="padding-top: 30px;" for="cci_summary_class_input" class="black-text text-lighten-10 search-input-label">Filter interactions by class</label>
                             </div>
                             <div style="padding-bottom: 20px;" class="cci_summary_selected_classes"></div>
                           </div>
+
+                          <div id="cci_summary_score_div">
+                            <div class="range-field">
+                              <label style="padding-top: 10px; font-size: 14px;" for="cci_summary_score_input" class="black-text text-lighten-10 input-label">Filter interactions by minimum score</label>
+                              <input type="range" value="0" id="cci_summary_score_input" min="0" max="100" placeholder=""/>
+                              <span>Minimum interaction score: <label id="cci_summary_selected_min_score" style="font-size: 14px;" class="black-text text-lighten-10">0</label></span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!--Currently unused filters (were these previously in use?): Dumping here just in case-->
+                        <div id="cci_summary_modality_filter_div" style="padding-left: 20px; padding-right: 20px" hidden>
+                          <div class="input-field">
+                            <input style="padding-top: 30px;" type="text" id="cci_summary_modality_input" placeholder="">
+                            <label style="padding-top: 30px;" for="cci_summary_modality_input" class="black-text text-lighten-10 search-input-label">Filter interactions by modality</label>
+                          </div>
+                          <div style="padding-bottom: 20px;" class="cci_summary_selected_modalities"></div>
                         </div>
                       </div>
 
