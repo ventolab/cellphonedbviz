@@ -439,7 +439,6 @@ function refreshSGEPlot() {
     if (selectedMicroenvironments && !selectedCellTypes){
       selectedCellTypes = getCellTypesForMicroenvironment(decodeURIComponent(selectedMicroenvironments));
     }
-    console.log("genes ", selectedGenes, " cell types ", selectedCellTypes, " microenvironments ", selectedMicroenvironments)
     var url = './api/data/'+projectId+'/single_gene_expression';
     if (selectedGenes || selectedCellTypes) {
         url += "?";

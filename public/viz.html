@@ -133,7 +133,7 @@ function refreshCCISummaryChordPlots() {
     $('.tooltipped').tooltip();
  });
 
- $('ul.tabs').on('click', 'a', function(e) {
+ $('#cci-tabs.tabs').on('click', 'a', function(e) {
     const filter_hide_show_map = {'Summary': {'show': ["cci-summary-apply-filters", "cci-summary-cell-type-filters", "cci-summary-interaction-filters"], 'hide': ["sge-apply-filters", "cci-search-apply-filters", "cci-search-cell-type-filters", "sge-cell-type-filters", "cci-search-interaction-filters", "sge-interaction-filters"]}, 'Search': {'show': ["cci-search-apply-filters", "cci-search-cell-type-filters", "cci-search-interaction-filters"], 'hide': ["cci-summary-apply-filters", "sge-apply-filters", "cci-summary-cell-type-filters", "sge-cell-type-filters", "cci-summary-interaction-filters", "sge-interaction-filters"]}, 'Single Gene Expression': {'show': ["sge-apply-filters", "sge-cell-type-filters", "sge-interaction-filters"], 'hide': ["cci-summary-apply-filters", "cci-search-apply-filters", "cci-summary-cell-type-filters", "cci-search-cell-type-filters", "cci-summary-interaction-filters", "cci-search-interaction-filters"]}}
     const selected_plot = e.target.text;
 
@@ -230,6 +230,7 @@ function refreshCCISummaryChordPlots() {
               <div class="col s0 m3 l3"></div>
               <!--Plot 1: cell type composition-->
               <div id="input-cell-composition" class="input-display col s12 m6 l6">
+                <span id="ctcomp_title" hidden>Cell composition</span>
                 <button id="ctcomp_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn" onclick="downloadAsPDF('ctcomp','ctcomp_title','ctcomp_header')">
                     <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                 </button>
@@ -243,6 +244,7 @@ function refreshCCISummaryChordPlots() {
 
               <!--Plot 2: Spatial microenvironments-->
               <div id="input-spatial-micro" class="input-display col s12 m6 l6">
+                <span id="spme_title" hidden>Spatial microenvironments</span>
                 <button id="spme_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn" onclick="downloadAsPDF('spme','spme_title','spme_header')">
                     <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                 </button>
@@ -620,6 +622,7 @@ function refreshCCISummaryChordPlots() {
               ---------------->
               <!---Cell-Cell Communication Summary Display-->
               <div id="cci-summary" class="col s9 cci-display">
+                <span id="cci_summary_title" hidden>Cell-cell Communication - Summary</span>
                 <div id="cci_summary_spinner" class="container center" hidden>
                   <div class="preloader-wrapper active center">
                     <div class="spinner-layer spinner-red-only">
@@ -867,6 +870,7 @@ function refreshCCISummaryChordPlots() {
 
               <!---Cell-Cell Communication Search Display-->
               <div id="cci-search" class="col s9 cci-display">
+                <span id="cci_search_title" hidden>Cell-cell Communication - Search</span>
                 <div id="cci_search_spinner" class="container center">
                   <div class="preloader-wrapper active center">
                     <div class="spinner-layer spinner-red-only">
@@ -921,6 +925,7 @@ function refreshCCISummaryChordPlots() {
 
               <!--Single Gene Expression Display-->
               <div id="single-gene-expr" class="col s9 cci-display">
+                <span id="sge_title" hidden>Single gene expression</span>
                 <div>
                   <div id="sge_spinner" class="container center" hidden>
                     <div class="preloader-wrapper active center">
