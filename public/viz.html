@@ -227,12 +227,13 @@ function refreshCCISummaryChordPlots() {
                 </ul>
             </div>
             <div class="row center-align" id="cci-display-panel">
+              <div class="col s0 m3 l3"></div>
               <!--Plot 1: cell type composition-->
-              <div id="input-cell-composition" class="input-display">
-                <button id="ctcomp_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('ctcomp','ctcomp_title','ctcomp_header')">
+              <div id="input-cell-composition" class="input-display col s12 m6 l6">
+                <button id="ctcomp_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn" onclick="downloadAsPDF('ctcomp','ctcomp_title','ctcomp_header')">
                     <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                 </button>
-                <span id="celltype_composition_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                <span id="celltype_composition_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn">
                   <i class="material-icons left tooltipped"
                       data-tooltip="The plot shows the mapping between different cell type characteristics specified in the file under the configuration key: 'celltype_composition'">info_outline</i>
                 </span>
@@ -241,17 +242,18 @@ function refreshCCISummaryChordPlots() {
               </div>
 
               <!--Plot 2: Spatial microenvironments-->
-              <div id="input-spatial-micro" class="input-display center-align">
-                <button id="spme_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('spme','spme_title','spme_header')">
+              <div id="input-spatial-micro" class="input-display col s12 m6 l6">
+                <button id="spme_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn" onclick="downloadAsPDF('spme','spme_title','spme_header')">
                     <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
                 </button>
-                <span id="spme_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                <span id="spme_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn">
                   <i class="material-icons left tooltipped"
                       data-tooltip="The plot shows the mapping between cell types and microenvironments specified in the file under the configuration key: 'microenvironments'">info_outline</i>
                 </span>
                 <div id="spme_header" hidden>Cell Type - Microenvironment</div>
                 <div id="spme" style="width:800px;justify-content: center;"></div>
               </div>
+              <div class="col s0 m3 l3"></div>
             </div>
           </div>
         </div>

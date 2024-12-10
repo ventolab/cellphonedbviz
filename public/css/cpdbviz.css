@@ -101,10 +101,6 @@ nav ul li a, h5 {
   overflow-y: scroll;
 }
 
-.input-display {
-  margin: auto;
-}
-
 .cci-display {
   overflow-x: scroll;
 }
@@ -114,7 +110,11 @@ nav ul li a, h5 {
 }
 
 #cci-summary, #cci-search, #single-gene-expr, .input-display {
-  padding-top: 20px;
+  padding-top: 20px !important;
+}
+
+.input-conf-btn {
+  float: left !important;
 }
 
 .border-card {
