@@ -1735,7 +1735,7 @@ function clearCCISearchFilters() {
 
 function clearCCISearchCellTypeFilters() {
     $('.cci_search_selected_celltypes').empty();
-    $('.cci_search_selected_celltype_pairs').empty();
+    populate_cci_cell_type_pair_search_grid(); //Remove existing cell type pair selection
 }
 
 function clearCCISearchInteractionFilters() {
@@ -2911,11 +2911,11 @@ function generate_cci_cell_type_pair_search_grid(ticks_arr){
 
   selection_grid_obj.selectAll(".x-axis .tick")
   .on("click", function(d) {
-    cci_toggle_select_cells_by_type(".row_" + d.srcElement.innerHTML.replace(/[. ]/g, "_"));
+    cci_toggle_select_cells_by_type(".col_" + d.srcElement.innerHTML.replace(/[. ]/g, "_"));
   });
   selection_grid_obj.selectAll(".y-axis .tick")
   .on("click", function(d) {
-    cci_toggle_select_cells_by_type(".col_" + d.srcElement.innerHTML.replace(/[. ]/g, "_"));
+    cci_toggle_select_cells_by_type(".row_" + d.srcElement.innerHTML.replace(/[. ]/g, "_"));
   });
 }
 
@@ -2990,6 +2990,7 @@ function populate_cci_cell_type_pair_search_grid() {
     generate_cci_cell_type_pair_search_grid(ticks_arr);
   }
   else {
+    grid_cell_type_data = []
     $("#select_cell_type_pairs_grid").html("<h6>No cell types selected </h6>")
   }
 }

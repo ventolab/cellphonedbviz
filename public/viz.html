@@ -391,11 +391,13 @@ function refreshCCISummaryChordPlots() {
                           <div id="cell-type-pair-modal" class="modal modal-fixed-footer">
                             <div class="modal-content">
                               <h3 class="center-align">Select cell type pairs</h3>
-                              <p>Select specific interactions between cell types on this grid. Incoming interactions are the y-axis and outgoing interactions are the x-axis. A blue square indicates a selected interaction between cell type pairs. White means that the interaction has not been selected. A grey square indicates that the interaction does not exist between the relevant cell types.</p>
-                              <div id="select_cell_type_pairs_grid"></div>
+                              <p class="center-align">Select specific interactions between cell types on this grid. Incoming interactions are along the y-axis and outgoing interactions are along the x-axis.</p>
+                              <p class="center-align"> A blue square indicates a selected interaction between cell type pairs. White means that the interaction has not been selected. A grey square indicates that the interaction does not exist between the relevant cell types.</p>
+                              <p class="center-align">Click the labels on either axis to select/deselect all incoming (y-axis) or outgoing (x-axis) interactions for that cell type.</p>
+                              <div class="center-align" id="select_cell_type_pairs_grid"></div>
                             </div>
                             <div class="modal-footer">
-                              <button class="modal-close waves-effect waves-green btn-flat">Close</button>
+                              <button class="modal-close waves-effect waves-green btn blue">Save and Close</button>
                             </div>
                           </div>
                           <div class="divider filter-divider"></div>
