@@ -224,6 +224,7 @@ nav ul li a, h5 {
 ::-webkit-scrollbar {
   -webkit-appearance: none;
   width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-thumb {
