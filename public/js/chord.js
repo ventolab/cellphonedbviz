@@ -38,6 +38,7 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,ribbonColor,
             ct2Colour[ct] = 'black';
         }
     }
+    console.log("GOT WIDTH ", width)
 
     const svg = d3.create("svg")
         .attr("width", width*1.6)

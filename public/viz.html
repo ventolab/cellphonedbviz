@@ -190,6 +190,8 @@ function refreshCCISummaryChordPlots() {
         </div>
         <br>
         <h4 class="center" id="page_header"></h4>
+
+        <!-- Temporarily ?? remove table of contents
         <div class="row">
               <div class="card-content center">
                   <a data-target="toc-dropdown" style="text-transform: none;" class="dropdown-trigger btn">
@@ -198,7 +200,6 @@ function refreshCCISummaryChordPlots() {
               </div>
         </div>
 
-        <!-- Dropdown ToC -->
         <ul id='toc-dropdown' class='dropdown-content'>
           <div class="toc-header left">Input dataset: overview</div>
           <li id="toc_ctcomp"><a name="#ctcomp_title" >Cell composition</a></li>
@@ -208,7 +209,7 @@ function refreshCCISummaryChordPlots() {
           <li><a href="#cci_summary_title">Cell-cell Communication - Summary</a></li>
           <li><a href="#cci_search_title">Cell-cell Communication - Search</a></li>
           <li><a href="#sge_title">Single Gene Expression</a></li>
-        </ul>
+        </ul>-->
 
 
 
@@ -647,10 +648,10 @@ function refreshCCISummaryChordPlots() {
                     </label>
                   </div>
                 </div>
-                <div class="row">
+                <div class="row cci-summary-plot-row">
                   <!-- Cell cell interaction plot - All cell types-->
                   <div id="cci0_div" hidden>
-                    <div class="col s12 m6 l6">
+                    <div class="col">
                       <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci0','cci_summary_title','cci0_header')">
@@ -670,10 +671,10 @@ function refreshCCISummaryChordPlots() {
                     </div>
                   </div>
                 </div>
-                <div class="row">
+                <div class="row cci-summary-plot-row">
                   <!-- Cell cell interaction plot - Microenvironment 1 -->
                   <div id="cci1_div" hidden>
-                    <div class="col s12 m4 l4">
+                    <div class="col">
                       <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci1','cci_summary_title','cci1_header')">
@@ -687,14 +688,14 @@ function refreshCCISummaryChordPlots() {
                             </span>
                           <div id="cci1_header" hidden></div>
                             <div id="cci1" style="width:400px"></div>
-                            <div id="cci1_chord" style="width:400px" hidden></div>
+                            <div id="cci1_chord" style="width:450px" hidden></div>
                         </div>
                       </div>
                     </div>
                   </div>
                   <!-- Cell cell interaction plot - Microenvironment 2 -->
                   <div id="cci2_div" hidden>
-                    <div class="col s12 m4 l4">
+                    <div class="col">
                       <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci2','cci_summary_title','cci2_header')">
@@ -708,14 +709,14 @@ function refreshCCISummaryChordPlots() {
                             </span>
                             <div id="cci2_header" hidden></div>
                             <div id="cci2" style="width:400px"></div>
-                            <div id="cci2_chord" style="width:400px" hidden></div>
+                            <div id="cci2_chord" style="width:450px" hidden></div>
                         </div>
                       </div>
                     </div>
                   </div>
                   <!-- Cell cell interaction plot - Microenvironment 3 -->
                   <div id="cci3_div" hidden>
-                    <div class="col s12 m4 l4">
+                    <div class="col">
                       <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci3','cci_summary_title','cci3_header')">
@@ -729,17 +730,17 @@ function refreshCCISummaryChordPlots() {
                             </span>
                           <div id="cci3_header" hidden></div>
                             <div id="cci3" style="width:400px"></div>
-                            <div id="cci3_chord" style="width:400px" hidden></div>
+                            <div id="cci3_chord" style="width:450px" hidden></div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div> <!-- <div class="row"> -->
 
-                <div class="row">
+                <div class="row cci-summary-plot-row">
                   <!-- Cell cell interaction plot - Microenvironment 4 -->
                   <div id="cci4_div" hidden>
-                    <div class="col s12 m4 l4">
+                    <div class="col">
                       <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci4','cci_summary_title','cci4_header')">
@@ -753,14 +754,14 @@ function refreshCCISummaryChordPlots() {
                             </span>
                           <div id="cci4_header" hidden></div>
                             <div id="cci4" style="width:400px"></div>
-                            <div id="cci4_chord" style="width:400px" hidden></div>
+                            <div id="cci4_chord" style="width:450px" hidden></div>
                         </div>
                       </div>
                     </div>
                   </div>
                   <!-- Cell cell interaction plot - Microenvironment 5 -->
                   <div id="cci5_div" hidden>
-                    <div class="col s12 m4 l4">
+                    <div class="col">
                       <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci5','cci_summary_title','cci5_header')">
@@ -774,14 +775,14 @@ function refreshCCISummaryChordPlots() {
                             </span>
                           <div id="cci5_header" hidden></div>
                             <div id="cci5" style="width:400px"></div>
-                            <div id="cci5_chord" style="width:400px" hidden></div>
+                            <div id="cci5_chord" style="width:450px" hidden></div>
                         </div>
                       </div>
                     </div>
                   </div>
                   <!-- Cell cell interaction plot - Microenvironment 6 -->
                   <div id="cci6_div" hidden>
-                    <div class="col s12 m4 l4">
+                    <div class="col">
                       <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci6','cci_summary_title','cci6_header')">
@@ -795,16 +796,16 @@ function refreshCCISummaryChordPlots() {
                             </span>
                           <div id="cci6_header" hidden></div>
                             <div id="cci6" style="width:400px"></div>
-                            <div id="cci6_chord" style="width:400px" hidden></div>
+                            <div id="cci6_chord" style="width:450px" hidden></div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div> <!-- <div class="row"> -->
-                <div class="row">
+                <div class="row cci-summary-plot-row">
                   <!-- Cell cell interaction plot - Microenvironment 7 -->
                   <div id="cci7_div" hidden>
-                    <div class="col s12 m4 l4">
+                    <div class="col">
                       <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci7','cci_summary_title','cci7_header')">
@@ -818,14 +819,14 @@ function refreshCCISummaryChordPlots() {
                             </span>
                           <div id="cci7_header" hidden></div>
                             <div id="cci7" style="width:400px"></div>
-                            <div id="cci7_chord" style="width:400px" hidden></div>
+                            <div id="cci7_chord" style="width:450px" hidden></div>
                         </div>
                       </div>
                     </div>
                   </div>
                   <!-- Cell cell interaction plot - Microenvironment 8 -->
                   <div id="cci8_div" hidden>
-                    <div class="col s12 m4 l4">
+                    <div class="col">
                       <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci8','cci_summary_title','cci8_header')">
@@ -839,14 +840,14 @@ function refreshCCISummaryChordPlots() {
                             </span>
                           <div id="cci8_header" hidden></div>
                             <div id="cci8" style="width:400px"></div>
-                            <div id="cci8_chord" style="width:400px" hidden></div>
+                            <div id="cci8_chord" style="width:450px" hidden></div>
                         </div>
                       </div>
                     </div>
                   </div>
                   <!-- Cell cell interaction plot - Microenvironment 9 -->
                   <div id="cci9_div" hidden>
-                    <div class="col s12 m4 l4">
+                    <div class="col">
                       <div class="card">
                         <div class="card-content black-text col s12">
                           <button style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2" onclick="downloadAsPDF('cci9','cci_summary_title','cci9_header')">
@@ -860,7 +861,7 @@ function refreshCCISummaryChordPlots() {
                             </span>
                           <div id="cci9_header" hidden></div>
                             <div id="cci9" style="width:400px"></div>
-                            <div id="cci9_chord" style="width:400px" hidden></div>
+                            <div id="cci9_chord" style="width:450px" hidden></div>
                         </div>
                       </div>
                     </div>

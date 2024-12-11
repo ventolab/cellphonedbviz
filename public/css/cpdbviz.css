@@ -215,3 +215,7 @@ nav ul li a, h5 {
   max-height: 100%;
   bottom: 10% !important;
 }
+
+.cci-summary-plot-row {
+  width: 1700px;
+}
