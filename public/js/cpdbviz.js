@@ -1769,9 +1769,27 @@ function refreshCCISummaryPlots(storeTokens=false) {
      });
 }
 
+function clearAllGenericFilters(ids_to_clear){
+  /*Clear all subfilters within cell type or interactions
+  Parameters:
+    -> ids_to_clear (array): IDs of subsections we want cleared.*/
+  for(let id_to_clear of ids_to_clear){
+    $(id_to_clear + ' > label > input').each(function () {
+      if(!this.disabled){
+        this.checked = false;
+        $(id_to_clear + ' > .filter-layer-two').each(function () {
+          this.hidden = true;
+        });
+      }
+    });
+  };
+  
+}
+
 function clearSGEFilters() {
     $('.sge_selected_genes').empty();
     $('.sge_selected_celltypes').empty();
+    clearAllGenericFilters(["#sge-interaction-filters", "#sge-cell-type-filters"])
 }
 
 function clearSGECellTypeFilters() {
@@ -1783,6 +1801,7 @@ function clearCCISummaryFilters() {
     $('.cci_summary_selected_microenvironments').empty();
     $('#cci_summary_selected_min_score').text("0");
     $('#cci_summary_score_input').val(0);
+    clearAllGenericFilters(["#cci-summary-interaction-filters", "#cci-summary-cell-type-filters"])
 }
 
 function clearCCISearchFilters() {
@@ -1791,6 +1810,7 @@ function clearCCISearchFilters() {
     $('.cci_search_selected_interactions').empty();
     $('.cci_search_selected_celltype_pairs').empty();
     $('.cci_search_selected_classes').empty();
+    clearAllGenericFilters(["#cci-search-interaction-filters", "#cci-search-cell-type-filters"])
 }
 
 function clearCCISearchCellTypeFilters() {
@@ -1864,8 +1884,18 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
             $('#cci_search_sidenav_content').append(interacting_pair2properties_html[ip]);
         }
     }
-
+    
     if (storeTokens) {
+        if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 0 && $('.cci_search_selected_microenvironments').is(':empty')) {
+          // This is the case on first page load for v. large data sets
+          for (var i = 0; i < selectedMicroenvironments.length; i++) {
+              storeToken(selectedMicroenvironments[i], "cci_search_selected_microenvironments", "cci_search_microenvironment_input");
+          }
+        } else if ($('.cci_search_selected_celltypes').is(':empty')) {
+            for (var i = 0; i < selectedCellTypes.length; i++) {
+                storeToken(selectedCellTypes[i], "cci_search_selected_celltypes", "cci_search_celltype_input");
+            }
+        }
         for (var i = 0; i < selectedGenes.length; i++) {
             storeToken(selectedGenes[i], "cci_search_selected_genes", "cci_search_gene_input");
         }
