@@ -232,3 +232,21 @@ nav ul li a, h5 {
   background-color: rgba(0, 0, 0, .5);
   box-shadow: 0 0 1px rgba(255, 255, 255, .5);
 }
+
+/*For error alerts*/
+
+.alert {
+	.card-content {
+		span {
+			font-weight: bold;
+			font-size: 1.1em;
+			margin-right:4px;
+		}
+		.material-icons {
+			font-size: 1.5em;
+			position: relative;
+			top: 5px;
+			margin-right: 0.5em;
+		}	
+	}
+}	

@@ -182,6 +182,56 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 });
 
+function generateFilterErrorMessage(missing_filter_section){
+  /*Given the overall missing filter type, generate a string (html) error message to display in the plot panel.
+  Parameters:
+    -> Missing_filter_section (string): Overall type of missing filter.
+  Returns:
+    -> Error_msg (string): HTML-formatted message to display.
+  */
+ return "<p><b>Missing filter for: " + missing_filter_section + ".</b> Please select a filter here and refresh the plot to see results."
+}
+
+function generateErrorModalForFilters(received_filters, error_div){
+  /*Given applied filters, if no filter is applied for a specific filter type (interaction or cell type) generate and display an error message.
+  If no problems detected, ensure error div is hidden.
+  Parameters:
+    -> received_filters (dict): in format {"cell_type": [[filter_x_val1, ...],...], "interactions": [[filter_y_val1, ...],...] }
+    -> error_div (string): ID of error div for specific plot.
+  Returns:
+    -> None
+  */
+ const filter_present = (element) => !element ? element : element.length;
+ var error_text = ""
+ for (overall_filter in received_filters) {
+  if(!received_filters[overall_filter].some(filter_present)){
+    error_text = error_text.concat(generateFilterErrorMessage(overall_filter));
+  }
+ }
+
+ if (error_text) {
+  const html_for_error = '<div class="alert card red lighten-4 red-text text-darken-4"><div class="card-content"><p><i class="material-icons">report</i><span><b>Missing filters</b></span></p>' + error_text + '</div></div>';
+  $("#" + error_div).html(html_for_error);
+  $("#" + error_div).show();
+ }
+ else {
+  $("#" + error_div).hide();
+ }
+}
+
+function generateErrorModalGivenMessage(error_msg, error_div){
+  /*Given error message, generate an error modal containing it
+  Parameters:
+    -> error_msg(string): Message to display on error modal in plot
+    -> error_div (string): ID of error div for specific plot
+  Returns:
+    -> None
+  */
+    const html_for_error = '<div class="alert card red lighten-4 red-text text-darken-4"><div class="card-content"><p><i class="material-icons">report</i><span><h5>Missing Filters</h5></span>' + error_msg + '</p></div></div>';
+    $("#" + error_div).html(html_for_error);
+    $("#" + error_div).show();
+}
+
 function downloadAsPDF(divId, titleId, headerId) {
     var projectId = getProjectId();
     var options = {};
@@ -436,6 +486,7 @@ function refreshSGEPlot() {
     var selectedGenes = ret[0];
     var selectedCellTypes = ret[1];
     var selectedMicroenvironments = ret[2];
+    if (!storeTokens) {generateErrorModalForFilters({"Cell Types": [selectedMicroenvironments, selectedCellTypes], "Interactions": [selectedGenes]}, "single-gene-expr-error")}
     if (selectedMicroenvironments && !selectedCellTypes){
       selectedCellTypes = getCellTypesForMicroenvironment(decodeURIComponent(selectedMicroenvironments));
     }
@@ -1556,6 +1607,7 @@ function refreshCCISummaryPlots(storeTokens=false) {
     var selectedModalities = ret[pos++];
     var selectedMinInteractionScore = $('#cci_summary_selected_min_score').text();
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
+    if (!storeTokens) {generateErrorModalForFilters({"Cell Types": [selectedMicroenvironments], "Interactions": [selectedClasses, selectedModalities, selectedMinInteractionScore]}, "cci_summary_error")}
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
     }
@@ -1574,14 +1626,12 @@ function refreshCCISummaryPlots(storeTokens=false) {
            if (res.hasOwnProperty('microenvironment2cell_types')) {
                 if (maxCellTypesExceeded(res['all_cell_types'])) {
                         if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 1) {
-                        $("#cci_summary_error").text("Due to a very large number of cell types in the analysis, the number of interactions can be plotted for one microenvironment only. Please restrict your microenvironments filter to just one and try again.")
-                        $("#cci_summary_error").show();
+                        generateErrorModalGivenMessage("Due to a very large number of cell types in the analysis, the number of interactions can be plotted for one microenvironment only. Please restrict your microenvironments filter to just one and try again.", "cci_summary_error");
                         $("#cci_summary_spinner").hide();
                         return;
                     }
                 } else if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 9) {
-                    $("#cci_summary_error").text("The number of interactions can be plotted for maximum of nine microenvironments. Please restrict your microenvironments filter to the maximum or less and try again.")
-                    $("#cci_summary_error").show();
+                    generateErrorModalGivenMessage("The number of interactions can be plotted for maximum of nine microenvironments. Please restrict your microenvironments filter to the maximum or less and try again.", "cci_summary_error");
                     $("#cci_summary_spinner").hide();
                     return;
                 }
@@ -2648,7 +2698,7 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
-function refreshCCISearchPlot(interacting_pairs_selection_logic) {
+function refreshCCISearchPlot(interacting_pairs_selection_logic, storeTokens=false) {
     var projectId = getProjectId();
 
     const sort_interacting_pairs_alphabetically = $('#cci_search_sort_ips_switch').is(':checked');
@@ -2669,6 +2719,7 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic) {
     }
     var selectedClasses = ret[pos++];
     var url = './api/data/'+projectId+'/cell_cell_interaction_search';
+    if (!storeTokens) {generateErrorModalForFilters({"Cell Types": [selectedCellTypePairs, selectedMicroenvironments, selectedCellTypes], "Interactions": [selectedGenes, selectedInteractions, selectedClasses]}, "cci-search-error")}
     if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs || selectedClasses) {
         url += "?";
         if (selectedClasses) {
