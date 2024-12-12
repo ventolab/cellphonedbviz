@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
      // Generate CCISummary plots on first page load
-     refreshCCISummaryPlots();
+     refreshCCISummaryPlots(storeTokens=true);
 
      // Generate cell-cell interaction search plot
      $.ajax({
@@ -1544,7 +1544,7 @@ function getQuerySeparator(previous) {
     }
 }
 
-function refreshCCISummaryPlots() {
+function refreshCCISummaryPlots(storeTokens=false) {
     $("#cci_summary_error").hide();
     $("#cci_summary_spinner").show();
 
@@ -1629,15 +1629,25 @@ function refreshCCISummaryPlots() {
                     res['max_num_ints'] = max_num_ints;
                     // Now generate the per-microenvironment plots
                     for (let [microenvironment, cellTypes] of map.entries()) {
-                        if (typeof selectedMicroenvironments == 'undefined' || decodeURI(selectedMicroenvironments).includes(microenvironment)) {
+                        if ((storeTokens && typeof selectedMicroenvironments == 'undefined') || decodeURI(selectedMicroenvironments).includes(microenvironment)) {
                             generateCellCellInteractionSummaryPlot(res, cellTypes.sort(), microenvironment, cnt);
                             storeToken(microenvironment, "cci_summary_selected_microenvironments", "cci_summary_microenvironment_input");
+                            $("#cci", cnt, "_div").show();
                             cnt++;
                             if (cnt > max) {
                                 // TODO: We currently only have up to nine slots for microenvironment-specific cci plots available if !maxCellTypesExceeded(res)
                                 break;
                             }
                         }
+                    }
+
+                    //Hide microenvironment slots currently not taken
+                    var selectedMicroenvironmentsList = decodeURIComponent(selectedMicroenvironments).split(",");
+                    const lengthOfMicroenvironments = typeof selectedMicroenvironments == 'undefined' ? 1 : selectedMicroenvironmentsList.length + 1;
+                    if (!storeTokens && lengthOfMicroenvironments < max){
+                      for (let microenv_count = lengthOfMicroenvironments; microenv_count <= max; microenv_count++) {
+                        $("#cci" + microenv_count + "_div").hide();
+                      }
                     }
                     // Generate plot across cell types also - in case the user wishes to see it
                     // Note: The plot is generated if the number of cell types has not exceeded the maximum
@@ -1804,20 +1814,6 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
             $('#cci_search_sidenav_content').append(interacting_pair2properties_html[ip]);
         }
     }
-
-    // This section is done outside of storeTokens below as both microenvironments or cell type may have been removed by the user (and thus pre-selected automatically)
-    // before the plot is refreshed
-    if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 0 && $('.cci_search_selected_microenvironments').is(':empty')) {
-         // This is the case on first page load for v. large data sets
-         for (var i = 0; i < selectedMicroenvironments.length; i++) {
-             storeToken(selectedMicroenvironments[i], "cci_search_selected_microenvironments", "cci_search_microenvironment_input");
-        }
-    } else if ($('.cci_search_selected_celltypes').is(':empty')) {
-        for (var i = 0; i < selectedCellTypes.length; i++) {
-            storeToken(selectedCellTypes[i], "cci_search_selected_celltypes", "cci_search_celltype_input");
-        }
-    }
-
 
     if (storeTokens) {
         for (var i = 0; i < selectedGenes.length; i++) {
