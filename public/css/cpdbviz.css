@@ -80,6 +80,12 @@ nav ul li a, h5 {
     CELLPHONEDB INPUT AND PREDICTIONS PANES
  ==================================================*/
 
+ .pane-title {
+  width: 95%;
+  margin: auto;
+  margin-bottom: 20px;
+  margin-top: 40px;
+ }
  /* Overall display for CellphoneDB panes */
 
  #cci-display-box, #input-display-box {

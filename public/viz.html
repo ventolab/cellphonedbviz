@@ -191,86 +191,13 @@ function refreshCCISummaryChordPlots() {
         <br>
         <h4 class="center" id="page_header"></h4>
 
-        <!-- Temporarily ?? remove table of contents
-        <div class="row">
-              <div class="card-content center">
-                  <a data-target="toc-dropdown" style="text-transform: none;" class="dropdown-trigger btn">
-                    Table of contents&nbsp;<i style="vertical-align: middle;" class="large material-icons center">format_list_bulleted</i>
-                </a>
-              </div>
-        </div>
-
-        <ul id='toc-dropdown' class='dropdown-content'>
-          <div class="toc-header left">Input dataset: overview</div>
-          <li id="toc_ctcomp"><a name="#ctcomp_title" >Cell composition</a></li>
-          <li id="toc_spme"><a href="#spme_title">Spatial microenvironments</a></li>
-          <li class="divider"></li>
-             <div class="toc-header left">CellphoneDB predictions</div>
-          <li><a href="#cci_summary_title">Cell-cell Communication - Summary</a></li>
-          <li><a href="#cci_search_title">Cell-cell Communication - Search</a></li>
-          <li><a href="#sge_title">Single Gene Expression</a></li>
-        </ul>-->
-
-
-
-
-        <!--========================
-          CELLPHONEDB INPUT PANE
-          ========================-->
-        <div class="section">
-          <h4 class="center-align">CellphoneDB Input Data</h4>
-          <div class="card border-card" id="input-display-box">
-            <!--TABS for CellphoneDB inputs-->
-            <div id="input-tabs-row">
-                <ul class="tabs center" id="input-tabs">
-                  <li class="tab col s3 blue-text text-darken-4"><a class="active" href="#input-cell-composition">Cell Composition</a></li>
-                  <li class="tab col s3 blue-text text-darken-4"><a href="#input-spatial-micro">Spatial Microenvironments</a></li>
-                </ul>
-            </div>
-            <div class="row center-align" id="cci-display-panel">
-              <div class="col s0 m3 l3"></div>
-              <!--Plot 1: cell type composition-->
-              <div id="input-cell-composition" class="input-display col s12 m6 l6">
-                <span id="ctcomp_title" hidden>Cell composition</span>
-                <button id="ctcomp_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn" onclick="downloadAsPDF('ctcomp','ctcomp_title','ctcomp_header')">
-                    <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                </button>
-                <span id="celltype_composition_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn">
-                  <i class="material-icons left tooltipped"
-                      data-tooltip="The plot shows the mapping between different cell type characteristics specified in the file under the configuration key: 'celltype_composition'">info_outline</i>
-                </span>
-                <div id="ctcomp_header" hidden></div>
-                <div id="ctcomp" style="width:1500px;height:700px;justify-content: center;"></div>
-              </div>
-
-              <!--Plot 2: Spatial microenvironments-->
-              <div id="input-spatial-micro" class="input-display col s12 m6 l6">
-                <span id="spme_title" hidden>Spatial microenvironments</span>
-                <button id="spme_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn" onclick="downloadAsPDF('spme','spme_title','spme_header')">
-                    <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
-                </button>
-                <span id="spme_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn">
-                  <i class="material-icons left tooltipped"
-                      data-tooltip="The plot shows the mapping between cell types and microenvironments specified in the file under the configuration key: 'microenvironments'">info_outline</i>
-                </span>
-                <div id="spme_header" hidden>Cell Type - Microenvironment</div>
-                <div id="spme" style="width:800px;justify-content: center;"></div>
-              </div>
-              <div class="col s0 m3 l3"></div>
-            </div>
-          </div>
-        </div>
-
-
-
-
 
 
         <!--========================
           CELLPHONEDB PREDICTION PANE
           ========================-->
         <div class="section">
-          <h4 class="center-align">CellphoneDB Predictions</h4>
+          <h4 class="pane-title">CellphoneDB Predictions</h4>
           <div class="card border-card" id="cci-display-box">
             <!--TABS for CellphoneDB predictions-->
             <div id="cci-tabs-row">
@@ -960,6 +887,56 @@ function refreshCCISummaryChordPlots() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+        <!--========================
+        CELLPHONEDB INPUT PANE
+        ========================-->
+        <div class="section">
+          <h4 class="pane-title">CellphoneDB Input Data</h4>
+          <div class="card border-card" id="input-display-box">
+            <!--TABS for CellphoneDB inputs-->
+            <div id="input-tabs-row">
+                <ul class="tabs center" id="input-tabs">
+                  <li class="tab col s3 blue-text text-darken-4"><a class="active" href="#input-cell-composition">Cell Composition</a></li>
+                  <li class="tab col s3 blue-text text-darken-4"><a href="#input-spatial-micro">Spatial Microenvironments</a></li>
+                </ul>
+            </div>
+            <div class="row center-align" id="cci-display-panel">
+              <div class="col s0 m3 l3"></div>
+              <!--Plot 1: cell type composition-->
+              <div id="input-cell-composition" class="input-display col s12 m6 l6">
+                <span id="ctcomp_title" hidden>Cell composition</span>
+                <button id="ctcomp_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn" onclick="downloadAsPDF('ctcomp','ctcomp_title','ctcomp_header')">
+                    <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                </button>
+                <span id="celltype_composition_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn">
+                  <i class="material-icons left tooltipped"
+                      data-tooltip="The plot shows the mapping between different cell type characteristics specified in the file under the configuration key: 'celltype_composition'">info_outline</i>
+                </span>
+                <div id="ctcomp_header" hidden></div>
+                <div id="ctcomp" style="width:1500px;height:700px;justify-content: center;"></div>
+              </div>
+
+              <!--Plot 2: Spatial microenvironments-->
+              <div id="input-spatial-micro" class="input-display col s12 m6 l6">
+                <span id="spme_title" hidden>Spatial microenvironments</span>
+                <button id="spme_save_button" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn" onclick="downloadAsPDF('spme','spme_title','spme_header')">
+                    <i class="material-icons left tooltipped" data-tooltip="Download plot in PDF format">file_download</i>
+                </button>
+                <span id="spme_help" style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2 input-conf-btn">
+                  <i class="material-icons left tooltipped"
+                      data-tooltip="The plot shows the mapping between cell types and microenvironments specified in the file under the configuration key: 'microenvironments'">info_outline</i>
+                </span>
+                <div id="spme_header" hidden>Cell Type - Microenvironment</div>
+                <div id="spme" style="width:800px;justify-content: center;"></div>
+              </div>
+              <div class="col s0 m3 l3"></div>
             </div>
           </div>
         </div>
