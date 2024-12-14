@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // Hide microenvironment input
                 $("#sge_microenvironment_sel").hide();
+                generateInformationModal("Microenvironments not provided.", "sge-no-microenvs");
             }
 
             // Hide progress spinner
@@ -156,6 +157,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 $("#cci_search_microenvironment_input")
                     .attr("placeholder",res['microenvironments'].toString());
             }
+            else {
+              generateInformationModal("Microenvironments not provided.", "cci-search-no-microenvs");
+            }
             if (res['all_cell_types'].length > 50) {
                 // If we have a v.large number of cell types (and thus cell type pairs) don't allow the user to select all cell types in cci_dsearch plot
                 $('#cci_search_select_all_celltypes').addClass('disabled');
@@ -182,13 +186,13 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 });
 
-function generateMissingPlotModal(missing_plot_name, modal_id){
-  /*Given name and ID for plot missing data, populate the modal with meaningful info.
+function generateInformationModal(display_msg, modal_id){
+  /*Given display message and ID to display within, populate and display a modal with the given message.
   Parameters:
-    -> missing_plot_name (string): Display name of expected plot.
+    -> display_msg (string): Message to display.
     -> modal_id (string): ID of div to populate with modal
   */
-  const html_missing_plot = '<div class="alert card blue lighten-4 blue-text text-darken-3"><div class="card-content"><p><i class="material-icons">info</i><span><b>Missing data for ' + missing_plot_name + ' plot.</b></span></p></div></div>';
+  const html_missing_plot = '<div class="alert card blue lighten-4 blue-text text-darken-3"><div class="card-content"><p><i class="material-icons">info</i><span><b>' + display_msg + '</b></span></p></div></div>';
   $('#' + modal_id).html(html_missing_plot);
   $('#' + modal_id).show();
 }
@@ -216,6 +220,9 @@ function generateErrorModalForFilters(received_filters, error_div){
  var error_text = ""
  for (overall_filter in received_filters) {
   if(!received_filters[overall_filter].some(filter_present)){
+    //Don't generate error for cci summary where no microenvironments present (this is a supported option)
+    if (error_div == "cci_summary_error" && overall_filter == "Cell Types") { break; }
+
     error_text = error_text.concat(generateFilterErrorMessage(overall_filter));
   }
  }
@@ -549,7 +556,7 @@ function generateCellCompositionPlot(data) {
         $("#celltype_composition_help").hide();
         // Hide the corresponding option from ToC dropdown
         $("#toc_ctcomp").hide();
-        generateMissingPlotModal('Cell Composition', 'ctcomp-missing')
+        generateInformationModal('Missing data for Cell Composition plot.', 'ctcomp-missing')
         return;
      }
 
@@ -619,7 +626,7 @@ function generateMicroenvironmentsPlot(data) {
         $("#spme_help").hide();
         // Hide the corresponding option from ToC dropdown
         $("#toc_spme").hide();
-        generateMissingPlotModal('Spatial Microenvironments', 'spme-missing');
+        generateInformationModal('Missing data for Spatial Microenvironments plot.', 'spme-missing');
         return;
     }
 
@@ -1620,7 +1627,7 @@ function refreshCCISummaryPlots(storeTokens=false) {
     var selectedModalities = ret[pos++];
     var selectedMinInteractionScore = $('#cci_summary_selected_min_score').text();
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
-    if (!storeTokens) {generateErrorModalForFilters({"Cell Types": [selectedMicroenvironments], "Interactions": [selectedClasses, selectedModalities, selectedMinInteractionScore]}, "cci_summary_error")}
+    if (!storeTokens) { generateErrorModalForFilters({"Cell Types": [selectedMicroenvironments], "Interactions": [selectedClasses, selectedModalities, selectedMinInteractionScore]}, "cci_summary_error") }
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
     }
@@ -1744,6 +1751,10 @@ function refreshCCISummaryPlots(storeTokens=false) {
                     $("#cci_search_microenvironment_sel").hide();
                 } else {
                     disableCCISummarySwitches();
+                }
+                //If no microenvironments detected, display message in config pane
+                if (typeof selectedMicroenvironments == "undefined") {
+                  generateInformationModal("Microenvironments not provided.", "cci-summary-no-microenvs");
                 }
             }
            if (res.hasOwnProperty('all_classes')) {

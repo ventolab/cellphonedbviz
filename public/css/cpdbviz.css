@@ -241,6 +241,10 @@ nav ul li a, h5 {
 
 /*For error alerts*/
 
+.no-microenvs-alert {
+  margin-right: 20px;
+}
+
 .alert {
 	.card-content {
 		span {

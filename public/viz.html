@@ -259,6 +259,7 @@ function refreshCCISummaryChordPlots() {
                             <span class="outer-filter-nest">By Microenvironment</span>
                           </label>
                           <div class="filter-layer-two" id="summarymicroenvironmentfilter-select">
+                            <div id="cci-summary-no-microenvs" class="no-microenvs-alert" hidden></div>
                             <div id="cci_summary_show_all_celltypes_div" style="padding-top: 20px;" hidden>
                               <label>
                                   <input id="cci_summary_show_all_celltypes" type="checkbox" class="filled-in"/>
@@ -335,6 +336,7 @@ function refreshCCISummaryChordPlots() {
                             <span class="outer-filter-nest">By Microenvironment</span>
                           </label>
                           <div class="filter-layer-two" id="searchmicroenvironmentfilter-select" hidden>
+                            <div id="cci-search-no-microenvs" class="no-microenvs-alert" hidden></div>
                             <!--Search microenvironment (autocomplete)-->
                             <div id="cci_search_microenvironment_sel" class="input-field filter-search-and-buttons">
                               <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
@@ -386,6 +388,7 @@ function refreshCCISummaryChordPlots() {
                             <span class="outer-filter-nest">By Microenvironment</span>
                           </label>
                           <div class="filter-layer-two" id="sgemicroenvironmentfilter-select" hidden>
+                            <div id="sge-no-microenvs" class="no-microenvs-alert" hidden></div>
                             <div id="sge_microenvironment_sel" class="input-field">
                               <input style="padding-top: 30px;" type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
                               <label style="padding-top: 10px;" for="sge_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
