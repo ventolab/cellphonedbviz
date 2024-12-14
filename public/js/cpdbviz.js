@@ -1818,10 +1818,6 @@ function clearSGEFilters() {
     clearAllGenericFilters(["#sge-interaction-filters", "#sge-cell-type-filters"])
 }
 
-function clearSGECellTypeFilters() {
-  $('.sge_selected_celltypes').empty();
-}
-
 function clearCCISummaryFilters() {
     $('.cci_summary_selected_classes').empty();
     $('.cci_summary_selected_microenvironments').empty();
@@ -1837,15 +1833,6 @@ function clearCCISearchFilters() {
     $('.cci_search_selected_celltype_pairs').empty();
     $('.cci_search_selected_classes').empty();
     clearAllGenericFilters(["#cci-search-interaction-filters", "#cci-search-cell-type-filters"])
-}
-
-function clearCCISearchCellTypeFilters() {
-    $('.cci_search_selected_celltypes').empty();
-    populate_cci_cell_type_pair_search_grid(); //Remove existing cell type pair selection
-}
-
-function clearCCISearchInteractionFilters() {
-    $('.cci_search_selected_interactions').empty();
 }
 
 function getPValBucket(pVal) {

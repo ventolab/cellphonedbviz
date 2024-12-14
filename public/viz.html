@@ -287,7 +287,7 @@ function refreshCCISummaryChordPlots() {
                           <div class="filter-layer-two" id="searchcelltypefilter-select">
                             <!--Search (autocomplete), select all, clear all for cell type filtering-->
                             <div class="row no-margin-bottom">
-                              <div class="input-field col l7 m12 s12">
+                              <div class="input-field col l9 m12 s12">
                                 <input type="text" id="cci_search_celltype_input" placeholder="Cell type">
                               </div>
                               <div class="input-field col l2 m6 s6">
@@ -297,15 +297,6 @@ function refreshCCISummaryChordPlots() {
                                   onclick="selectAllCellTypes('cell_cell_interaction_search')"
                                 >
                                   <i class="material-icons">done_all</i>
-                                </button>
-                              </div>
-                              <div class="input-field col l2 m6 s6">
-                                <button id="clear_cci_search_cell_type_filters"
-                                  class="btn tooltipped waves-effect waves-light btn-small z-depth-2"
-                                  data-position="bottom" data-tooltip="Clear all cell types"
-                                  onclick="clearCCISearchCellTypeFilters()"
-                                >
-                                  <i class="material-icons">clear_all</i>
                                 </button>
                               </div>
                             </div>
@@ -339,8 +330,7 @@ function refreshCCISummaryChordPlots() {
                             <div id="cci-search-no-microenvs" class="no-microenvs-alert" hidden></div>
                             <!--Search microenvironment (autocomplete)-->
                             <div id="cci_search_microenvironment_sel" class="input-field filter-search-and-buttons">
-                              <input style="padding-top: 30px;" type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
-                              <label style="padding-top: 30px;" for="cci_search_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
+                              <input type="text" id="cci_search_microenvironment_input" placeholder="Microenvironment">
                             </div>
                             <!--Embedded list of microenvironments to choose from-->
                             <div class="cci_search_selected_microenvironments"></div>
@@ -358,7 +348,7 @@ function refreshCCISummaryChordPlots() {
                           </label>
                           <div class="filter-layer-two" id="sgecelltypefilter-select">
                             <div class="row no-margin-bottom">
-                              <div class="input-field  col l7 m12 s12">
+                              <div class="input-field  col l9 m12 s12">
                                 <input type="text" id="sge_celltype_input" placeholder="Cell type">
                               </div>
                               <div class="input-field col l2 m6 s6">
@@ -367,15 +357,6 @@ function refreshCCISummaryChordPlots() {
                                 data-position="bottom" data-tooltip="Select all cell types"
                                 onclick="selectAllCellTypes('single_gene_expression')">
                                     <i class="material-icons">done_all</i>
-                                </button>
-                              </div>
-                              <div class="input-field col l2 m6 s6">
-                                <button id="clear_sge_cell_type_filters"
-                                  class="btn tooltipped waves-effect waves-light btn-small z-depth-2"
-                                  data-position="bottom" data-tooltip="Clear all cell types"
-                                  onclick="clearSGECellTypeFilters()"
-                                >
-                                  <i class="material-icons">clear_all</i>
                                 </button>
                               </div>
                             </div>
@@ -390,8 +371,7 @@ function refreshCCISummaryChordPlots() {
                           <div class="filter-layer-two" id="sgemicroenvironmentfilter-select" hidden>
                             <div id="sge-no-microenvs" class="no-microenvs-alert" hidden></div>
                             <div id="sge_microenvironment_sel" class="input-field">
-                              <input style="padding-top: 30px;" type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
-                              <label style="padding-top: 10px;" for="sge_microenvironment_input" class="black-text text-lighten-10 search-input-label">Filter cell types by microenvironment</label>
+                              <input type="text" id="sge_microenvironment_input" placeholder="Microenvironment">
                             </div>
                             <div class="sge_selected_microenvironments"></div>
                           </div>
@@ -489,16 +469,13 @@ function refreshCCISummaryChordPlots() {
                             <!-- Default: select top 10 interacting pairs corresponding to the selected cell type pairs-->
                             <div id="interacting_pairs_selection_logic" hidden>10</div>
                             <a class="btn waves-effect waves-light btn-small z-depth-2 dropdown-trigger" style="text-transform: none;" data-target="cci_search_select_relevant_interactions_dropdown">
-                                Select significant/relevant interactions&nbsp;<i style="vertical-align: middle;" class="material-icons white-text">pageview</i></a>
+                                Select significant interactions&nbsp;<i style="vertical-align: middle;" class="material-icons white-text">pageview</i></a>
                             <ul id="cci_search_select_relevant_interactions_dropdown" class="dropdown-content" tabindex="0">
                                 <li><a href="javascript:refreshCCISearchPlot('10');">Top 10</a></li>
                                 <li><a href="javascript:refreshCCISearchPlot('20');">Top 20</a></li>
                                 <li><a href="javascript:refreshCCISearchPlot('40');">Top 40</a></li>
                                 <li><a href="javascript:refreshCCISearchPlot('all');">All</a></li>
                             </ul>
-                            <button id="clear_cci_search_interaction_filters" style="text-transform: none;" class="btn waves-effect waves-light btn-small z-depth-2" onclick="clearCCISearchInteractionFilters()">Clear interaction filters
-                                  <i class="material-icons right">clear_all</i>
-                            </button>
                             <div id="cci_search_sel_ips_logic_spinner" class="container center" hidden>
                                 <div class="preloader-wrapper active center">
                                   <div class="spinner-layer spinner-red-only">
