@@ -173,7 +173,7 @@ nav ul li a, h5 {
 }
 
 .filter-menu-padding {
-  padding-right: 0px;
+  padding-right: 20px;
   padding-top: 20px;
   padding-bottom: 20px;
 }
@@ -237,12 +237,6 @@ nav ul li a, h5 {
   border-radius: 4px;
   background-color: rgba(0, 0, 0, .5);
   box-shadow: 0 0 1px rgba(255, 255, 255, .5);
-}
-
-/*For error alerts*/
-
-.no-microenvs-alert {
-  margin-right: 20px;
 }
 
 .alert {

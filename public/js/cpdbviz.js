@@ -214,7 +214,7 @@ function generateErrorModalForFilters(received_filters, error_div){
     -> received_filters (dict): in format {"cell_type": [[filter_x_val1, ...],...], "interactions": [[filter_y_val1, ...],...] }
     -> error_div (string): ID of error div for specific plot.
   Returns:
-    -> None
+    -> True if error in selected filters, else false
   */
  const filter_present = (element) => !element ? element : element.length;
  var error_text = ""
@@ -231,9 +231,11 @@ function generateErrorModalForFilters(received_filters, error_div){
   const html_for_error = '<div class="alert card red lighten-4 red-text text-darken-4"><div class="card-content"><p><i class="material-icons">report</i><span><b>Missing filters</b></span></p>' + error_text + '</div></div>';
   $("#" + error_div).html(html_for_error);
   $("#" + error_div).show();
+  return true;
  }
  else {
   $("#" + error_div).hide();
+  return false;
  }
 }
 
@@ -1878,7 +1880,6 @@ function validateCCISearchInput(data) {
 }
 
 function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pairs_selection_logic) {
-
     const valuesToShow = $('input[name=cci_search_radio]:checked').val();
     // DEBUG console.log(data);
     const selectedGenes = data['selected_genes'];
@@ -2773,72 +2774,80 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic, storeTokens=fal
     }
     var selectedClasses = ret[pos++];
     var url = './api/data/'+projectId+'/cell_cell_interaction_search';
-    if (!storeTokens) {generateErrorModalForFilters({"Cell Types": [selectedCellTypePairs, selectedMicroenvironments, selectedCellTypes], "Interactions": [selectedGenes, selectedInteractions, selectedClasses]}, "cci-search-error")}
-    if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs || selectedClasses) {
-        url += "?";
-        if (selectedClasses) {
-            url += "classes=" + selectedClasses + "&";
-        }
-        if (selectedGenes) {
-            url += "genes=" + selectedGenes + "&";
-        }
-        if (selectedInteractions) {
-            if (typeof interacting_pairs_selection_logic !== 'undefined') {
-                // There's no point increasing the length of the GET request unnecessarily with the current selection
-                // of interacting pairs if all we need the API call to do is overwrite them with with interacting_pairs_selection_logic
-                // This is particularly important if selectedInteractions contain all interacting pairs - then the maximum length of GET request
-                // could be exceeded if we didn't do the below.
-                selectedInteractions=''
-            }
-            url += "interacting_pairs=" + selectedInteractions + "&";
-        }
-        if (selectedCellTypes && selectedMicroenvironments) {
-            url += "cell_types=" + selectedCellTypes + "&";
-        }
-        if (selectedCellTypePairs) {
-            url += "cell_type_pairs=" + selectedCellTypePairs + "&";
-        }
-        if (selectedMicroenvironments) {
-            url += "microenvironments=" + selectedMicroenvironments + "&";
-        }
-    } else {
-        url += "?";
-    }
-    // In refresh mode, we don't pre-select cell type pairs - if the user did not enter any
-    url += "refresh_plot=True&values_to_show=" + valuesToShow;
-    if (typeof interacting_pairs_selection_logic !== 'undefined') {
-        url += "&interacting_pairs_selection_logic=" + interacting_pairs_selection_logic;
-    }
-    url += "&sort_interacting_pairs_alphabetically=" + sort_interacting_pairs_alphabetically;
+    var filterError = false;
+    if (!storeTokens) { filterError = generateErrorModalForFilters({"Cell Types": [selectedCellTypePairs, selectedMicroenvironments, selectedCellTypes], "Interactions": [selectedGenes, selectedInteractions, selectedClasses]}, "cci-search-error") }
+    if (!filterError) {
+      if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs || selectedClasses) {
+          url += "?";
+          if (selectedClasses) {
+              url += "classes=" + selectedClasses + "&";
+          }
+          if (selectedGenes) {
+              url += "genes=" + selectedGenes + "&";
+          }
+          if (selectedInteractions) {
+              if (typeof interacting_pairs_selection_logic !== 'undefined') {
+                  // There's no point increasing the length of the GET request unnecessarily with the current selection
+                  // of interacting pairs if all we need the API call to do is overwrite them with with interacting_pairs_selection_logic
+                  // This is particularly important if selectedInteractions contain all interacting pairs - then the maximum length of GET request
+                  // could be exceeded if we didn't do the below.
+                  selectedInteractions=''
+              }
+              url += "interacting_pairs=" + selectedInteractions + "&";
+          }
+          if (selectedCellTypes && selectedMicroenvironments) {
+              url += "cell_types=" + selectedCellTypes + "&";
+          }
+          if (selectedCellTypePairs) {
+              url += "cell_type_pairs=" + selectedCellTypePairs + "&";
+          }
+          if (selectedMicroenvironments) {
+              url += "microenvironments=" + selectedMicroenvironments + "&";
+          }
+      } else {
+          url += "?";
+      }
+      // In refresh mode, we don't pre-select cell type pairs - if the user did not enter any
+      url += "refresh_plot=True&values_to_show=" + valuesToShow;
+      if (typeof interacting_pairs_selection_logic !== 'undefined') {
+          url += "&interacting_pairs_selection_logic=" + interacting_pairs_selection_logic;
+      }
+      url += "&sort_interacting_pairs_alphabetically=" + sort_interacting_pairs_alphabetically;
 
-    // The retrieval may take a few seconds - show spinner to indicate to the user that an operation is in progress so that the don't try refreshing
-    // the page and starting again..
-    $("#cci_search_sel_ips_logic_spinner").show();
-    // Hide any error message from the previous search
-    $("#cci_search_sel_ips_request_error").hide();
-    $.ajax({
-            url: url,
-            contentType: "application/json",
-            dataType: 'json',
-            success: function(res) {
-                generateCellCellInteractionSearchPlot(res, storeTokens=false, interacting_pairs_selection_logic);
-                // Enable side navs - used for displaying interacting pair participant information
-                enable_side_navs();
-            },
-            complete: function(jqXHR, textStatus) {
-                var errMsg;
-                if (jqXHR.status == 400) {
-                    $("#cci_search_sel_ips_request_error").text("ERROR: Your search criteria are too large for this service to handle. Please restrict your search and try again.")
-                    $("#cci_search_sel_ips_request_error").show();
-                } else if (jqXHR.status != 200) {
-                    $("#cci_search_sel_ips_request_error").text("An unexpected error occurred. Your search criteria may be too large for this service to handle. Please restrict your search and try again. If that doesn't work, please try again later.")
-                    $("#cci_search_sel_ips_request_error").show();
-                    // console.log(jqXHR, jqXHR.status, textStatus);
-                }
-                $("#cci_search_sel_ips_logic_spinner").hide();
-                $("#cci_search_spinner").hide();
-            }
-     });
+      // The retrieval may take a few seconds - show spinner to indicate to the user that an operation is in progress so that the don't try refreshing
+      // the page and starting again..
+      $("#cci_search_sel_ips_logic_spinner").show();
+      // Hide any error message from the previous search
+      $("#cci_search_sel_ips_request_error").hide();
+      $.ajax({
+              url: url,
+              contentType: "application/json",
+              dataType: 'json',
+              success: function(res) {
+                  generateCellCellInteractionSearchPlot(res, storeTokens=false, interacting_pairs_selection_logic);
+                  // Enable side navs - used for displaying interacting pair participant information
+                  enable_side_navs();
+              },
+              complete: function(jqXHR, textStatus) {
+                  var errMsg;
+                  if (jqXHR.status == 400) {
+                      $("#cci_search_sel_ips_request_error").text("ERROR: Your search criteria are too large for this service to handle. Please restrict your search and try again.")
+                      $("#cci_search_sel_ips_request_error").show();
+                  } else if (jqXHR.status != 200) {
+                      $("#cci_search_sel_ips_request_error").text("An unexpected error occurred. Your search criteria may be too large for this service to handle. Please restrict your search and try again. If that doesn't work, please try again later.")
+                      $("#cci_search_sel_ips_request_error").show();
+                      // console.log(jqXHR, jqXHR.status, textStatus);
+                  }
+                  $("#cci_search_sel_ips_logic_spinner").hide();
+                  $("#cci_search_spinner").hide();
+              }
+      });
+    }
+    else {
+      d3.select("#cci_search")
+        .style("color", "purple")
+        .text("Make the correct filter selections to view search plot.");
+    }
 }
 
 
