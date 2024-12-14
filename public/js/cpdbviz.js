@@ -182,6 +182,17 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 });
 
+function generateMissingPlotModal(missing_plot_name, modal_id){
+  /*Given name and ID for plot missing data, populate the modal with meaningful info.
+  Parameters:
+    -> missing_plot_name (string): Display name of expected plot.
+    -> modal_id (string): ID of div to populate with modal
+  */
+  const html_missing_plot = '<div class="alert card blue lighten-4 blue-text text-darken-3"><div class="card-content"><p><i class="material-icons">info</i><span><b>Missing data for ' + missing_plot_name + ' plot.</b></span></p></div></div>';
+  $('#' + modal_id).html(html_missing_plot);
+  $('#' + modal_id).show();
+}
+
 function generateFilterErrorMessage(missing_filter_section){
   /*Given the overall missing filter type, generate a string (html) error message to display in the plot panel.
   Parameters:
@@ -538,6 +549,7 @@ function generateCellCompositionPlot(data) {
         $("#celltype_composition_help").hide();
         // Hide the corresponding option from ToC dropdown
         $("#toc_ctcomp").hide();
+        generateMissingPlotModal('Cell Composition', 'ctcomp-missing')
         return;
      }
 
@@ -607,6 +619,7 @@ function generateMicroenvironmentsPlot(data) {
         $("#spme_help").hide();
         // Hide the corresponding option from ToC dropdown
         $("#toc_spme").hide();
+        generateMissingPlotModal('Spatial Microenvironments', 'spme-missing');
         return;
     }
 
