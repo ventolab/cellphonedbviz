@@ -157,6 +157,8 @@ function refreshCCISummaryChordPlots() {
     $(`#${value}`).prop('checked', false);
     $(`#${value}-select`).hide();
   }
+
+  
   function toggleFilterVisibility(filter_change_elem) {
     /*Handle selection of different filter where filters are mutually exclusive (e.g. cell type and microenvironment).
     Deactivates other filter accordingly*/
@@ -170,6 +172,30 @@ function refreshCCISummaryChordPlots() {
     //2. Toggle filter contents selection (if checked show else hide)
     $(`#${filter_change_elem.name}-select`).toggle();
   }
+
+
+  function swapFilterSelection(filter_changed){
+    /*Swap arrows on the main filter accordions (Select cell types and Select interactions)
+    > indicates collapsed
+    v indicates expanded
+
+    Parameters:
+      filter_changed (HTML element): Clicked filter to expand or collapse
+    Returns:
+      None*/
+    var collapsed = $(filter_changed).children('i').first().text() == "keyboard_arrow_right" ? true : false;
+    //toggle the filter
+    if (collapsed) {
+      $(filter_changed).children('i').first().text("keyboard_arrow_down");
+      const elem_to_collapse = $(filter_changed).clone().children().remove().end().text() == "SELECT cell types" ? "#select-interaction" : "#select-cell-type"; //Get ONLY this element's text, not any of the children (who knew .text() would grab everything including child text?)
+      $(elem_to_collapse).children('i').first().text("keyboard_arrow_right");
+    }
+    else {
+      $(filter_changed).children('i').first().text("keyboard_arrow_right");
+    }
+  }
+
+
   function updateCellTypePairsPlotandDisplay(){
     /*Update the cell type pair selection matrix with current specification of cell types. Display the updated plot.
     Parameters:
@@ -248,7 +274,7 @@ function refreshCCISummaryChordPlots() {
                   <ul class="collapsible">
                     <!--Option 1: Filter cell types (sub-options are mutually exclusive)-->
                     <li>
-                      <div class="collapsible-header"><i class="material-icons">class</i>SELECT cell types</div>
+                      <div id="select-cell-type" class="collapsible-header" onclick="swapFilterSelection(this)"><i class="material-icons">keyboard_arrow_right</i>SELECT cell types</div>
                       <div class="collapsible-body filter-menu-padding filter-layer-one">
                         <!--
                         Cell type filters for: Cell-Cell Communication Summary Plot
@@ -380,7 +406,7 @@ function refreshCCISummaryChordPlots() {
                     </li>
                     <!--Option 2: Select interactions (sub-options are mutually exclusive)-->
                     <li>
-                      <div class="collapsible-header"><i class="material-icons">compare_arrows</i>SELECT interactions</div>
+                      <div id="select-interaction" class="collapsible-header" onclick="swapFilterSelection(this)"><i class="material-icons">keyboard_arrow_right</i>SELECT interactions</div>
                       <div class="collapsible-body filter-menu-padding filter-layer-one">
 
                         <!--
