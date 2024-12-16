@@ -1253,8 +1253,8 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
       var me2Colour = {};
       var ct2Colour = {};
       var xMargin = 200;
-      var height = Math.max(600, 20 * numCellTypes / Math.log10(numCellTypes)) ;
-      var width = Math.max(1000, 200 + 25 * numCellTypes / Math.log10(numCellTypes));
+      var height = Math.max(700, 20 * numCellTypes / Math.log10(numCellTypes)) ;
+      var width = Math.max(1100, 200 + 25 * numCellTypes / Math.log10(numCellTypes));
       var bottom_yMargin = 160,
         top_yMargin = 50,
         xMargin = 200,
@@ -1459,7 +1459,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
           var meLegend_yPos = legend_yPos + legend_height - 30;
 
           const meLegenedWidth = 600;
-          const meLegendHeight = 500;
+          const meLegendHeight = 700;
           const meLegend = svg
                 .append("svg")
                 .attr("width", meLegenedWidth)
@@ -2323,7 +2323,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
       }
 
       const meLegenedWidth = 450;
-      const meLegendHeight = 300;
+      const meLegendHeight = 500;
       const meLegend = svg
             .append("svg")
             .attr("width", meLegenedWidth)
