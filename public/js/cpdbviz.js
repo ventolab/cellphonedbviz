@@ -886,7 +886,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     var width = 1100,
     bottom_yMargin = 450,
     top_yMargin = 60,
-    xMargin = 320,
+    xMargin = 200,
     yVals = data['cell_types'],
     yMin = -1,
     xMin = -1,
@@ -913,7 +913,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     // The title in #sge_header div is used for naming of the PDF file when the plot is downloaded
     $("#sge_header").text(title);
     svg.append("text")
-        .attr("x", - xMargin + width * 3 / 4)
+        .attr("x", - xMargin + width/2)
         .attr("y", 20)
         .style("font-size", "16px")
         .attr("font-weight", 400)
@@ -1146,7 +1146,7 @@ function sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, c
 
 function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale) {
     const tooltip_yPos = yScale(i) + 160;
-    const tooltip_xPos = xScale(j) + 300;
+    const tooltip_xPos = xScale(j) + 180;
     var innerRadius;
     // outerRadius is used for deg cell type-gene tuples only
     var outerRadius;
