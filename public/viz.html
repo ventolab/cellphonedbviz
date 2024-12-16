@@ -447,42 +447,7 @@ function refreshCCISummaryChordPlots() {
                         Interaction filters for: Cell-Cell Communication Search Plot
                         -->
                         <div id="cci-search-interaction-filters" hidden>
-                          <!--Option 2a: Filter by interaction class-->
-                          <label>
-                            <input type="checkbox" class="filled-in" name="searchinteractionclassfilter" id="searchinteractionclassfilter" onchange="toggleFilterVisibility(this)"/>
-                            <span class="outer-filter-nest">By Interaction Classification</span>
-                          </label>
-                          <div class="filter-layer-two" id="searchinteractionclassfilter-select" hidden>
-                            <!--Search interaction classes (autocomplete)-->
-                            <div id="cci_search_class_filter_div" class="input-field" hidden>
-                              <input type="text" id="cci_search_class_input" placeholder="Search interaction class">
-                            </div>
-                            <!--Embedded list of interaction classes to choose from-->
-                            <div class="cci_search_selected_classes"></div>
-                          </div>
-                          <div class="divider filter-divider"></div>
-
-                          <!--Option 2b: Filter by gene-->
-                          <label>
-                            <input type="checkbox" class="filled-in" name="searchgenefilter" id="searchgenefilter" onchange="toggleFilterVisibility(this)"/>
-                            <span class="outer-filter-nest">By Gene</span>
-                          </label>
-                          <div class="filter-layer-two" id="searchgenefilter-select" hidden>
-                            <!--Search genes (autocomplete) - note there is an option to select all genes by family here.-->
-                            <div class="input-field">
-                              <input style="padding-top: 20px;" type="text" id="cci_search_gene_input" placeholder="Gene">
-                              <label style="padding-top: 20px;" for="cci_search_gene_input" class="black-text text-lighten-10 search-input-label">Search Genes&nbsp;&nbsp;
-                                  <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
-                                      <i id="cci_search_gene_input_help" class="material-icons left tooltipped" data-tooltip="Select all genes in a family by selecting e.g. WNT* or TNFR* from the dropdown">info_outline</i>
-                                  </span>
-                              </label>
-                            </div>
-                            <!--Embedded list of genes to choose from-->
-                            <div class="cci_search_selected_genes"></div>
-                          </div>
-                          <div class="divider filter-divider"></div>
-
-                          <!--Option 2c: Filter by gene pair-->
+                          <!--Option 2a: Filter by gene pair-->
                           <label>
                             <input type="checkbox" class="filled-in" name="searchgenepairfilter" id="searchgenepairfilter" checked onchange="toggleFilterVisibility(this)"/>
                             <span class="outer-filter-nest">By Gene Pair</span>
@@ -521,6 +486,41 @@ function refreshCCISummaryChordPlots() {
                             </div>
                             <!--Embedded list of gene pairs to choose from-->
                             <div class="cci_search_selected_interactions"></div>
+                          </div>
+                          <div class="divider filter-divider"></div>
+
+                          <!--Option 2b: Filter by interaction class-->
+                          <label>
+                            <input type="checkbox" class="filled-in" name="searchinteractionclassfilter" id="searchinteractionclassfilter" onchange="toggleFilterVisibility(this)"/>
+                            <span class="outer-filter-nest">By Interaction Classification</span>
+                          </label>
+                          <div class="filter-layer-two" id="searchinteractionclassfilter-select" hidden>
+                            <!--Search interaction classes (autocomplete)-->
+                            <div id="cci_search_class_filter_div" class="input-field" hidden>
+                              <input type="text" id="cci_search_class_input" placeholder="Search interaction class">
+                            </div>
+                            <!--Embedded list of interaction classes to choose from-->
+                            <div class="cci_search_selected_classes"></div>
+                          </div>
+                          <div class="divider filter-divider"></div>
+
+                          <!--Option 2c: Filter by gene-->
+                          <label>
+                            <input type="checkbox" class="filled-in" name="searchgenefilter" id="searchgenefilter" onchange="toggleFilterVisibility(this)"/>
+                            <span class="outer-filter-nest">By Gene</span>
+                          </label>
+                          <div class="filter-layer-two" id="searchgenefilter-select" hidden>
+                            <!--Search genes (autocomplete) - note there is an option to select all genes by family here.-->
+                            <div class="input-field">
+                              <input style="padding-top: 20px;" type="text" id="cci_search_gene_input" placeholder="Gene">
+                              <label style="padding-top: 20px;" for="cci_search_gene_input" class="black-text text-lighten-10 search-input-label">Search Genes&nbsp;&nbsp;
+                                  <span style="text-transform: none;" class="btn-floating waves-effect waves-light btn-small z-depth-2">
+                                      <i id="cci_search_gene_input_help" class="material-icons left tooltipped" data-tooltip="Select all genes in a family by selecting e.g. WNT* or TNFR* from the dropdown">info_outline</i>
+                                  </span>
+                              </label>
+                            </div>
+                            <!--Embedded list of genes to choose from-->
+                            <div class="cci_search_selected_genes"></div>
                           </div>
                         </div>
 
