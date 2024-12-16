@@ -158,13 +158,13 @@ function refreshCCISummaryChordPlots() {
     $(`#${value}-select`).hide();
   }
 
-  
+
   function toggleFilterVisibility(filter_change_elem) {
     /*Handle selection of different filter where filters are mutually exclusive (e.g. cell type and microenvironment).
     Deactivates other filter accordingly*/
 
     //map of filters to other filters that should be deactivated when this is activated.
-    const filter_swap_map = {"searchcelltypefilter": ["searchmicroenvironmentfilter"], "searchmicroenvironmentfilter": ["searchcelltypefilter"], "searchinteractionclassfilter": ["searchgenefilter", "searchgenepairfilter"], "searchgenefilter": ["searchinteractionclassfilter", "searchgenepairfilter"], "searchgenepairfilter": ["searchinteractionclassfilter", "searchgenefilter"], "sgemicroenvironmentfilter": ["sgecelltypefilter"], "sgecelltypefilter": ["sgemicroenvironmentfilter"]}
+    const filter_swap_map = {"cci_summary_show_all_celltypes": ["summarymicroenvironmentfilter"], "summarymicroenvironmentfilter": ["cci_summary_show_all_celltypes"], "searchcelltypefilter": ["searchmicroenvironmentfilter"], "searchmicroenvironmentfilter": ["searchcelltypefilter"], "searchinteractionclassfilter": ["searchgenefilter", "searchgenepairfilter"], "searchgenefilter": ["searchinteractionclassfilter", "searchgenepairfilter"], "searchgenepairfilter": ["searchinteractionclassfilter", "searchgenefilter"], "sgemicroenvironmentfilter": ["sgecelltypefilter"], "sgecelltypefilter": ["sgemicroenvironmentfilter"]}
     //1. Deactivate all other filters involved with this one (defined in filter_swap_map) if now checked.
     if (filter_change_elem.checked) {
       filter_swap_map[filter_change_elem.name].forEach(deactivateFilter);
@@ -281,17 +281,15 @@ function refreshCCISummaryChordPlots() {
                         -->
                         <div id="cci-summary-cell-type-filters">
                           <label>
-                            <input disabled type="checkbox" class="filled-in" name="summmarymicroenvironmentfilter" id="summarymicroenvironmentfilter" checked onchange="toggleFilterVisibility(this)"/>
+                            <input type="checkbox" class="filled-in" name="cci_summary_show_all_celltypes" id="cci_summary_show_all_celltypes" onchange="toggleFilterVisibility(this)"/>
+                            <span class="outer-filter-nest">Show all cell types</span>
+                          </label>
+                          <label>
+                            <input type="checkbox" class="filled-in" name="summarymicroenvironmentfilter" id="summarymicroenvironmentfilter" checked onchange="toggleFilterVisibility(this)"/>
                             <span class="outer-filter-nest">By Microenvironment</span>
                           </label>
                           <div class="filter-layer-two" id="summarymicroenvironmentfilter-select">
                             <div id="cci-summary-no-microenvs" class="no-microenvs-alert" hidden></div>
-                            <div id="cci_summary_show_all_celltypes_div" style="padding-top: 20px;" hidden>
-                              <label>
-                                  <input id="cci_summary_show_all_celltypes" type="checkbox" class="filled-in"/>
-                                  <span id="cci_summary_show_all_celltypes_label">Show all cell types</span>
-                              </label>
-                            </div>
                             <div id="cci_summary_microenvironment_div" hidden>
                               <div class="input-field">
                                 <input type="text" id="cci_summary_microenvironment_input" placeholder="">

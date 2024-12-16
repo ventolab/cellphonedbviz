@@ -290,16 +290,6 @@ function downloadPDF(svg, outFileName, options) {
     doc.end();
 }
 
-function enable_cci_summary_show_all_celltypes() {
-    $('#cci_summary_show_all_celltypes').on('change', function() {
-        if ($(this).is(':checked')) {
-          $('#cci0_div').show();
-        } else {
-           $('#cci0_div').hide();
-        }
-      });
-}
-
 function enable_cci_search_radio() {
     $('input[name=cci_search_radio]').on('change', function() {
         $("#cci_search_spinner").show();
@@ -1293,9 +1283,6 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
 
       $("#cci_summary_show_significant_interactions_only_div").show();
       if (plotCnt > 0) {
-        $("#cci_summary_show_all_celltypes_div").show();
-        enable_cci_summary_show_all_celltypes();
-
         // We're dealing with multiple plots - one per microenvironment
         height = 300,
         width = 400,
