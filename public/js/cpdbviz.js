@@ -220,9 +220,6 @@ function generateErrorModalForFilters(received_filters, error_div){
  var error_text = ""
  for (overall_filter in received_filters) {
   if(!received_filters[overall_filter].some(filter_present)){
-    //Don't generate error for cci summary where no microenvironments present (this is a supported option)
-    if (error_div == "cci_summary_error" && overall_filter == "Cell Types") { break; }
-
     error_text = error_text.concat(generateFilterErrorMessage(overall_filter));
   }
  }
@@ -496,7 +493,7 @@ function refreshSGEPlot() {
     var selectedGenes = ret[0];
     var selectedCellTypes = ret[1];
     var selectedMicroenvironments = ret[2];
-    if (!storeTokens) {generateErrorModalForFilters({"Cell Types": [selectedMicroenvironments, selectedCellTypes], "Interactions": [selectedGenes]}, "single-gene-expr-error")}
+    generateErrorModalForFilters({"Cell Types": [selectedMicroenvironments, selectedCellTypes], "Interactions": [selectedGenes]}, "single-gene-expr-error")
     if (selectedMicroenvironments && !selectedCellTypes){
       selectedCellTypes = getCellTypesForMicroenvironment(decodeURIComponent(selectedMicroenvironments));
     }
@@ -1616,7 +1613,8 @@ function refreshCCISummaryPlots(storeTokens=false) {
     var selectedModalities = ret[pos++];
     var selectedMinInteractionScore = $('#cci_summary_selected_min_score').text();
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
-    if (!storeTokens) { generateErrorModalForFilters({"Cell Types": [selectedMicroenvironments], "Interactions": [selectedClasses, selectedModalities, selectedMinInteractionScore]}, "cci_summary_error") }
+    var selectAllCellTypes = $("#cci_summary_show_all_celltypes").prop("checked") ? [true] : []
+    if (!storeTokens) { generateErrorModalForFilters({"Cell Types": [selectedMicroenvironments, selectAllCellTypes], "Interactions": [selectedClasses, selectedModalities, selectedMinInteractionScore]}, "cci_summary_error") }
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
     }
