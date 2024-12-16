@@ -1814,6 +1814,7 @@ function clearCCISummaryFilters() {
 function clearCCISearchFilters() {
     $('.cci_search_selected_genes').empty();
     $('.cci_search_selected_celltypes').empty();
+    $('.cci_search_selected_microenvironments').empty();
     $('.cci_search_selected_interactions').empty();
     $('.cci_search_selected_celltype_pairs').empty();
     $('.cci_search_selected_classes').empty();
@@ -2747,7 +2748,9 @@ function refreshCCISearchPlot(interacting_pairs_selection_logic, storeTokens=fal
     var selectedClasses = ret[pos++];
     var url = './api/data/'+projectId+'/cell_cell_interaction_search';
     var filterError = false;
-    if (!storeTokens) { filterError = generateErrorModalForFilters({"Cell Types": [selectedCellTypePairs, selectedMicroenvironments, selectedCellTypes], "Interactions": [selectedGenes, selectedInteractions, selectedClasses]}, "cci-search-error") }
+    var passToFilterError = {"Cell Types": [selectedCellTypePairs, selectedMicroenvironments, selectedCellTypes], "Interactions": [selectedGenes, selectedInteractions, selectedClasses]};
+    if (typeof interacting_pairs_selection_logic !== 'undefined') { passToFilterError["Interactions"][0] = ["auto select"]};
+    if (!storeTokens) { filterError = generateErrorModalForFilters(passToFilterError, "cci-search-error") };
     if (!filterError) {
       if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs || selectedClasses) {
           url += "?";
