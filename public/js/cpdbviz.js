@@ -1789,7 +1789,7 @@ function clearAllGenericFilters(ids_to_clear){
       if(!this.disabled){
         this.checked = false;
         $(id_to_clear + ' > .filter-layer-two').each(function () {
-          this.hidden = true;
+          $('#' + this.id).hide();
         });
       }
     });
