@@ -771,7 +771,7 @@ function spmeRenderXAxis(svg, xVals, xScale, left_xMargin, right_xMargin, height
     // Add the text label for the x axis
     svg
       .append("text")
-      .attr("transform", "translate(" + (left_xMargin + right_xMargin / 2) + "," + (height - bottom_yMargin + 90) + ")")
+      .attr("transform", "translate(" + (left_xMargin + right_xMargin / 2) + "," + (height - 10) + ")")
       .style("text-anchor", "middle")
       .text("Microenvironment");
   
