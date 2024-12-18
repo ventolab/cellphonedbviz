@@ -1267,7 +1267,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         // min_ints, max_ints needed for color scale
         max_ints=parseInt(data['max_num_ints']),
         min_ints = title == "All cell types" ? 0 : parseInt(data['min_num_ints']),
-        boxWidth = Math.round(380/yVals.length),
+        boxWidth = Math.round(480/yVals.length),
         legend_width=50
         legend_height=150,
         legend_xPos= width-360*Math.max(1,numCellTypes/105),
@@ -1281,9 +1281,9 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
       $("#cci_summary_show_significant_interactions_only_div").show();
       if (plotCnt > 0) {
         // We're dealing with multiple plots - one per microenvironment
-        height = 300,
-        width = 400,
-        boxWidth = Math.round(95/yVals.length),
+        height = 500,
+        width = 600,
+        boxWidth = Math.round(295/yVals.length),
         legend_width=30,
         legend_height=100,
         legend_xPos=width-140,
