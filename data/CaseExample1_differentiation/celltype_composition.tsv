@@ -1,0 +1,9 @@
+lineage	celltype	microenvironment
+Germ	PGC	Cortex_outer
+Somatic	OSE	Cortex_outer
+Somatic	preGC_IIa	Cortex_outer
+Germ	oogonia_STRA8	Cortex_inner
+Germ	oogonia_meiotic	Cortex_inner
+Somatic	preGC_IIb	Cortex_inner
+Germ	oocyte	Medulla_follicles
+Somatic	granulosa	Medulla_follicles

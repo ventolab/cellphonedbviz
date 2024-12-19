@@ -1,4 +1,16 @@
+function browserIsChrome(){
+  /*Returns true if the browser is chrome, else false*/
+  let userAgentString = navigator.userAgent; 
+  return userAgentString.indexOf("Chrome") > -1;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+
+  //There is a bug that glitches the page when scrolling chord plots on chrome:
+  //To bypass this, hide this option when using chrome
+  if (browserIsChrome()) {
+    $("#chord-switch-row").html("<p>Please note that when using Chrome, the option to view summary chord plots is currently unavailable. To view chord plots, please use another browser.</p>");
+  }
 
   // Show progress spinners
   $("#sge_spinner").show();
@@ -119,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // Hide microenvironment input
                 $("#sge_microenvironment_sel").hide();
+                generateInformationModal("Microenvironments not provided.", "sge-no-microenvs");
             }
 
             // Hide progress spinner
@@ -128,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
      // Generate CCISummary plots on first page load
-     refreshCCISummaryPlots();
+     refreshCCISummaryPlots(storeTokens=true);
 
      // Generate cell-cell interaction search plot
      $.ajax({
@@ -143,9 +156,10 @@ document.addEventListener('DOMContentLoaded', function() {
             $('#num_all_cell_type_pairs').text(res['num_all_cell_type_pairs']);
             // Enable gene and cell type input autocompletes for gene expression plot
             enable_autocomplete('cci_search_celltype_input', 'cci_search_selected_celltypes', res['all_cell_types']);
-            enable_autocomplete('cci_search_celltype_pair_input', 'cci_search_selected_celltype_pairs', res['all_cell_type_pairs']);
             enable_autocomplete('cci_search_gene_input', 'cci_search_selected_genes', res['all_genes']);
             enable_autocomplete('cci_search_interaction_input', 'cci_search_selected_interactions', res['all_interacting_pairs']);
+            initialise_cell_type_pairs(res['all_cell_type_pairs']);
+            populate_cci_cell_type_pair_search_grid();
             if (res.hasOwnProperty('microenvironments')) {
                 enable_autocomplete('cci_search_microenvironment_input', 'cci_search_selected_microenvironments', res['microenvironments']);
                 // Initialise 'Filter cell types by micro-environment in 'cell-cell interaction search' plot select dropdown
@@ -154,6 +168,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Populate placeholder to show the user available microenvironments
                 $("#cci_search_microenvironment_input")
                     .attr("placeholder",res['microenvironments'].toString());
+            }
+            else {
+              generateInformationModal("Microenvironments not provided.", "cci-search-no-microenvs");
             }
             if (res['all_cell_types'].length > 50) {
                 // If we have a v.large number of cell types (and thus cell type pairs) don't allow the user to select all cell types in cci_dsearch plot
@@ -180,6 +197,69 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
 });
+
+function generateInformationModal(display_msg, modal_id){
+  /*Given display message and ID to display within, populate and display a modal with the given message.
+  Parameters:
+    -> display_msg (string): Message to display.
+    -> modal_id (string): ID of div to populate with modal
+  */
+  const html_missing_plot = '<div class="alert card blue lighten-4 blue-text text-darken-3"><div class="card-content"><p><i class="material-icons">info</i><span><b>' + display_msg + '</b></span></p></div></div>';
+  $('#' + modal_id).html(html_missing_plot);
+  $('#' + modal_id).show();
+}
+
+function generateFilterErrorMessage(missing_filter_section){
+  /*Given the overall missing filter type, generate a string (html) error message to display in the plot panel.
+  Parameters:
+    -> Missing_filter_section (string): Overall type of missing filter.
+  Returns:
+    -> Error_msg (string): HTML-formatted message to display.
+  */
+ return "<p><b>Missing filter for: " + missing_filter_section + ".</b> Please select a filter here and refresh the plot to see results."
+}
+
+function generateErrorModalForFilters(received_filters, error_div){
+  /*Given applied filters, if no filter is applied for a specific filter type (interaction or cell type) generate and display an error message.
+  If no problems detected, ensure error div is hidden.
+  Parameters:
+    -> received_filters (dict): in format {"cell_type": [[filter_x_val1, ...],...], "interactions": [[filter_y_val1, ...],...] }
+    -> error_div (string): ID of error div for specific plot.
+  Returns:
+    -> True if error in selected filters, else false
+  */
+ const filter_present = (element) => !element ? element : element.length;
+ var error_text = ""
+ for (overall_filter in received_filters) {
+  if(!received_filters[overall_filter].some(filter_present)){
+    error_text = error_text.concat(generateFilterErrorMessage(overall_filter));
+  }
+ }
+
+ if (error_text) {
+  const html_for_error = '<div class="alert card red lighten-4 red-text text-darken-4"><div class="card-content"><p><i class="material-icons">report</i><span><b>Missing filters</b></span></p>' + error_text + '</div></div>';
+  $("#" + error_div).html(html_for_error);
+  $("#" + error_div).show();
+  return true;
+ }
+ else {
+  $("#" + error_div).hide();
+  return false;
+ }
+}
+
+function generateErrorModalGivenMessage(error_msg, error_div){
+  /*Given error message, generate an error modal containing it
+  Parameters:
+    -> error_msg(string): Message to display on error modal in plot
+    -> error_div (string): ID of error div for specific plot
+  Returns:
+    -> None
+  */
+    const html_for_error = '<div class="alert card red lighten-4 red-text text-darken-4"><div class="card-content"><p><i class="material-icons">report</i><span><h5>Missing Filters</h5></span>' + error_msg + '</p></div></div>';
+    $("#" + error_div).html(html_for_error);
+    $("#" + error_div).show();
+}
 
 function downloadAsPDF(divId, titleId, headerId) {
     var projectId = getProjectId();
@@ -217,16 +297,6 @@ function downloadPDF(svg, outFileName, options) {
       link.click();
     });
     doc.end();
-}
-
-function enable_cci_summary_show_all_celltypes() {
-    $('#cci_summary_show_all_celltypes').on('change', function() {
-        if ($(this).is(':checked')) {
-          $('#cci0_div').show();
-        } else {
-           $('#cci0_div').hide();
-        }
-      });
 }
 
 function enable_cci_search_radio() {
@@ -282,27 +352,14 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
     var options = {};
     var instances = M.FormSelect.init(elems, options);
     $('.' + selected_microenvironments_div).on('DOMSubtreeModified', function(event){
-        var selected_microenvironments = $("."+selected_microenvironments_div).map((_,el) => el.innerText.replace(/(\n)*close(\n)*/g,",").replace(/,$/,"")).get()[0];
+        var selected_microenvironments = decodeURIComponent(getSelectedTokens(['cci_search_selected_microenvironments']))
         if (selected_microenvironments) {
-            var sel_mes_set = new Set();
-            for (sel_me of selected_microenvironments.split(',')) {
-                cts = microenvironment2cell_types[sel_me];
-                sel_mes_set = new Set([ ...sel_mes_set, ...cts ]);
-            }
-            selected_cell_types = Array.from(sel_mes_set).sort();
+            selected_cell_types = getCellTypesForMicroenvironment(selected_microenvironments);
             // DEBUG console.log(selected_cell_types);
             if (selected_microenvironments_div == 'sge_selected_microenvironments') {
                $('.sge_selected_celltypes').hide();
                $('#sge_celltype_input').prop( "disabled", true );
                $('#sge_select_all_celltypes').addClass('disabled');
-            } else if (selected_microenvironments_div == 'cci_search_selected_microenvironments') {
-              // Disable cell type and cell type pair inputs as the requirement is for
-              // microenvironments, cell type and cell type pair inputs to be mutually exclusive
-              $('#cci_search_celltype_input').prop( "disabled", true );
-              $('#cci_search_celltype_pair_input').prop( "disabled", true );
-              $('.cci_search_selected_celltypes').hide();
-              $('.cci_search_selected_celltype_pairs').empty();
-              $('#cci_search_select_all_celltypes').addClass('disabled');
             }
         } else {
             if (selected_microenvironments_div == 'sge_selected_microenvironments') {
@@ -318,17 +375,10 @@ function enable_me2ct_select(microenvironment2cell_types, all_cell_types,
                 selected_cell_types = all_cell_types;
               }
               $('#cci_search_celltype_input').prop( "disabled", false );
-              $('#cci_search_celltype_pair_input').prop( "disabled", false );
               $('.cci_search_selected_celltypes').show();
               $('#sge_select_all_celltypes').prop( "disabled", false );
               $('#cci_search_select_all_celltypes').removeClass('disabled');
             }
-        }
-        // Replace any previously selected cell types in selected_celltypes_div with the ones in the selected microenvironments
-        // We're effectively forcing the user to select either cell types or microenvironments, but not both.
-        $('.'+ selected_celltypes_div).empty();
-        for (var i = 0; i < selected_cell_types.length; i++) {
-            storeToken(selected_cell_types[i], selected_celltypes_div, celltype_input_div);
         }
     });
 }
@@ -392,25 +442,64 @@ function sortBy(a, b) {
   return  b > a;
 }
 
+function getSelectedTokensForClass(divClass){
+  /*Given class of div, get labels for all selected options within this (e.g. all selected cell types)
+  Parameters:
+    -> divClass(string): Class of element to search within TODO this should be ID
+  Returns:
+    -> selectedTokensForClass(array): List of all selected options within div
+  */
+  var selectedTokensForClass = []
+  $('.' + divClass + ' > .filter-row > .filter-check').each(function () {
+    if (this.checked){
+      selectedTokensForClass.push($(this).next('.filter-label').text());
+    }
+  });
+  return selectedTokensForClass;
+}
 
 // Collect genes and cell types selected in sge_selected_genes and sge_selected_celltypes divs respectively
 function getSelectedTokens(divClassList) {
+    const tokenClassToOverallSelectionMap = {'cci_search_selected_celltypes': 'searchcelltypefilter', 'cci_search_selected_microenvironments': 'searchmicroenvironmentfilter', 'cci_search_selected_classes': 'searchinteractionclassfilter', 'cci_search_selected_genes': 'searchgenefilter', 'cci_search_selected_interactions': 'searchgenepairfilter', 'cci_summary_selected_microenvironments': 'summarymicroenvironmentfilter', 'cci_summary_selected_classes': 'summaryinteractionclassfilter', 'sge_selected_celltypes': 'sgecelltypefilter', 'sge_selected_microenvironments': 'sgemicroenvironmentfilter', 'sge_selected_genes': 'sgegenefilter'};
     var selectedTokens = [];
     for (let i = 0; i < divClassList.length; i++) {
         divClass = divClassList[i];
-        var vals = $("."+divClass).map((_,el) => el.innerText.replace(/(\n)*close(\n)*/g,",").replace(/,$/,"")).get()[0];
-        if (vals) {
-            selectedTokens[i] = encodeURIComponent(vals).split(",");
+        var selectedTokensForClass = [];
+        if($('#' + tokenClassToOverallSelectionMap[divClass]).is(':checked')){
+          selectedTokensForClass = getSelectedTokensForClass(divClass)
+        }
+        if(selectedTokensForClass.length){
+          selectedTokens[i] = encodeURIComponent(selectedTokensForClass).split(",");
         }
     }
     return selectedTokens;
 }
 
+function getCellTypesForMicroenvironment(selected_microenvironments){
+  /*Given selected microenvironments, return all cell types residing within
+  Parameters:
+    -> selected_microenvironments (string): String of all microenvironments to extract cell types from
+  Returns
+    -> (array): All cell types within microenvironments
+  */
+  var sel_mes_set = new Set();
+  for (sel_me of selected_microenvironments.split(',')) {
+      cts = microenvironment2cell_types[sel_me];
+      sel_mes_set = new Set([ ...sel_mes_set, ...cts ]);
+  }
+  return Array.from(sel_mes_set).sort();
+}
+
 function refreshSGEPlot() {
     var projectId = getProjectId();
-    var ret = getSelectedTokens(["sge_selected_genes", "sge_selected_celltypes"]);
+    var ret = getSelectedTokens(["sge_selected_genes", "sge_selected_celltypes", "sge_selected_microenvironments"]);
     var selectedGenes = ret[0];
     var selectedCellTypes = ret[1];
+    var selectedMicroenvironments = ret[2];
+    generateErrorModalForFilters({"Cell Types": [selectedMicroenvironments, selectedCellTypes], "Interactions": [selectedGenes]}, "single-gene-expr-error")
+    if (selectedMicroenvironments && !selectedCellTypes){
+      selectedCellTypes = getCellTypesForMicroenvironment(decodeURIComponent(selectedMicroenvironments));
+    }
     var url = './api/data/'+projectId+'/single_gene_expression';
     if (selectedGenes || selectedCellTypes) {
         url += "?";
@@ -437,14 +526,14 @@ function refreshSGEPlot() {
 
 function storeToken(newVal, target_div_class, input_field_id) {
     let found = false;
-    $("."+target_div_class + " .chip").each(function(index, element) {
-        const chipVal = $(this).text().replace("close","");
-        if (newVal == chipVal) {
-            found = true;
-        }
+    $("."+target_div_class + " .filter-label").each(function(index, element) {
+      const chipVal = $(this).text();
+      if (newVal == chipVal) {
+        found = true;
+    }
     });
     if (!found) {
-        $("."+target_div_class).append($('<div class="chip">' + newVal + '<i class="tiny close material-icons">close</i></div>'));
+      $("."+target_div_class).append($('<label class="row filter-row"><input type="checkbox" class="filled-in filter-check" checked/><span class="filter-label">' + newVal + '</span></label>'));
     }
     $('#' + input_field_id).val("");
 }
@@ -459,6 +548,7 @@ function generateCellCompositionPlot(data) {
         $("#celltype_composition_help").hide();
         // Hide the corresponding option from ToC dropdown
         $("#toc_ctcomp").hide();
+        generateInformationModal('Missing data for Cell Composition plot.', 'ctcomp-missing')
         return;
      }
 
@@ -528,6 +618,7 @@ function generateMicroenvironmentsPlot(data) {
         $("#spme_help").hide();
         // Hide the corresponding option from ToC dropdown
         $("#toc_spme").hide();
+        generateInformationModal('Missing data for Spatial Microenvironments plot.', 'spme-missing');
         return;
     }
 
@@ -683,7 +774,7 @@ function spmeRenderXAxis(svg, xVals, xScale, left_xMargin, right_xMargin, height
     // Add the text label for the x axis
     svg
       .append("text")
-      .attr("transform", "translate(" + (left_xMargin + right_xMargin / 2) + "," + (height - bottom_yMargin + 90) + ")")
+      .attr("transform", "translate(" + (left_xMargin + right_xMargin / 2) + "," + (height - 10) + ")")
       .style("text-anchor", "middle")
       .text("Microenvironment");
   
@@ -798,7 +889,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     var width = 1100,
     bottom_yMargin = 450,
     top_yMargin = 60,
-    xMargin = 320,
+    xMargin = 200,
     yVals = data['cell_types'],
     yMin = -1,
     xMin = -1,
@@ -825,7 +916,7 @@ function generateSingleGeneExpressionPlot(data, storeTokens) {
     // The title in #sge_header div is used for naming of the PDF file when the plot is downloaded
     $("#sge_header").text(title);
     svg.append("text")
-        .attr("x", - xMargin + width * 3 / 4)
+        .attr("x", - xMargin + width/2)
         .attr("y", 20)
         .style("font-size", "16px")
         .attr("font-weight", 400)
@@ -1058,7 +1149,7 @@ function sgeRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLength, c
 
 function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale) {
     const tooltip_yPos = yScale(i) + 160;
-    const tooltip_xPos = xScale(j) + 300;
+    const tooltip_xPos = xScale(j) + 180;
     var innerRadius;
     // outerRadius is used for deg cell type-gene tuples only
     var outerRadius;
@@ -1165,8 +1256,8 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
       var me2Colour = {};
       var ct2Colour = {};
       var xMargin = 200;
-      var height = Math.max(600, 20 * numCellTypes / Math.log10(numCellTypes)) ;
-      var width = Math.max(1000, 200 + 25 * numCellTypes / Math.log10(numCellTypes));
+      var height = Math.max(700, 20 * numCellTypes / Math.log10(numCellTypes)) ;
+      var width = Math.max(1100, 200 + 25 * numCellTypes / Math.log10(numCellTypes));
       var bottom_yMargin = 160,
         top_yMargin = 50,
         xMargin = 200,
@@ -1179,7 +1270,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
         // min_ints, max_ints needed for color scale
         max_ints=parseInt(data['max_num_ints']),
         min_ints = title == "All cell types" ? 0 : parseInt(data['min_num_ints']),
-        boxWidth = Math.round(380/yVals.length),
+        boxWidth = Math.round(480/yVals.length),
         legend_width=50
         legend_height=150,
         legend_xPos= width-360*Math.max(1,numCellTypes/105),
@@ -1192,13 +1283,10 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
 
       $("#cci_summary_show_significant_interactions_only_div").show();
       if (plotCnt > 0) {
-        $("#cci_summary_show_all_celltypes_div").show();
-        enable_cci_summary_show_all_celltypes();
-
         // We're dealing with multiple plots - one per microenvironment
-        height = 300,
-        width = 400,
-        boxWidth = Math.round(95/yVals.length),
+        height = 500,
+        width = 600,
+        boxWidth = Math.round(295/yVals.length),
         legend_width=30,
         legend_height=100,
         legend_xPos=width-140,
@@ -1374,7 +1462,7 @@ function sgeRenderPoint(svg, j, i, zscore, percents, deg, xMargin, top_yMargin, 
           var meLegend_yPos = legend_yPos + legend_height - 30;
 
           const meLegenedWidth = 600;
-          const meLegendHeight = 500;
+          const meLegendHeight = 700;
           const meLegend = svg
                 .append("svg")
                 .attr("width", meLegenedWidth)
@@ -1516,7 +1604,7 @@ function getQuerySeparator(previous) {
     }
 }
 
-function refreshCCISummaryPlots() {
+function refreshCCISummaryPlots(storeTokens=false) {
     $("#cci_summary_error").hide();
     $("#cci_summary_spinner").show();
 
@@ -1528,6 +1616,8 @@ function refreshCCISummaryPlots() {
     var selectedModalities = ret[pos++];
     var selectedMinInteractionScore = $('#cci_summary_selected_min_score').text();
     var url = './api/data/'+projectId+'/cell_cell_interaction_summary';
+    var selectAllCellTypes = $("#cci_summary_show_all_celltypes").prop("checked") ? [true] : []
+    if (!storeTokens) { generateErrorModalForFilters({"Cell Types": [selectedMicroenvironments, selectAllCellTypes], "Interactions": [selectedClasses, selectedModalities, selectedMinInteractionScore]}, "cci_summary_error") }
     if (selectedClasses) {
         url += "?classes=" + selectedClasses;
     }
@@ -1546,14 +1636,12 @@ function refreshCCISummaryPlots() {
            if (res.hasOwnProperty('microenvironment2cell_types')) {
                 if (maxCellTypesExceeded(res['all_cell_types'])) {
                         if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 1) {
-                        $("#cci_summary_error").text("Due to a very large number of cell types in the analysis, the number of interactions can be plotted for one microenvironment only. Please restrict your microenvironments filter to just one and try again.")
-                        $("#cci_summary_error").show();
+                        generateErrorModalGivenMessage("Due to a very large number of cell types in the analysis, the number of interactions can be plotted for one microenvironment only. Please restrict your microenvironments filter to just one and try again.", "cci_summary_error");
                         $("#cci_summary_spinner").hide();
                         return;
                     }
                 } else if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 9) {
-                    $("#cci_summary_error").text("The number of interactions can be plotted for maximum of nine microenvironments. Please restrict your microenvironments filter to the maximum or less and try again.")
-                    $("#cci_summary_error").show();
+                    generateErrorModalGivenMessage("The number of interactions can be plotted for maximum of nine microenvironments. Please restrict your microenvironments filter to the maximum or less and try again.", "cci_summary_error");
                     $("#cci_summary_spinner").hide();
                     return;
                 }
@@ -1601,15 +1689,25 @@ function refreshCCISummaryPlots() {
                     res['max_num_ints'] = max_num_ints;
                     // Now generate the per-microenvironment plots
                     for (let [microenvironment, cellTypes] of map.entries()) {
-                        if (typeof selectedMicroenvironments == 'undefined' || decodeURI(selectedMicroenvironments).includes(microenvironment)) {
+                        if ((storeTokens && typeof selectedMicroenvironments == 'undefined') || decodeURI(selectedMicroenvironments).includes(microenvironment)) {
                             generateCellCellInteractionSummaryPlot(res, cellTypes.sort(), microenvironment, cnt);
                             storeToken(microenvironment, "cci_summary_selected_microenvironments", "cci_summary_microenvironment_input");
+                            $("#cci", cnt, "_div").show();
                             cnt++;
                             if (cnt > max) {
                                 // TODO: We currently only have up to nine slots for microenvironment-specific cci plots available if !maxCellTypesExceeded(res)
                                 break;
                             }
                         }
+                    }
+
+                    //Hide microenvironment slots currently not taken
+                    var selectedMicroenvironmentsList = decodeURIComponent(selectedMicroenvironments).split(",");
+                    const lengthOfMicroenvironments = typeof selectedMicroenvironments == 'undefined' ? 1 : selectedMicroenvironmentsList.length + 1;
+                    if (!storeTokens && lengthOfMicroenvironments < max){
+                      for (let microenv_count = lengthOfMicroenvironments; microenv_count <= max; microenv_count++) {
+                        $("#cci" + microenv_count + "_div").hide();
+                      }
                     }
                     // Generate plot across cell types also - in case the user wishes to see it
                     // Note: The plot is generated if the number of cell types has not exceeded the maximum
@@ -1643,6 +1741,10 @@ function refreshCCISummaryPlots() {
                     $("#cci_search_microenvironment_sel").hide();
                 } else {
                     disableCCISummarySwitches();
+                }
+                //If no microenvironments detected, display message in config pane
+                if (typeof selectedMicroenvironments == "undefined") {
+                  generateInformationModal("Microenvironments not provided.", "cci-summary-no-microenvs");
                 }
             }
            if (res.hasOwnProperty('all_classes')) {
@@ -1681,9 +1783,27 @@ function refreshCCISummaryPlots() {
      });
 }
 
+function clearAllGenericFilters(ids_to_clear){
+  /*Clear all subfilters within cell type or interactions
+  Parameters:
+    -> ids_to_clear (array): IDs of subsections we want cleared.*/
+  for(let id_to_clear of ids_to_clear){
+    $(id_to_clear + ' > label > input').each(function () {
+      if(!this.disabled){
+        this.checked = false;
+        $(id_to_clear + ' > .filter-layer-two').each(function () {
+          $('#' + this.id).hide();
+        });
+      }
+    });
+  };
+  
+}
+
 function clearSGEFilters() {
     $('.sge_selected_genes').empty();
     $('.sge_selected_celltypes').empty();
+    clearAllGenericFilters(["#sge-interaction-filters", "#sge-cell-type-filters"])
 }
 
 function clearCCISummaryFilters() {
@@ -1691,23 +1811,17 @@ function clearCCISummaryFilters() {
     $('.cci_summary_selected_microenvironments').empty();
     $('#cci_summary_selected_min_score').text("0");
     $('#cci_summary_score_input').val(0);
+    clearAllGenericFilters(["#cci-summary-interaction-filters", "#cci-summary-cell-type-filters"])
 }
 
 function clearCCISearchFilters() {
     $('.cci_search_selected_genes').empty();
     $('.cci_search_selected_celltypes').empty();
+    $('.cci_search_selected_microenvironments').empty();
     $('.cci_search_selected_interactions').empty();
     $('.cci_search_selected_celltype_pairs').empty();
     $('.cci_search_selected_classes').empty();
-}
-
-function clearCCISearchCellTypeFilters() {
-    $('.cci_search_selected_celltypes').empty();
-    $('.cci_search_selected_celltype_pairs').empty();
-}
-
-function clearCCISearchInteractionFilters() {
-    $('.cci_search_selected_interactions').empty();
+    clearAllGenericFilters(["#cci-search-interaction-filters", "#cci-search-cell-type-filters"])
 }
 
 function getPValBucket(pVal) {
@@ -1742,7 +1856,6 @@ function validateCCISearchInput(data) {
 }
 
 function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pairs_selection_logic) {
-
     const valuesToShow = $('input[name=cci_search_radio]:checked').val();
     // DEBUG console.log(data);
     const selectedGenes = data['selected_genes'];
@@ -1772,22 +1885,18 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
             $('#cci_search_sidenav_content').append(interacting_pair2properties_html[ip]);
         }
     }
-
-    // This section is done outside of storeTokens below as both microenvironments or cell type may have been removed by the user (and thus pre-selected automatically)
-    // before the plot is refreshed
-    if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 0 && $('.cci_search_selected_microenvironments').is(':empty')) {
-         // This is the case on first page load for v. large data sets
-         for (var i = 0; i < selectedMicroenvironments.length; i++) {
-             storeToken(selectedMicroenvironments[i], "cci_search_selected_microenvironments", "cci_search_microenvironment_input");
-        }
-    } else if ($('.cci_search_selected_celltypes').is(':empty')) {
-        for (var i = 0; i < selectedCellTypes.length; i++) {
-            storeToken(selectedCellTypes[i], "cci_search_selected_celltypes", "cci_search_celltype_input");
-        }
-    }
-
-
+    
     if (storeTokens) {
+        if (typeof selectedMicroenvironments != 'undefined' && selectedMicroenvironments.length > 0 && $('.cci_search_selected_microenvironments').is(':empty')) {
+          // This is the case on first page load for v. large data sets
+          for (var i = 0; i < selectedMicroenvironments.length; i++) {
+              storeToken(selectedMicroenvironments[i], "cci_search_selected_microenvironments", "cci_search_microenvironment_input");
+          }
+        } else if ($('.cci_search_selected_celltypes').is(':empty')) {
+            for (var i = 0; i < selectedCellTypes.length; i++) {
+                storeToken(selectedCellTypes[i], "cci_search_selected_celltypes", "cci_search_celltype_input");
+            }
+        }
         for (var i = 0; i < selectedGenes.length; i++) {
             storeToken(selectedGenes[i], "cci_search_selected_genes", "cci_search_gene_input");
         }
@@ -1796,7 +1905,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
         }
         if (typeof selectedMicroenvironments === 'undefined' || selectedMicroenvironments.length == 0) {
             for (var i = 0; i < selectedCellTypePairs.length; i++) {
-                storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
+                //TODO storeToken(selectedCellTypePairs[i], "cci_search_selected_celltype_pairs", "cci_search_celltype_pair_input");
             }
         }
     } else if (typeof interacting_pairs_selection_logic !== 'undefined') {
@@ -2217,7 +2326,7 @@ function generateCellCellInteractionSearchPlot(data, storeTokens, interacting_pa
       }
 
       const meLegenedWidth = 450;
-      const meLegendHeight = 300;
+      const meLegendHeight = 500;
       const meLegend = svg
             .append("svg")
             .attr("width", meLegenedWidth)
@@ -2529,8 +2638,6 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
 }
 
 function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, pvalues, valuesToShow, activeInteractionInfo) {
-    const tooltip_xPos = xScale(j) + 240;
-    const tooltip_yPos = yScale(i) + 240;
     var radius;
     var pvalBucket;
     if (pvalues) {
@@ -2615,95 +2722,381 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
         .attr("cy", yScale(i))
         .attr("fill", colorscale(value))
         .attr("r", radius)
-        .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-        .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
+        .on("mouseover", function(event){tooltip.text; console.log(event.pageX, event.pageY); return tooltip.style("visibility", "visible").style("left", (event.pageX - 150) + "px").style("top", (event.pageY - 180) + "px");})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
-function refreshCCISearchPlot(interacting_pairs_selection_logic) {
+function refreshCCISearchPlot(interacting_pairs_selection_logic, storeTokens=false) {
     var projectId = getProjectId();
 
     const sort_interacting_pairs_alphabetically = $('#cci_search_sort_ips_switch').is(':checked');
     const valuesToShow = $('input[name=cci_search_radio]:checked').val();
     var ret = getSelectedTokens([
         "cci_search_selected_genes", "cci_search_selected_celltypes",
-        "cci_search_selected_celltype_pairs", "cci_search_selected_interactions",
+        "cci_search_selected_interactions",
         "cci_search_selected_microenvironments", "cci_search_selected_classes"]);
     var pos=0;
     var selectedGenes = ret[pos++];
     var selectedCellTypes = ret[pos++];
-    var selectedCellTypePairs = ret[pos++];
+    populate_cci_cell_type_pair_search_grid(); //update cell type pair selection
+    var selectedCellTypePairs = selectedCellTypes ? [CCIGetSelectedCellTypePairs()] : [] ;
     var selectedInteractions = ret[pos++];
     var selectedMicroenvironments = ret[pos++];
+    if (selectedMicroenvironments) {
+      selectedCellTypes = getCellTypesForMicroenvironment(decodeURIComponent(selectedMicroenvironments));
+    }
     var selectedClasses = ret[pos++];
-    // DEBUG console.log(selectedGenes, selectedCellTypes, selectedCellTypePairs, selectedInteractions);
     var url = './api/data/'+projectId+'/cell_cell_interaction_search';
-    if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs || selectedClasses) {
-        url += "?";
-        if (selectedClasses) {
-            url += "classes=" + selectedClasses + "&";
-        }
-        if (selectedGenes) {
-            url += "genes=" + selectedGenes + "&";
-        }
-        if (selectedInteractions) {
-            if (typeof interacting_pairs_selection_logic !== 'undefined') {
-                // There's no point increasing the length of the GET request unnecessarily with the current selection
-                // of interacting pairs if all we need the API call to do is overwrite them with with interacting_pairs_selection_logic
-                // This is particularly important if selectedInteractions contain all interacting pairs - then the maximum length of GET request
-                // could be exceeded if we didn't do the below.
-                selectedInteractions=''
-            }
-            url += "interacting_pairs=" + selectedInteractions + "&";
-        }
-        if (selectedCellTypes) {
-            url += "cell_types=" + selectedCellTypes + "&";
-        }
-        if (selectedCellTypePairs) {
-            url += "cell_type_pairs=" + selectedCellTypePairs + "&";
-        }
-        if (selectedMicroenvironments) {
-            url += "microenvironments=" + selectedMicroenvironments + "&";
-        }
-    } else {
-        url += "?";
-    }
-    // In refresh mode, we don't pre-select cell type pairs - if the user did not enter any
-    url += "refresh_plot=True&values_to_show=" + valuesToShow;
-    if (typeof interacting_pairs_selection_logic !== 'undefined') {
-        url += "&interacting_pairs_selection_logic=" + interacting_pairs_selection_logic;
-    }
-    url += "&sort_interacting_pairs_alphabetically=" + sort_interacting_pairs_alphabetically;
+    var filterError = false;
+    var passToFilterError = {"Cell Types": [selectedCellTypePairs, selectedMicroenvironments, selectedCellTypes], "Interactions": [selectedGenes, selectedInteractions, selectedClasses]};
+    if (typeof interacting_pairs_selection_logic !== 'undefined') { passToFilterError["Interactions"][0] = ["auto select"]};
+    if (!storeTokens) { filterError = generateErrorModalForFilters(passToFilterError, "cci-search-error") };
+    if (!filterError) {
+      if (selectedGenes || selectedCellTypes || selectedInteractions || selectedCellTypePairs || selectedClasses) {
+          url += "?";
+          if (selectedClasses) {
+              url += "classes=" + selectedClasses + "&";
+          }
+          if (selectedGenes) {
+              url += "genes=" + selectedGenes + "&";
+          }
+          if (selectedInteractions) {
+              if (typeof interacting_pairs_selection_logic !== 'undefined') {
+                  // There's no point increasing the length of the GET request unnecessarily with the current selection
+                  // of interacting pairs if all we need the API call to do is overwrite them with with interacting_pairs_selection_logic
+                  // This is particularly important if selectedInteractions contain all interacting pairs - then the maximum length of GET request
+                  // could be exceeded if we didn't do the below.
+                  selectedInteractions=''
+              }
+              url += "interacting_pairs=" + selectedInteractions + "&";
+          }
+          if (selectedCellTypes && selectedMicroenvironments) {
+              url += "cell_types=" + selectedCellTypes + "&";
+          }
+          if (selectedCellTypePairs) {
+              url += "cell_type_pairs=" + selectedCellTypePairs + "&";
+          }
+          if (selectedMicroenvironments) {
+              url += "microenvironments=" + selectedMicroenvironments + "&";
+          }
+      } else {
+          url += "?";
+      }
+      // In refresh mode, we don't pre-select cell type pairs - if the user did not enter any
+      url += "refresh_plot=True&values_to_show=" + valuesToShow;
+      if (typeof interacting_pairs_selection_logic !== 'undefined') {
+          url += "&interacting_pairs_selection_logic=" + interacting_pairs_selection_logic;
+      }
+      url += "&sort_interacting_pairs_alphabetically=" + sort_interacting_pairs_alphabetically;
 
-    // The retrieval may take a few seconds - show spinner to indicate to the user that an operation is in progress so that the don't try refreshing
-    // the page and starting again..
-    $("#cci_search_sel_ips_logic_spinner").show();
-    // Hide any error message from the previous search
-    $("#cci_search_sel_ips_request_error").hide();
-    $.ajax({
-            url: url,
-            contentType: "application/json",
-            dataType: 'json',
-            success: function(res) {
-                generateCellCellInteractionSearchPlot(res, storeTokens=false, interacting_pairs_selection_logic);
-                // Enable side navs - used for displaying interacting pair participant information
-                enable_side_navs();
-            },
-            complete: function(jqXHR, textStatus) {
-                var errMsg;
-                if (jqXHR.status == 400) {
-                    $("#cci_search_sel_ips_request_error").text("ERROR: Your search criteria are too large for this service to handle. Please restrict your search and try again.")
-                    $("#cci_search_sel_ips_request_error").show();
-                } else if (jqXHR.status != 200) {
-                    $("#cci_search_sel_ips_request_error").text("An unexpected error occurred. Your search criteria may be too large for this service to handle. Please restrict your search and try again. If that doesn't work, please try again later.")
-                    $("#cci_search_sel_ips_request_error").show();
-                    // console.log(jqXHR, jqXHR.status, textStatus);
-                }
-                $("#cci_search_sel_ips_logic_spinner").hide();
-                $("#cci_search_spinner").hide();
-            }
-     });
+      // The retrieval may take a few seconds - show spinner to indicate to the user that an operation is in progress so that the don't try refreshing
+      // the page and starting again..
+      $("#cci_search_sel_ips_logic_spinner").show();
+      // Hide any error message from the previous search
+      $("#cci_search_sel_ips_request_error").hide();
+      $.ajax({
+              url: url,
+              contentType: "application/json",
+              dataType: 'json',
+              success: function(res) {
+                  generateCellCellInteractionSearchPlot(res, storeTokens=false, interacting_pairs_selection_logic);
+                  // Enable side navs - used for displaying interacting pair participant information
+                  enable_side_navs();
+              },
+              complete: function(jqXHR, textStatus) {
+                  var errMsg;
+                  if (jqXHR.status == 400) {
+                      $("#cci_search_sel_ips_request_error").text("ERROR: Your search criteria are too large for this service to handle. Please restrict your search and try again.")
+                      $("#cci_search_sel_ips_request_error").show();
+                  } else if (jqXHR.status != 200) {
+                      $("#cci_search_sel_ips_request_error").text("An unexpected error occurred. Your search criteria may be too large for this service to handle. Please restrict your search and try again. If that doesn't work, please try again later.")
+                      $("#cci_search_sel_ips_request_error").show();
+                      // console.log(jqXHR, jqXHR.status, textStatus);
+                  }
+                  $("#cci_search_sel_ips_logic_spinner").hide();
+                  $("#cci_search_spinner").hide();
+              }
+      });
+    }
+    else {
+      d3.select("#cci_search")
+        .style("color", "purple")
+        .text("Make the correct filter selections to view search plot.");
+    }
 }
+
+
+
+
+/*Global constants associated with the cell type pair selection grid*/
+const CELL_SIZE = 30;
+const MARGIN_LEFT = 200;
+const MARGIN_BOTTOM = -200;
+var selection_grid_obj = null;
+var pairs_map = {};
+var grid_cell_type_data = [];
+
+function render_x_axis_cci_cell_type_pair_search(svg, xVals, xScale) {
+  /*
+  Renders x axis on cell type pair selection grid. Adds label for each cell type 'column' for identification
+  Parameters:
+    -> svg: d3 (scalable vector graphics) object
+    -> xVals: array of tick labels
+    -> xScale: transformation function containing range (width) and domain for axis
+  */
+  
+  var xAxis = d3
+    .axisBottom()
+    .ticks(xVals.length)
+    .tickFormat(t => {
+      return xVals[t];
+    })
+    .scale(xScale);
+  svg
+    .append("g")
+    .attr("class", "x-axis")
+    .attr("id", "spme_x-axis")
+    .attr("transform", function() {
+      return "translate(" + 0 + "," + (xVals.length * CELL_SIZE) + ")";
+    })
+    .attr("opacity", 1)
+    .call(xAxis)
+    .selectAll("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".15em")
+    .attr("transform", "rotate(-45)")
+
+  // Add the text label for the x axis
+  svg
+    .append("text")
+    .attr("transform", "translate(" + (MARGIN_LEFT + (xVals.length * CELL_SIZE) / 2) + "," + ((xVals.length * CELL_SIZE) - MARGIN_BOTTOM) + ")")
+    .style("text-anchor", "middle")
+    .text("Outgoing interaction");
+}
+
+
+function render_y_axis_cci_cell_type_pair_search(svg, yVals, yScale){
+    /*
+  Renders y axis on cell type pair selection grid. Adds label for each cell type 'row' for identification
+  Parameters:
+    -> svg: d3 (scalable vector graphics) object
+    -> yVals: array of tick labels
+    -> yScale: transformation function containing range (height) and domain for axis
+  */
+
+  var yAxis = d3
+      .axisLeft()
+      .ticks(yVals.length)
+      .tickFormat(t => {
+        return yVals[t];
+      })
+      .scale(yScale);
+  svg
+    .append("g")
+    .attr("class", "y-axis")
+    .attr("id", "spme_y-axis")
+    .attr("transform", function() {
+      return "translate(" + MARGIN_LEFT + "," + -MARGIN_BOTTOM + ")";
+    })
+    .call(yAxis);
+
+  //Add label for y axis
+  svg
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 20)
+    .attr("x", -(yVals.length * CELL_SIZE) / 2)
+    .style("text-anchor", "middle")
+    .text("Incoming interaction");
+}
+
+
+function cci_toggle_select_cells_by_type(cell_type){
+  /*
+  Given string of class name to search d3 rectangle 'grid cells' for, if these are all selected, deselect them all.
+  Else, select them all. Please note this works per axis (incoming/outgoing) for the type, not just for the overall cell type.
+  Parameters:
+    -> cell_type: string, class name to search for
+  */
+  const matches = d3.selectAll(cell_type)._groups[0];
+  var all_selected = true
+  //1. check the state of all matches (if any is deselected, all_selected is false and break the loop)
+  for (let match = 0; match < matches.length; match++) {
+    if (!matches[match].__data__.clicked && matches[match].__data__.interacts){
+      all_selected = false;
+      break;
+    }
+  }
+  //2. if all selected true, deselect everything. Otherwise select everything.
+  for (let match = 0; match < matches.length; match++) {
+    if (matches[match].__data__.interacts) {
+      matches[match].__data__.clicked = all_selected ? false : true;
+      all_selected ? d3.select(matches[match]).style("fill","#fff") : d3.select(matches[match]).style("fill","#2C93E8");
+    }
+  }
+}
+
+
+function generate_cci_cell_type_pair_search_grid(ticks_arr){
+  /*
+  Create cell type pair search grid using d3
+  Parameters:
+    -> ticks_arr: array of tick label strings.
+  */
+    d3.selectAll("#select_cell_type_pairs_grid > *").remove();
+
+  const dimensions = (50 + MARGIN_LEFT + grid_cell_type_data.length * CELL_SIZE).toString() + "px"
+  selection_grid_obj = d3.select("#select_cell_type_pairs_grid")
+    .append("svg")
+    .attr("width",dimensions)
+    .attr("height",dimensions);
+
+  var yMin = MARGIN_BOTTOM,
+    xMin = MARGIN_LEFT,
+    yMax = MARGIN_BOTTOM + (grid_cell_type_data.length * CELL_SIZE),
+    xMax = MARGIN_LEFT + (grid_cell_type_data.length * CELL_SIZE)
+  var xScale = d3
+    .scaleLinear()
+    .domain([0, grid_cell_type_data.length -1 ])
+    .range([xMin + (CELL_SIZE/2), xMax - (CELL_SIZE/2)]),
+    yScale = d3
+    .scaleLinear()
+    .domain([0, grid_cell_type_data.length -1 ])
+    .range([yMin + (CELL_SIZE/2), yMax - (CELL_SIZE/2)]);
+
+  render_x_axis_cci_cell_type_pair_search(selection_grid_obj, ticks_arr, xScale)
+  render_y_axis_cci_cell_type_pair_search(selection_grid_obj, ticks_arr, yScale)
+
+  var row = selection_grid_obj.selectAll(".row")
+	.data(grid_cell_type_data.map(row => row.cells))
+	.enter().append("g")
+	.attr("class", "row");
+
+  var column = row.selectAll(".square")
+	.data(function(d) { return d; })
+	.enter().append("rect")
+	.attr("class","square")
+	.attr("x", function(d) { return d.x; })
+	.attr("y", function(d) { return d.y; })
+	.attr("width", function(d) { return d.width; })
+	.attr("height", function(d) { return d.height; })
+  .attr("class", function (d) { return "col_" + d.xLabel.replace(/[. ]/g, "_") + " " + "row_" + d.yLabel.replace(/[. ]/g, "_"); })
+  .style("fill", function(d) {
+    return d.interacts ? d.clicked ? "#2C93E8" : "#ffff" : "#c5c5c5";
+  })
+	.style("stroke", "#222")
+  .on('click', function(d) { //when cell is clicked, if it interacts toggle clicked/not clicked in UI
+    if (d.srcElement.__data__.interacts) {
+      d.srcElement.__data__.clicked = !d.srcElement.__data__.clicked;
+      if (d.srcElement.__data__.clicked) { d3.select(this).style("fill","#2C93E8"); }
+      else { d3.select(this).style("fill","#fff"); }
+    }
+  });
+
+  selection_grid_obj.selectAll(".x-axis .tick")
+  .on("click", function(d) {
+    cci_toggle_select_cells_by_type(".col_" + d.srcElement.innerHTML.replace(/[. ]/g, "_"));
+  });
+  selection_grid_obj.selectAll(".y-axis .tick")
+  .on("click", function(d) {
+    cci_toggle_select_cells_by_type(".row_" + d.srcElement.innerHTML.replace(/[. ]/g, "_"));
+  });
+}
+
+function initialise_cell_type_pairs(all_cell_type_pairs){
+  //Populate pair mapping with incoming/outgoing interactions
+  //key is outgoing interaction, values are incoming interactions
+  for(pair=0; pair < all_cell_type_pairs.length; pair++){
+    const cell_type_pair = all_cell_type_pairs[pair];
+    const individual_types = cell_type_pair.split("|");
+    if (pairs_map.hasOwnProperty(individual_types[0])) {
+        pairs_map[individual_types[0]].push(individual_types[1])
+    } else {
+        pairs_map[individual_types[0]] = [individual_types[1]];
+    }
+  }
+}
+
+
+function populate_cci_cell_type_pair_search_grid() {
+  /*
+  Using all cell types, generate a grid format so that each cell type has a row and column
+  (for incoming/outgoing interactions)
+  Parameters:
+    -> all_cell_type_pairs: array of strings containing all cell type pairs that interact. Used to filter interacting/
+    non-interacting pairs.
+    -> all_cell_types: all available cell types for this visualization.
+  */
+
+  const chips_received = getSelectedTokens(["cci_search_selected_celltypes"])
+  if (chips_received.length){
+    const selected_cell_types = decodeURIComponent(chips_received[0][0]).split(",");
+    tmp_grid = []
+    
+    var xpos = MARGIN_LEFT, //starting xpos and ypos at 1 so the stroke will show when we make the grid below
+        ypos = 0,
+        ticks_arr = [];
+    
+    // iterate for rows	
+    for (var row = 0; row < selected_cell_types.length; row++) {
+      tmp_row = {"row": selected_cell_types[row], "cells":[]}
+      ticks_arr.push(selected_cell_types[row]);
+        
+      // iterate for cells/columns inside rows
+      for (var column = 0; column < selected_cell_types.length; column++) {
+        var clicked = true;
+        if (grid_cell_type_data.find(rows => rows.row === selected_cell_types[row])){ //If row already exists in grid data
+          if (cell_elem = grid_cell_type_data.find(rows => rows.row === selected_cell_types[row]).cells.find(cells => cells.xLabel === selected_cell_types[column])){
+            clicked = cell_elem.clicked
+          }
+        }
+        tmp_row.cells.push({
+          x: xpos,
+          y: ypos,
+          width: CELL_SIZE,
+          height: CELL_SIZE,
+          xLabel: selected_cell_types[column],
+          yLabel: selected_cell_types[row],
+          interacts: selected_cell_types[row] in pairs_map && pairs_map[selected_cell_types[row]].includes(selected_cell_types[column]) ? true : false,
+          clicked: clicked
+        })
+        // increment the x position. I.e. move it over by width
+        xpos += CELL_SIZE;
+      }
+      // reset the x position after a row is complete
+      xpos = MARGIN_LEFT;
+      // increment the y position for the next row. Move it down by height
+      ypos += CELL_SIZE;
+      tmp_grid.push(tmp_row);
+    }
+    grid_cell_type_data = tmp_grid;
+    
+    generate_cci_cell_type_pair_search_grid(ticks_arr);
+  }
+  else {
+    grid_cell_type_data = []
+    $("#select_cell_type_pairs_grid").html("<h6>No cell types selected </h6>")
+  }
+}
+
+function CCIGetSelectedCellTypePairs(){
+  /*Returns all selected cell type pairs using cell type pair interaction search plot */
+  
+  var selected_pairs = [];
+  for (var row = 0; row < grid_cell_type_data.length; row++) {
+    // iterate for cells/columns inside rows
+    for (var cell = 0; cell < grid_cell_type_data[row].cells.length; cell++) {
+      if (grid_cell_type_data[row].cells[cell].clicked && grid_cell_type_data[row].cells[cell].interacts){
+        selected_pairs.push(grid_cell_type_data[row].cells[cell].xLabel + "|" + grid_cell_type_data[row].cells[cell].yLabel);
+      }
+    }
+  }
+  return encodeURIComponent(selected_pairs);
+}
+
+
+
 
 // This is used to check if the page viewer is authorized to view the page
 function getHash() {

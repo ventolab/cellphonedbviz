@@ -75,3 +75,189 @@ nav ul li a, h5 {
  .switch label .lever:after {
     background-color: #F1F1F1 !important;
  }
+
+ /*==================================================
+    CELLPHONEDB INPUT AND PREDICTIONS PANES
+ ==================================================*/
+
+ .pane-title {
+  width: 95%;
+  margin: auto;
+  margin-bottom: 20px;
+  margin-top: 40px;
+ }
+ /* Overall display for CellphoneDB panes */
+
+ #cci-display-box, #input-display-box {
+  padding-top: 5px;
+  height: 90vh;
+  width: 95%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#cci-display-panel, #input-display-panel {
+  margin-left: 0;
+  margin-right: 0;
+  align-self: stretch;
+  flex: 1;
+  display: flex;
+  overflow-y: scroll;
+}
+
+.cci-display {
+  overflow-x: scroll;
+}
+
+#input-display-panel {
+  overflow-x: scroll;
+}
+
+#cci-summary, #cci-search, #single-gene-expr, .input-display {
+  padding-top: 20px !important;
+}
+
+.input-conf-btn {
+  float: left !important;
+}
+
+.border-card {
+  border-style: solid;
+  border-radius: 5px;
+  border-color: hsl(0, 0%, 71%);
+  border-width: thin;
+  box-shadow: none;
+}
+
+/* Tabs for CellphoneDB predictions pane */
+
+#cci-tabs-row, #cci-display-panel, #input-tabs-row, #input-display-panel {
+  margin-bottom: 0%;
+}
+
+#cci-tabs, #input-tabs {
+  padding-inline-start: 0px;
+  border-bottom: solid;
+  border-color: hsl(0, 0%, 71%);
+  border-width: thin;
+}
+
+#cci-tabs .tab a, #input-tabs .tab a{
+  color:#1565c0;
+}
+
+#cci-tabs .tab a:hover, #input-tabs .tab a:hover {
+  background-color:#eee;
+  color:#0d47a1;
+}
+
+#cci-tabs .tab a.active, #input-tabs .tab a.active {
+  background-color:#bbdefb;
+  color:#0d47a1;
+}
+
+#cci-tabs .indicator, #input-tabs .indicator {
+  background-color:#1565c0;
+}
+
+/* Config panel for CellphoneDB predictions pane */
+
+#cci-config {
+  border-right: solid;
+  border-color: hsl(0, 0%, 71%);
+  border-width: thin;
+  overflow-y: scroll;
+  position: relative;
+}
+
+.filter-menu-padding {
+  padding-right: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.filter-layer-one {
+  padding-left: 10px;
+}
+
+.filter-layer-two {
+  padding-left: 20px;
+}
+
+.outer-filter-nest {
+  color: black;
+  font-size: .83em;
+  font-weight: bold;
+}
+
+.filter-divider {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.filter-search-and-buttons {
+  padding-bottom: 10px;
+  margin-right: 20px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  width: 100%;
+}
+
+.filter-row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  display: table;
+  padding-bottom: 0;
+  margin-bottom: 5px;
+}
+
+.filter-label {
+  display: table-row;
+}
+
+#apply-reset-filters, .no-margin-bottom {
+  margin-bottom: 0;
+}
+
+.margin-top {
+  margin-top: 0.75rem !important;
+}
+.modal {
+  max-height: 100%;
+  bottom: 10% !important;
+}
+
+.cci-summary-plot-row {
+  width: 2100px;
+}
+
+/*Force scrollbar to always show on any browser*/
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
+.alert {
+	.card-content {
+		span {
+			font-weight: bold;
+			font-size: 1.1em;
+			margin-right:4px;
+		}
+		.material-icons {
+			font-size: 1.5em;
+			position: relative;
+			top: 5px;
+			margin-right: 0.5em;
+		}	
+	}
+}	
