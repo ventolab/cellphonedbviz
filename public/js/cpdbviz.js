@@ -1,4 +1,16 @@
+function browserIsChrome(){
+  /*Returns true if the browser is chrome, else false*/
+  let userAgentString = navigator.userAgent; 
+  return userAgentString.indexOf("Chrome") > -1;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+
+  //There is a bug that glitches the page when scrolling chord plots on chrome:
+  //To bypass this, hide this option when using chrome
+  if (browserIsChrome()) {
+    $("#chord-switch-row").html("<p>Please note that when using Chrome, the option to view summary chord plots is currently unavailable. To view chord plots, please use another browser.</p>");
+  }
 
   // Show progress spinners
   $("#sge_spinner").show();

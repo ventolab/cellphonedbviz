@@ -47,7 +47,7 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,ribbonColor,
     // Insert title
     svg.append("text")
         .attr("x", -width / 2 + (width + 50)/2 - title.length*4)
-        .attr("y", -height * 0.45)
+        .attr("y", -height * 0.44)
         .style("font-size", "12px")
         .attr("font-weight", 400)
         .text(title)
