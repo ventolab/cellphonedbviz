@@ -1,4 +1,4 @@
-![CellphoneDB Viz logo](public/img/cellphonedbviz_logo.png?raw=true)
+![CellphoneDB Viz logo](public/img/CellPhoneDBViz-logo-new.png?raw=true)
 
 ## What is CellphoneDB Viz?
 

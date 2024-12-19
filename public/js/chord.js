@@ -42,12 +42,12 @@ function _chart(d3,width,height,chord,matrix,DOM,outerRadius,ribbon,ribbonColor,
     const svg = d3.create("svg")
         .attr("width", width*1.6)
         .attr("height", height*1.6)
-        .attr("viewBox", [-width / 1.6, -height / 1.6, width + 50, height + 50]);
+        .attr("viewBox", [-width / 1.6, -height / 2.1, width + 50, height + 50]);
 
     // Insert title
     svg.append("text")
         .attr("x", -width / 2 + (width + 50)/2 - title.length*4)
-        .attr("y", -height * 0.45)
+        .attr("y", -height * 0.44)
         .style("font-size", "12px")
         .attr("font-weight", 400)
         .text(title)

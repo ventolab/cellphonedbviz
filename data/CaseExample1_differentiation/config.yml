@@ -1,6 +1,6 @@
 # CellphoneDB results visualisation config
 separator:                  '|'
-title:                      Germ-somatic communication during ovarian development (with CellSign) - CellphoneDB DEG analysis results
+title:                      Case Example 1 - Germ-somatic communication during ovarian development (with CellSign) - CellphoneDB DEG analysis results
 microenvironments:          microenvironments.tsv
 deconvoluted_percents:      degs_analysis_deconvoluted_percents_06_25_2024_103453.txt
 deconvoluted_result:        degs_analysis_deconvoluted_06_25_2024_103453.txt
@@ -9,5 +9,5 @@ analysis_means:             degs_analysis_means_06_25_2024_103453.txt
 relevant_interactions:      degs_analysis_relevant_interactions_06_25_2024_103453.txt
 degs:                       DEGs.tsv
 deconvoluted_percents:      degs_analysis_deconvoluted_percents_06_25_2024_103453.txt
-hash:                       p1bf04E3d2YWMqCjJaCpjg
 cellphonedb:                cellphonedb.zip
+celltype_composition:       celltype_composition.tsv

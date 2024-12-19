@@ -1,4 +1,4 @@
-celltype	microenvironment
+cell_type	microenvironment
 Germ.PGC	Cortex_outer
 Somatic.OSE	Cortex_outer
 Somatic.preGC_IIa	Cortex_outer
