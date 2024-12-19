@@ -2638,8 +2638,6 @@ function cciSearchRenderYAxis(svg, yVals, yScale, xMargin, top_yMargin, xAxisLen
 }
 
 function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair, interaction, xMargin, top_yMargin, xScale, yScale, xVals, yVals, colorscale, pvalues, valuesToShow, activeInteractionInfo) {
-    const tooltip_xPos = xScale(j) + 240;
-    const tooltip_yPos = yScale(i) + 240;
     var radius;
     var pvalBucket;
     if (pvalues) {
@@ -2724,8 +2722,7 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
         .attr("cy", yScale(i))
         .attr("fill", colorscale(value))
         .attr("r", radius)
-        .on("mouseover", function(){tooltip.text; return tooltip.style("visibility", "visible");})
-        .on("mousemove", function(event){return tooltip.style("top", tooltip_yPos+'px').style("left",tooltip_xPos +'px')})
+        .on("mouseover", function(event){tooltip.text; console.log(event.pageX, event.pageY); return tooltip.style("visibility", "visible").style("left", (event.pageX - 150) + "px").style("top", (event.pageY - 180) + "px");})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
