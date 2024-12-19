@@ -208,6 +208,13 @@ nav ul li a, h5 {
 .filter-row {
   margin-left: 0 !important;
   margin-right: 0 !important;
+  display: table;
+  padding-bottom: 0;
+  margin-bottom: 5px;
+}
+
+.filter-label {
+  display: table-row;
 }
 
 #apply-reset-filters, .no-margin-bottom {
