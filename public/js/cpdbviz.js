@@ -2722,7 +2722,7 @@ function cciSearchRenderPoint(svg, j, i, value, pValue, relIntFlag, cellTypePair
         .attr("cy", yScale(i))
         .attr("fill", colorscale(value))
         .attr("r", radius)
-        .on("mouseover", function(event){tooltip.text; console.log(event.pageX, event.pageY); return tooltip.style("visibility", "visible").style("left", (event.pageX - 150) + "px").style("top", (event.pageY - 180) + "px");})
+        .on("mouseover", function(event){tooltip.text; return tooltip.style("visibility", "visible").style("left", (event.pageX - 150) + "px").style("top", (event.pageY - 180) + "px");})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden")});
 }
 
