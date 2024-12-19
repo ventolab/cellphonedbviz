@@ -1,6 +1,6 @@
 # CellphoneDB results visualisation config
 separator:                  '|'
-title:                      Over-expressed interactions between trophoblasts and maternal vessels
+title:                      Case Example 3 - Over-expressed interactions between trophoblasts and maternal vessels
 microenvironments:          microenvironment.tsv
 deconvoluted_result:        statistical_analysis_deconvoluted_06_25_2024_100846.txt
 analysis_means:             statistical_analysis_means_06_25_2024_100846.txt
@@ -8,5 +8,5 @@ relevant_interactions:      statistical_analysis_significant_means_06_25_2024_10
 deconvoluted_percents:      statistical_analysis_deconvoluted_percents_06_25_2024_100846.txt
 interaction_scores:         statistical_analysis_interaction_scores_06_25_2024_100846.txt
 pvalues:                    statistical_analysis_pvalues_06_25_2024_100846.txt
-hash:                       8Z7bGG22b83etIBNxglSCg
 cellphonedb:                cellphonedb.zip
+celltype_composition:       celltype_composition.tsv
