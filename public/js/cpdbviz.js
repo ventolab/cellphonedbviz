@@ -553,6 +553,7 @@ function generateCellCompositionPlot(data) {
      }
 
      var edges = data['edges'];
+     console.log("****", data)
      var numStacks = data['num_stacks'];
       $("#ctcomp_header").text(data['title']);
       var sankey = new Sankey('ctcomp');
@@ -582,8 +583,8 @@ function generateCellCompositionPlot(data) {
       }
       // Colours
       sankey.setColors(elem2colour);
-      sankey.right_margin = 100;
-      sankey.left_margin = -100 * numStacks + 400;
+      sankey.right_margin = -100;
+      sankey.left_margin = -100 * numStacks + 500;
       sankey.box_width = 60;
       // Box height
       sankey.convert_flow_values_callback = function(flow) {
