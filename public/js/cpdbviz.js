@@ -553,7 +553,6 @@ function generateCellCompositionPlot(data) {
      }
 
      var edges = data['edges'];
-     console.log("****", data)
      var numStacks = data['num_stacks'];
       $("#ctcomp_header").text(data['title']);
       var sankey = new Sankey('ctcomp');
