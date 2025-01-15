@@ -77,16 +77,14 @@ document.addEventListener('DOMContentLoaded', function() {
   options = {};
   instances = M.Collapsible.init(elems, options);
 
-
-
    // Populate page title
    $.ajax({
-            url: './api/list',
+            url: './api/title/'+projectId,
             contentType: "application/json",
             dataType: 'json',
             success: function(res) {
-                $("#page_header").text(res[projectId]);
-                $("#page_title").text(res[projectId]);
+                $("#page_header").text(res);
+                $("#page_title").text(res);
             }
     });
 

@@ -21,6 +21,11 @@ def list_projects(request: Request):
         projectName2Title = {case_example: projectName2Title[case_example] for case_example in case_examples if case_example in projectName2Title}
     return dict(sorted(projectName2Title.items(), key=lambda item: item[1]))
 
+#Get title for project
+@api.get("/title/{project}")
+def get_title(project: str):
+    return dir_name2project_data[project]['title']
+
 @api.get("/data/{project}/{viz}")
 def get_viz_data(project: str,
                  viz: str,
